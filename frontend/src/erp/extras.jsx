@@ -78,7 +78,7 @@ function LeadExtra({ doc, refresh }) {
         </Panel>
         {doc.score != null && (
           <Panel title="Lead score">
-            <div className="flex items-center gap-3"><span className="font-display text-[28px] font-extrabold tabular">{doc.score}</span><Bar value={doc.score} max={100} tone={doc.score >= 70 ? "good" : doc.score >= 40 ? "amber" : "bad"} /></div>
+            <div className="flex items-center gap-3"><span className="font-display text-[28px] font-semibold tabular">{doc.score}</span><Bar value={doc.score} max={100} tone={doc.score >= 70 ? "good" : doc.score >= 40 ? "amber" : "bad"} /></div>
             <p className="mt-1 text-xs text-muted">From load, LT/HT, timeline, source and engagement.</p>
           </Panel>
         )}
@@ -161,8 +161,8 @@ function ProjectExtra({ doc, refresh }) {
                   <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: "rgb(var(--muted))" }} tickLine={false} axisLine={false} />
                   <Tooltip formatter={(v) => `${v}%`} contentStyle={{ fontSize: 12, borderRadius: 8 }} />
                   <Legend wrapperStyle={{ fontSize: 12 }} />
-                  <Line type="monotone" dataKey="planned" name="Planned" stroke="#A3A8AF" strokeWidth={2} dot={false} strokeDasharray="4 3" isAnimationActive={false} />
-                  <Line type="monotone" dataKey="actual" name="Actual" stroke="#0B5CFF" strokeWidth={2.5} dot={{ r: 2.5 }} connectNulls />
+                  <Line type="monotone" dataKey="planned" name="Planned" stroke="#94A3B8" strokeWidth={2} dot={false} strokeDasharray="4 3" isAnimationActive={false} />
+                  <Line type="monotone" dataKey="actual" name="Actual" stroke="#0F172A" strokeWidth={2.5} dot={{ r: 2.5 }} connectNulls />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -292,7 +292,7 @@ function InvoiceExtra({ doc }) {
   if (!["issued", "part_paid"].includes(doc.status)) return null;
   return (
     <div className="flex flex-wrap items-center gap-3 rounded-xl border border-edge bg-surface p-4">
-      <div className="min-w-0 flex-1"><p className="text-sm text-muted">Balance due</p><p className="font-display text-[24px] font-extrabold tabular">{inr(doc.balance)}</p>{doc.due_date && <p className={cn("text-xs", doc.due_date < todayIST() ? "font-semibold text-bad" : "text-muted")}>Due {fmtDate(doc.due_date)}</p>}</div>
+      <div className="min-w-0 flex-1"><p className="text-sm text-muted">Balance due</p><p className="font-display text-[24px] font-semibold tabular">{inr(doc.balance)}</p>{doc.due_date && <p className={cn("text-xs", doc.due_date < todayIST() ? "font-semibold text-bad" : "text-muted")}>Due {fmtDate(doc.due_date)}</p>}</div>
       <Button size="sm" variant="outline" onClick={async () => { try { setQr((await api.get(`/finance/upi/${doc.id}`)).data); } catch (ex) { toast.error(errMsg(ex)); } }}>Show UPI QR</Button>
       <Button size="sm" as={Link} to={`/erp/e/receipts?new=1&account_id=${doc.account_id}`} variant="dark">Record a receipt</Button>
       <Dialog open={!!qr} onOpenChange={(x) => !x && setQr(null)} title={`Pay ${inr(qr?.amount)}`} description="Scan with any UPI app">

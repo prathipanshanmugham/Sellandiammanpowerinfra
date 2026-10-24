@@ -56,7 +56,7 @@ function EnquiryAside({ title = "Talk to an engineer", text, form, extra, files 
   const site = useSite();
   return (
     <aside className="rounded-xl border border-line bg-paper p-5 lg:sticky lg:top-24">
-      <h2 className="text-[19px] font-extrabold">{title}</h2>
+      <h2 className="text-[19px] font-semibold">{title}</h2>
       <p className="mb-4 mt-1 text-sm text-muted">{text || "Tell us about your site. We reply within working hours, usually the same day."}</p>
       <LeadForm form={form} extra={extra} compact files={files} fields={["company", "town", "message"]} />
       {site.settings?.phone && <p className="mt-4 border-t border-line pt-3 text-sm text-muted">Or call <a className="font-semibold text-fg" href={telLink(site.settings.phone)} dir="ltr">{site.settings.phone}</a></p>}
@@ -82,7 +82,7 @@ export function ServicesPage() {
               <Cover service={s.service_key} className="aspect-[4/3] rounded-md" label={false} />
               <div>
                 <h2 className="flex items-center gap-2 font-display text-[17px] font-bold leading-snug group-hover:underline group-hover:decoration-signal group-hover:decoration-2 group-hover:underline-offset-4">
-                  <Icon name={s.icon} className="h-4 w-4 shrink-0 text-signal-deep" />{s.title}
+                  <Icon name={s.icon} className="h-4 w-4 shrink-0 text-signal-ink" />{s.title}
                 </h2>
                 <p className="mt-1.5 text-sm leading-relaxed text-muted">{s.summary}</p>
               </div>
@@ -116,7 +116,7 @@ export function ServiceDetail() {
           <Markdown text={s.body} className="prose-site" />
           {s.scope?.length > 0 && (
             <div className="mt-10">
-              <h2 className="text-[22px] font-extrabold">What's included</h2>
+              <h2 className="text-[22px] font-semibold">What's included</h2>
               <ul className="mt-4 grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
                 {s.scope.map((x, n) => <li key={n} className="flex gap-2.5 text-[16px]"><Check className="mt-0.5 h-4 w-4 shrink-0 text-good" />{x.item || x}</li>)}
               </ul>
@@ -124,7 +124,7 @@ export function ServiceDetail() {
           )}
           {s.standards?.length > 0 && (
             <div className="mt-10">
-              <h2 className="text-[22px] font-extrabold">Standards we work to</h2>
+              <h2 className="text-[22px] font-semibold">Standards we work to</h2>
               <dl className="mt-4 divide-y divide-line border-y border-line">
                 {s.standards.map((x, n) => (
                   <div key={n} className="grid grid-cols-[140px_1fr] gap-4 py-2.5 text-[16px]"><dt className="font-semibold tabular">{x.code}</dt><dd className="text-muted">{x.title}</dd></div>
@@ -134,13 +134,13 @@ export function ServiceDetail() {
           )}
           {tools.length > 0 && (
             <div className="mt-10 rounded-xl bg-ink p-6 text-white">
-              <h2 className="text-[19px] font-extrabold text-white">Check the numbers first</h2>
+              <h2 className="text-[19px] font-semibold text-white">Check the numbers first</h2>
               <ul className="mt-3 space-y-2">
                 {tools.map((t) => <li key={t.slug}><Link to={`/tools/${t.slug}`} className="inline-flex items-center gap-2 text-[16px] text-white hover:text-signal-bright"><Icon name={t.icon} className="h-4 w-4 text-signal-bright" />{t.title}</Link></li>)}
               </ul>
             </div>
           )}
-          {s.faqs?.length > 0 && <div className="mt-10"><h2 className="mb-4 text-[22px] font-extrabold">Questions we get asked</h2><Faqs items={s.faqs} /></div>}
+          {s.faqs?.length > 0 && <div className="mt-10"><h2 className="mb-4 text-[22px] font-semibold">Questions we get asked</h2><Faqs items={s.faqs} /></div>}
         </div>
         <div><EnquiryAside form="service_enquiry" extra={{ service: s.service_key }} files /></div>
       </div>
@@ -173,7 +173,7 @@ export function IndustriesPage() {
           <div className="grid gap-px overflow-hidden rounded-xl border border-line bg-line md:grid-cols-2">
             {(data || []).map((x) => (
               <Link key={x.slug} to={`/industries/${x.slug}`} className="group bg-white p-6 hover:bg-paper">
-                <h2 className="font-display text-[19px] font-extrabold">{x.name}</h2>
+                <h2 className="font-display text-[19px] font-semibold">{x.name}</h2>
                 <p className="mt-2 text-[16px] leading-relaxed text-muted">{x.summary}</p>
                 {x.needs?.length > 0 && <ul className="mt-4 space-y-1.5">{x.needs.slice(0, 4).map((n, i) => <li key={i} className="flex gap-2 text-sm"><Check className="mt-0.5 h-4 w-4 shrink-0 text-good" />{n.item || n}</li>)}</ul>}
               </Link>
@@ -200,13 +200,13 @@ export function IndustryDetail() {
           {s.body && <Markdown text={s.body} className="prose-site mb-10" />}
           {s.needs?.length > 0 && (
             <>
-              <h2 className="text-[22px] font-extrabold">What matters on these sites</h2>
+              <h2 className="text-[22px] font-semibold">What matters on these sites</h2>
               <ul className="mt-4 space-y-3">{s.needs.map((n, i) => <li key={i} className="flex gap-3 text-[17px]"><span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-signal" />{n.item || n}</li>)}</ul>
             </>
           )}
           {data.projects?.length > 0 && (
             <div className="mt-12">
-              <h2 className="text-[22px] font-extrabold">Projects in this sector</h2>
+              <h2 className="text-[22px] font-semibold">Projects in this sector</h2>
               <div className="mt-6 grid gap-8 sm:grid-cols-2">{data.projects.slice(0, 4).map((p) => <ProjectCard key={p.slug} p={p} />)}</div>
             </div>
           )}
@@ -302,7 +302,7 @@ export function ClientsPage() {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {data.testimonials.map((t) => (
               <figure key={t.id} className="flex flex-col rounded-xl bg-white p-6 ring-1 ring-line">
-                <Quote className="h-6 w-6 text-signal-deep" aria-hidden />
+                <Quote className="h-6 w-6 text-signal-ink" aria-hidden />
                 <blockquote className="mt-3 flex-1 text-[17px] leading-relaxed">{t.quote}</blockquote>
                 <figcaption className="mt-4 text-sm"><span className="font-semibold">{t.person}</span>{t.designation ? `, ${t.designation}` : ""}<span className="block text-muted">{t.company}{t.sample ? " (sample)" : ""}</span></figcaption>
               </figure>
@@ -367,13 +367,13 @@ export function AboutPage() {
       <Section>
         <div className="grid gap-12 lg:grid-cols-[1.2fr_1fr]">
           <div>
-            <h2 className="text-[26px] font-extrabold">Our story</h2>
+            <h2 className="text-[26px] font-semibold">Our story</h2>
             <p className="mt-4 max-w-[64ch] text-[17px] leading-8 text-fg/85">{s.about?.story}</p>
             {s.about?.vision && <p className="mt-4 max-w-[64ch] text-[17px] leading-8 text-fg/85">{s.about.vision}</p>}
           </div>
           {(s.values || []).length > 0 && (
             <div className="rounded-xl bg-paper p-6">
-              <h2 className="text-[19px] font-extrabold">How we work</h2>
+              <h2 className="text-[19px] font-semibold">How we work</h2>
               <dl className="mt-4 space-y-4">
                 {s.values.map((v) => <div key={v.title}><dt className="font-display font-bold">{v.title}</dt><dd className="mt-0.5 text-sm leading-relaxed text-muted">{v.text}</dd></div>)}
               </dl>
@@ -451,11 +451,11 @@ export function SafetyQualityPage() {
       <Section>
         <div className="grid gap-10 md:grid-cols-2">
           <div>
-            <h2 className="flex items-center gap-2 text-[22px] font-extrabold"><ShieldCheck className="h-6 w-6 text-good" />On every site</h2>
+            <h2 className="flex items-center gap-2 text-[22px] font-semibold"><ShieldCheck className="h-6 w-6 text-good" />On every site</h2>
             <ul className="mt-5 space-y-3">{SAFE.map((x) => <li key={x} className="flex gap-3 text-[16.5px]"><Check className="mt-0.5 h-4 w-4 shrink-0 text-good" />{x}</li>)}</ul>
           </div>
           <div>
-            <h2 className="flex items-center gap-2 text-[22px] font-extrabold"><ClipboardCheck className="h-6 w-6 text-cable" />Quality you can check</h2>
+            <h2 className="flex items-center gap-2 text-[22px] font-semibold"><ClipboardCheck className="h-6 w-6 text-cable" />Quality you can check</h2>
             <p className="mt-3 text-[16.5px] leading-relaxed text-muted">{s.quality}</p>
             <ul className="mt-5 space-y-3">{QUAL.map((x) => <li key={x} className="flex gap-3 text-[16.5px]"><Check className="mt-0.5 h-4 w-4 shrink-0 text-good" />{x}</li>)}</ul>
           </div>
@@ -485,7 +485,7 @@ export function AmcPage() {
         <div className="grid gap-6 md:grid-cols-3">
           {plans.map((p, n) => (
             <div key={p.name} className={cn("flex flex-col rounded-xl p-6", n === 1 ? "bg-ink text-white" : "border border-line bg-white")}>
-              <h2 data-no-translate className={cn("text-[22px] font-extrabold", n === 1 && "text-white")}>{translateIn("plan", p.name)}</h2>
+              <h2 data-no-translate className={cn("text-[22px] font-semibold", n === 1 && "text-white")}>{translateIn("plan", p.name)}</h2>
               <p className={cn("mt-1 text-sm", n === 1 ? "text-white/75" : "text-muted")}>{p.for}</p>
               <dl className={cn("mt-5 space-y-2 border-y py-4 text-sm", n === 1 ? "border-white/15" : "border-line")}>
                 <div className="flex justify-between gap-3"><dt className={n === 1 ? "text-white/75" : "text-muted"}>Visits</dt><dd className="text-end font-semibold">{p.visits}</dd></div>
@@ -499,7 +499,7 @@ export function AmcPage() {
       <Section tone="paper">
         <div className="grid gap-10 lg:grid-cols-[1fr_440px]">
           <div>
-            <h2 className="text-[26px] font-extrabold">Get an AMC quote</h2>
+            <h2 className="text-[26px] font-semibold">Get an AMC quote</h2>
             <p className="mt-3 max-w-xl text-[17px] leading-relaxed text-muted">List the equipment you want covered (transformers, HT panels, LT panels, DG, APFC) and the town. We'll visit, check the condition and send a fixed yearly price.</p>
           </div>
           <div className="rounded-xl bg-white p-5 ring-1 ring-line"><LeadForm form="amc_enquiry" extra={{ service: "amc" }} fields={["company", "town", "message"]} messageLabel="Equipment to cover" submitLabel="Ask for an AMC quote" compact /></div>
@@ -564,8 +564,8 @@ export function NotFound() {
   useMeta({ title: "Page not found", noindex: true });
   return (
     <section className="container flex min-h-[55vh] flex-col items-start justify-center py-16">
-      <p className="font-display text-[64px] font-extrabold leading-none text-steel">404</p>
-      <h1 className="mt-4 text-[30px] font-extrabold">This page isn't connected</h1>
+      <p className="font-display text-[64px] font-semibold leading-none text-steel">404</p>
+      <h1 className="mt-4 text-[30px] font-semibold">This page isn't connected</h1>
       <p className="mt-2 max-w-md text-muted">The link may be old, or the page has moved. Try the services list, or tell us what you were looking for.</p>
       <div className="mt-6 flex flex-wrap gap-3"><Button as={Link} to="/">Go to the home page</Button><Button as={Link} to="/contact" variant="outline">Contact us</Button></div>
     </section>

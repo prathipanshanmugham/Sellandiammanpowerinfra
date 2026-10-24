@@ -300,7 +300,7 @@ export function SurveyBooking({ defaultType = "site_survey" }) {
           <div className="flex flex-wrap gap-2">
             {today.slots.map((s) => {
               const key = `${today.date}T${s}`;
-              return <button type="button" key={s} onClick={() => setPick(key)} className={cn("rounded-md border px-4 py-2 text-sm tabular", pick === key ? "border-signal bg-signal font-semibold text-white" : "border-edge hover:border-fg/30")}>{s}</button>;
+              return <button type="button" key={s} onClick={() => setPick(key)} className={cn("rounded-md border px-4 py-2 text-sm tabular", pick === key ? "border-signal bg-signal font-semibold text-ink" : "border-edge hover:border-fg/30")}>{s}</button>;
             })}
           </div>
         </div>

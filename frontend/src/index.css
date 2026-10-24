@@ -4,14 +4,14 @@
 
 :root {
   --surface: 255 255 255;
-  --canvas: 243 244 246;
-  --fg: 14 16 19;
-  --muted: 74 81 92;
-  --edge: 221 224 228;
+  --canvas: 248 250 252;
+  --fg: 15 23 42;
+  --muted: 71 85 105;
+  --edge: 226 232 240;
   /* Latin and Cyrillic come from the bundled faces; every other script falls through to the device's own fonts */
   --font-scripts: "Noto Sans Devanagari", "Noto Sans Tamil", "Noto Sans Bengali", "Noto Sans Telugu", "Noto Sans Kannada", "Noto Sans Malayalam", "Noto Sans Gujarati", "Noto Sans Gurmukhi", "Noto Sans Oriya", "Nirmala UI", "Noto Sans Arabic", "Segoe UI", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", system-ui, sans-serif;
-  --font-sans: "IBM Plex Sans", var(--font-scripts);
-  --font-display: "Archivo", "IBM Plex Sans", var(--font-scripts);
+  --font-sans: "Plus Jakarta Sans", var(--font-scripts);
+  --font-display: "Outfit", "Plus Jakarta Sans", var(--font-scripts);
   color-scheme: light;
 }
 /* the same Chinese characters are drawn differently in Japanese and Chinese fonts, so each gets its own first choice */
@@ -19,12 +19,13 @@ html:lang(ja) { --font-scripts: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Y
 html:lang(zh) { --font-scripts: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Noto Sans CJK SC", system-ui, sans-serif; }
 html:lang(ar) { --font-scripts: "Noto Sans Arabic", "Segoe UI", "Geeza Pro", "Tahoma", system-ui, sans-serif; }
 html:lang(ur) { --font-scripts: "Noto Naskh Arabic", "Noto Sans Arabic", "Segoe UI", "Geeza Pro", "Tahoma", system-ui, sans-serif; }
-[data-theme="dark"] {
-  --surface: 23 25 29;
-  --canvas: 13 14 16;
-  --fg: 236 238 241;
-  --muted: 163 169 178;
-  --edge: 46 50 57;
+/* Staff can switch the ERP to dark. The attribute is our own, so a host page setting data-theme can't fade the website's text. */
+[data-spi-theme="dark"] {
+  --surface: 30 41 59;
+  --canvas: 15 23 42;
+  --fg: 241 245 249;
+  --muted: 160 174 192;
+  --edge: 51 65 85;
   color-scheme: dark;
 }
 
@@ -32,11 +33,14 @@ html:lang(ur) { --font-scripts: "Noto Naskh Arabic", "Noto Sans Arabic", "Segoe 
   html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
   body { @apply bg-canvas text-fg font-sans antialiased; text-rendering: optimizeLegibility; }
   h1, h2, h3, h4 { @apply font-display text-fg; letter-spacing: -0.01em; text-wrap: balance; }
-  :focus-visible { outline: 2px solid #0B5CFF; outline-offset: 2px; border-radius: 4px; }
+  /* long words (Tamil compounds, e-mail addresses) wrap instead of pushing the page sideways on phones */
+  h1, h2, h3, h4 { overflow-wrap: break-word; }
+  a[href^="mailto:"] { overflow-wrap: anywhere; }
+  :focus-visible { outline: 2px solid #0F172A; outline-offset: 2px; box-shadow: 0 0 0 5px #FFC400; border-radius: 3px; }
   input, select, textarea { font-size: 16px; }
   @media (min-width: 768px) { input, select, textarea { font-size: 15px; } }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
-  ::selection { background: #0B5CFF; color: #FFFFFF; }
+  ::selection { background: #FFC400; color: #0F172A; }
 }
 
 @layer components {
@@ -46,14 +50,14 @@ html:lang(ur) { --font-scripts: "Noto Naskh Arabic", "Noto Sans Arabic", "Segoe 
   .prose-site h2 { @apply mt-8 mb-2 text-xl font-bold; }
   .prose-site h3 { @apply mt-6 mb-2 text-lg font-bold; }
   .prose-site ul { @apply my-3 list-disc ps-5 space-y-1; }
-  .prose-site a { @apply text-signal-deep underline underline-offset-2; }
+  .prose-site a { @apply font-medium text-fg underline decoration-signal decoration-2 underline-offset-[3px] hover:decoration-fg; }
   .tabular { font-variant-numeric: tabular-nums; }
   .field-label { @apply mb-1.5 block text-[14px] font-medium text-fg; }
   .scrollbar-thin { scrollbar-width: thin; }
 }
 
 /* the single-line diagram in the hero: drawn once on load */
-.sld-wire { filter: drop-shadow(0 0 3px rgba(77,139,255,.55)); stroke-dasharray: var(--len); stroke-dashoffset: var(--len); animation: energise 2.4s cubic-bezier(.6,.05,.3,1) forwards; animation-delay: var(--d, 0s); }
+.sld-wire { filter: drop-shadow(0 0 3px rgba(255,196,0,.5)); stroke-dasharray: var(--len); stroke-dashoffset: var(--len); animation: energise 2.4s cubic-bezier(.6,.05,.3,1) forwards; animation-delay: var(--d, 0s); }
 .sld-node { opacity: 0; animation: nodeon .4s ease-out forwards; animation-delay: var(--d, 0s); }
 @keyframes nodeon { to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .sld-wire { stroke-dashoffset: 0; animation: none; } .sld-node { opacity: 1; animation: none; } }
@@ -61,6 +65,7 @@ html:lang(ur) { --font-scripts: "Noto Naskh Arabic", "Noto Sans Arabic", "Segoe 
 /* Indic, Arabic and CJK scripts need taller lines and no negative tracking, or marks above and below the letters get clipped */
 [data-script="complex"] h1, [data-script="complex"] h2, [data-script="complex"] h3, [data-script="complex"] h4 { line-height: 1.32 !important; letter-spacing: 0 !important; }
 [data-script="complex"] body { line-height: 1.7; }
+[data-script="complex"] h1, [data-script="complex"] h2, [data-script="complex"] h3 { overflow-wrap: anywhere; }
 /* Indic, Arabic and CJK scripts carry more ink per word; the big titles come down a step so they don't run to five lines. */
 [data-script="complex"] .hero-title { font-size: clamp(30px, 4.4vw, 50px) !important; }
 [data-script="complex"] .page-title { font-size: clamp(27px, 3.4vw, 38px) !important; }

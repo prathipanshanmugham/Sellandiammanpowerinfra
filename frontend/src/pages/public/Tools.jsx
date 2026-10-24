@@ -45,7 +45,7 @@ export function ToolsHub() {
           {groups.map((g) => (
             <section key={g.key} aria-labelledby={`g-${g.key}`} className="grid gap-4 lg:grid-cols-[260px_1fr] lg:gap-10">
               <div>
-                <h2 id={`g-${g.key}`} className="text-[21px] font-extrabold">{g.label}</h2>
+                <h2 id={`g-${g.key}`} className="text-[21px] font-semibold">{g.label}</h2>
                 <p className="mt-1 text-sm text-muted">{g.blurb}</p>
               </div>
               <ul className="grid gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-2">
@@ -71,7 +71,7 @@ export function ToolsHub() {
 export function StaffToolsHub() {
   return (
     <div className="pb-10">
-      <h1 className="mb-1 font-display text-[26px] font-extrabold">Calculators</h1>
+      <h1 className="mb-1 font-display text-[26px] font-semibold">Calculators</h1>
       <p className="mb-5 text-sm text-muted">The 24 calculators on the website, with the rates set in Settings. Results print on plain paper; the website version emails a PDF to the customer.</p>
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {TOOLS.groups.map((g) => (
@@ -116,7 +116,7 @@ export function ToolPage({ staff = false }) {
       <section className="border-b border-line bg-paper">
         <div className="container py-8 md:py-10">
           <nav aria-label="Breadcrumb" className="mb-3 text-sm text-muted"><Link to={base} className="hover:underline">Calculators</Link><span className="mx-2">/</span>{group?.label}</nav>
-          <h1 className="flex items-center gap-3 text-[28px] font-extrabold leading-tight md:text-[36px]" style={{ letterSpacing: "-0.02em" }}>
+          <h1 className="flex items-center gap-3 text-[28px] font-semibold leading-tight md:text-[36px]" style={{ letterSpacing: "-0.02em" }}>
             <span className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-ink text-signal-bright sm:flex"><Icon name={spec.icon} className="h-5 w-5" /></span>{spec.title}
           </h1>
           <p className="mt-2 max-w-2xl text-[17px] text-muted">{spec.summary}</p>
@@ -134,7 +134,7 @@ export function ToolPage({ staff = false }) {
             <button type="button" onClick={() => document.getElementById("calc-result")?.scrollIntoView({ behavior: "smooth", block: "start" })}
               className="flex w-full items-center justify-between rounded-lg bg-ink px-4 py-3 text-start text-white lg:hidden">
               <span className="text-sm text-white/80">{res.headline.label}</span>
-              <span className="font-display text-lg font-extrabold tabular">{fmtItem(res.headline)}<span className="ms-2 text-sm font-medium text-signal-bright">See result</span></span>
+              <span className="font-display text-lg font-semibold tabular">{fmtItem(res.headline)}<span className="ms-2 text-sm font-medium text-signal-bright">See result</span></span>
             </button>
           )}
         </form>
@@ -144,7 +144,7 @@ export function ToolPage({ staff = false }) {
             <div className="mt-10">
               <h2 className="font-display text-[17px] font-bold">Related calculators</h2>
               <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-                {related.map((t) => <li key={t.slug}><Link to={`${base}/${t.slug}`} className="flex items-center gap-2 rounded-md border border-line px-3 py-2.5 text-sm hover:border-fg/30"><Icon name={t.icon} className="h-4 w-4 text-signal-deep" />{t.title}</Link></li>)}
+                {related.map((t) => <li key={t.slug}><Link to={`${base}/${t.slug}`} className="flex items-center gap-2 rounded-md border border-line px-3 py-2.5 text-sm hover:border-fg/30"><Icon name={t.icon} className="h-4 w-4 text-signal-ink" />{t.title}</Link></li>)}
               </ul>
             </div>
           )}
@@ -242,7 +242,7 @@ function Result({ res, onLead }) {
       <div className="overflow-hidden rounded-xl bg-ink text-white">
         <div className="p-6">
           <p dir="auto" className="text-sm text-white/75">{h.label}</p>
-          <p dir="ltr" className="mt-1 text-start font-display text-[42px] font-extrabold leading-none tabular md:text-[52px]" style={{ letterSpacing: "-0.03em" }}>
+          <p dir="ltr" className="mt-1 text-start font-display text-[42px] font-semibold leading-none tabular md:text-[52px]" style={{ letterSpacing: "-0.015em" }}>
             {h.fmt === "inr" || h.unit === "₹" ? inr(h.value) : typeof h.value === "number" ? num(h.value) : h.value}
             {h.unit && h.unit !== "₹" && <span className="ms-2 text-[22px] font-bold text-signal-bright">{h.unit}</span>}
           </p>

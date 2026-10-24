@@ -121,8 +121,8 @@ export function Marketing() {
                 <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "rgb(var(--muted))" }} tickLine={false} axisLine={false} />
                 <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} cursor={{ fill: "rgb(var(--fg) / .04)" }} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <RBar dataKey="leads" name="Leads" fill="#7A8088" radius={[3, 3, 0, 0]} />
-                <RBar dataKey="won" name="Won" fill="#0B5CFF" radius={[3, 3, 0, 0]} />
+                <RBar dataKey="leads" name="Leads" fill="#94A3B8" radius={[3, 3, 0, 0]} />
+                <RBar dataKey="won" name="Won" fill="#FFC400" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

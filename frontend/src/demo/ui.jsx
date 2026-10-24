@@ -35,10 +35,10 @@ export function DemoBar() {
   const go = useSwitch();
   const nav = useNavigate();
   return (
-    <div className="fixed inset-x-0 top-0 z-40 flex h-10 items-center gap-3 bg-signal px-3 text-[14px] text-white sm:px-5">
+    <div className="fixed inset-x-0 top-0 z-40 flex h-10 items-center gap-3 bg-signal px-3 text-[14px] text-ink sm:px-5">
       <span className="hidden font-semibold sm:inline">Preview with sample data</span>
-      <span className="hidden text-white/85 md:inline">Changes stay until you reload.</span>
-      <span className="ml-auto text-white/85">Signed in as</span>
+      <span className="hidden text-ink/75 md:inline">Changes stay until you reload.</span>
+      <span className="ml-auto text-ink/75">Signed in as</span>
       <Menu>
         <MenuTrigger asChild>
           <button type="button" className="flex items-center gap-1 rounded-md bg-ink px-2.5 py-1 font-semibold text-white">{label(user?.role)}<ChevronDown className="h-3.5 w-3.5" /></button>
@@ -51,8 +51,8 @@ export function DemoBar() {
           {PORTAL.map(([k, l]) => <MenuItem key={k} onSelect={() => go(k)} className={cn(user?.role === k && "font-semibold")}>{l}</MenuItem>)}
         </MenuContent>
       </Menu>
-      <button type="button" onClick={() => nav("/")} className="hidden items-center gap-1 rounded-md px-2 py-1 font-medium hover:bg-white/15 sm:flex"><ExternalLink className="h-3.5 w-3.5" />Website</button>
-      <button type="button" onClick={() => window.location.reload()} className="flex items-center gap-1 rounded-md px-2 py-1 font-medium hover:bg-white/15" title="Reload the sample data"><RotateCcw className="h-3.5 w-3.5" /><span className="hidden sm:inline">Reset</span></button>
+      <button type="button" onClick={() => nav("/")} className="hidden items-center gap-1 rounded-md px-2 py-1 font-medium hover:bg-ink/10 sm:flex"><ExternalLink className="h-3.5 w-3.5" />Website</button>
+      <button type="button" onClick={() => window.location.reload()} className="flex items-center gap-1 rounded-md px-2 py-1 font-medium hover:bg-ink/10" title="Reload the sample data"><RotateCcw className="h-3.5 w-3.5" /><span className="hidden sm:inline">Reset</span></button>
     </div>
   );
 }

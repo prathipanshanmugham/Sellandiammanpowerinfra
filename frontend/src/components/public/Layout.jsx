@@ -23,7 +23,7 @@ function LanguageMenu() {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button type="button" className="flex items-center gap-1.5 whitespace-nowrap rounded-md px-2 py-2 text-sm text-white/85 hover:text-white" aria-label={t("Choose a language")}>
+        <button type="button" className="flex items-center gap-1.5 whitespace-nowrap rounded-md px-2 py-2 text-sm text-ink/75 hover:text-ink" aria-label={t("Choose a language")}>
           <Globe className="h-4 w-4" aria-hidden /><span translate="no" className="hidden xl:inline">{cur.native}</span><span translate="no" className="uppercase xl:hidden">{cur.code}</span>
         </button>
       </PopoverTrigger>
@@ -54,9 +54,9 @@ function LanguageSelect() {
   const t = useT();
   return (
     <label className="block">
-      <span className="mb-1.5 flex items-center gap-2 text-xs text-white/65"><Globe className="h-3.5 w-3.5" aria-hidden />{t("Language")}</span>
+      <span className="mb-1.5 flex items-center gap-2 text-xs text-muted"><Globe className="h-3.5 w-3.5" aria-hidden />{t("Language")}</span>
       <select value={l} onChange={(e) => setLang(e.target.value)} translate="no"
-        className="h-11 w-full rounded-md border border-white/20 bg-ink-800 px-3 text-[16px] text-white focus:border-signal focus:outline-none">
+        className="h-11 w-full rounded-md border border-line bg-white px-3 text-[16px] text-fg focus:border-ink focus:outline-none">
         {GROUPS.map(([g, label]) => (
           <optgroup key={g} label={t(label)}>
             {LANGS.filter((x) => x.group === g).map((x) => <option key={x.code} value={x.code}>{x.native}{x.code !== "en" ? ` (${x.name})` : ""}</option>)}
@@ -73,12 +73,12 @@ function ServicesMenu({ onClose }) {
   return (
     <div className="grid gap-x-8 gap-y-1 p-5 md:grid-cols-2 lg:w-[720px]">
       {site.services.map((s) => (
-        <Link key={s.slug} to={`/services/${s.slug}`} onClick={onClose} className="group flex items-start gap-3 rounded-md p-2 hover:bg-white/5">
-          <Icon name={s.icon} className="mt-0.5 h-4 w-4 shrink-0 text-signal-bright" />
-          <span><span className="block text-sm font-medium text-white">{s.title}</span><span className="line-clamp-1 text-xs text-white/70">{s.summary}</span></span>
+        <Link key={s.slug} to={`/services/${s.slug}`} onClick={onClose} className="group flex items-start gap-3 rounded-md p-2 hover:bg-paper">
+          <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded bg-ink text-signal"><Icon name={s.icon} className="h-3.5 w-3.5" /></span>
+          <span><span className="block text-sm font-semibold text-fg">{s.title}</span><span className="line-clamp-1 text-xs text-muted">{s.summary}</span></span>
         </Link>
       ))}
-      <Link to="/services" onClick={onClose} className="mt-2 rounded-md p-2 text-sm font-semibold text-signal-bright hover:bg-white/5 md:col-span-2">{t("All services")}</Link>
+      <Link to="/services" onClick={onClose} className="mt-2 rounded-md p-2 text-sm font-semibold text-fg underline decoration-signal decoration-2 underline-offset-4 hover:bg-paper md:col-span-2">{t("All services")}</Link>
     </div>
   );
 }
@@ -116,51 +116,51 @@ function Header() {
   return (
     <>
       {ann?.active && ann?.text && (
-        <div className="bg-signal px-4 py-2 text-center text-[14px] font-medium text-white">
+        <div className="bg-ink px-4 py-2 text-center text-[14px] font-medium text-white">
           {ann.link ? <Link to={ann.link} className="underline-offset-2 hover:underline">{ann.text}</Link> : ann.text}
         </div>
       )}
-      <header className="sticky top-0 z-40 border-b border-white/10 bg-ink">
+      <header className="sticky top-0 z-40 border-b border-line bg-white/95 backdrop-blur-md">
         <div ref={bar} className="container flex h-16 items-center justify-between gap-4">
-          <Link to="/" className="shrink-0" aria-label="Sellandiamman Power Infra home"><Logo theme="dark" /></Link>
+          <Link to="/" className="shrink-0" aria-label="Sellandiamman Power Infra home"><Logo theme="light" /></Link>
           <nav className={cn("hidden items-center gap-1", fit < 2 && "lg:flex")} aria-label="Main">
             <div className="relative" onMouseLeave={() => setSvc(false)}>
               <button type="button" onClick={() => setSvc((x) => !x)} onMouseEnter={() => setSvc(true)} aria-expanded={svc}
-                className={cn("flex items-center gap-1 whitespace-nowrap rounded-md px-3 py-2 text-sm text-white/85 hover:text-white", loc.pathname.startsWith("/services") && "text-white")}>
+                className={cn("flex items-center gap-1 whitespace-nowrap rounded-md px-3 py-2 text-sm text-ink/75 hover:text-ink", loc.pathname.startsWith("/services") && "font-semibold text-ink")}>
                 {t("Services")}<ChevronDown className="h-3.5 w-3.5" />
               </button>
-              {svc && <div className="absolute start-0 top-full rounded-xl border border-white/10 bg-ink-800 shadow-pop"><ServicesMenu onClose={() => setSvc(false)} /></div>}
+              {svc && <div className="absolute start-0 top-full rounded-lg border border-line bg-white shadow-pop"><ServicesMenu onClose={() => setSvc(false)} /></div>}
             </div>
             {NAV.map(([to, l]) => (
-              <NavLink key={to} to={to} className={({ isActive }) => cn("whitespace-nowrap rounded-md px-3 py-2 text-sm text-white/85 hover:text-white", isActive && "text-white")}>{t(l)}</NavLink>
+              <NavLink key={to} to={to} className={({ isActive }) => cn("whitespace-nowrap rounded-md px-3 py-2 text-sm text-ink/75 hover:text-ink", isActive && "font-semibold text-ink")}>{t(l)}</NavLink>
             ))}
           </nav>
           <div className="flex shrink-0 items-center gap-1.5">
             <LanguageMenu />
-            {s.phone && fit < 1 && <a href={telLink(s.phone)} dir="ltr" className="hidden items-center gap-1.5 whitespace-nowrap rounded-md px-2 py-2 text-sm text-white/85 hover:text-white min-[1380px]:flex"><Phone className="h-4 w-4 text-signal-bright" />{s.phone}</a>}
-            <Link to="/login" title={fit >= 1 ? t("Client login") : undefined} className="hidden items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-2 text-sm text-white/85 hover:text-white md:flex"><LogIn className="h-4 w-4" /><span className={cn(fit >= 1 && "sr-only")}>{t("Client login")}</span></Link>
+            {s.phone && fit < 1 && <a href={telLink(s.phone)} dir="ltr" className="hidden items-center gap-1.5 whitespace-nowrap rounded-md px-2 py-2 text-sm text-ink/75 hover:text-ink min-[1380px]:flex"><Phone className="h-4 w-4" />{s.phone}</a>}
+            <Link to="/login" title={fit >= 1 ? t("Client login") : undefined} className="hidden items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-2 text-sm text-ink/75 hover:text-ink md:flex"><LogIn className="h-4 w-4" /><span className={cn(fit >= 1 && "sr-only")}>{t("Client login")}</span></Link>
             <Button as={Link} to="/get-quote" size="sm" className="hidden whitespace-nowrap sm:inline-flex">{t("Get a quote")}</Button>
-            <button type="button" className={cn("rounded-md p-2 text-white", fit < 2 && "lg:hidden")} onClick={() => setOpen(true)} aria-label="Open menu"><MenuIcon className="h-6 w-6" /></button>
+            <button type="button" className={cn("rounded-md p-2 text-ink", fit < 2 && "lg:hidden")} onClick={() => setOpen(true)} aria-label="Open menu"><MenuIcon className="h-6 w-6" /></button>
           </div>
         </div>
       </header>
       {open && (
-        <div className={cn("fixed inset-0 z-50 overflow-y-auto bg-ink text-white", fit < 2 && "lg:hidden")} role="dialog" aria-modal="true" aria-label="Menu">
-          <div className="container flex h-16 items-center justify-between">
-            <Logo theme="dark" />
+        <div className={cn("fixed inset-0 z-50 overflow-y-auto bg-white text-fg", fit < 2 && "lg:hidden")} role="dialog" aria-modal="true" aria-label="Menu">
+          <div className="container flex h-16 items-center justify-between border-b border-line">
+            <Logo theme="light" />
             <button type="button" onClick={() => setOpen(false)} className="rounded-md p-2" aria-label="Close menu"><X className="h-6 w-6" /></button>
           </div>
           <nav className="container space-y-1 pb-10 pt-2" aria-label="Mobile">
-            <p className="pb-1 pt-3 text-xs text-white/65">{t("Services")}</p>
-            {site.services.map((sv) => <Link key={sv.slug} to={`/services/${sv.slug}`} className="block rounded-md px-2 py-2 text-[16px] hover:bg-white/5">{sv.title}</Link>)}
-            <div className="my-3 h-px bg-white/10" />
+            <p className="pb-1 pt-3 text-xs font-semibold text-muted">{t("Services")}</p>
+            {site.services.map((sv) => <Link key={sv.slug} to={`/services/${sv.slug}`} className="block rounded-md px-2 py-2 text-[16px] hover:bg-paper">{sv.title}</Link>)}
+            <div className="my-3 h-px bg-line" />
             {[...NAV, ["/products", "Products"], ["/clients", "Clients"], ["/gallery", "Gallery"], ["/resources", "Resources"], ["/amc", "AMC & maintenance"], ["/emergency", "24×7 breakdown"], ["/careers", "Careers"]].map(([to, l]) => (
-              <Link key={to} to={to} className="block rounded-md px-2 py-2 text-lg font-semibold hover:bg-white/5">{t(l)}</Link>
+              <Link key={to} to={to} className="block rounded-md px-2 py-2 text-lg font-semibold hover:bg-paper">{t(l)}</Link>
             ))}
             <div className="pt-4"><LanguageSelect /></div>
             <div className="flex flex-col gap-2 pt-4">
               <Button as={Link} to="/get-quote" size="lg">{t("Get a quote")}</Button>
-              <Button as={Link} to="/login" size="lg" variant="light">{t("Client login")}</Button>
+              <Button as={Link} to="/login" size="lg" variant="outline">{t("Client login")}</Button>
             </div>
           </nav>
         </div>
@@ -241,7 +241,7 @@ function QuickActions() {
       <div className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-3 border-t border-white/10 bg-ink text-white sm:hidden" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
         {s.phone ? <a href={telLink(s.phone)} dir="ltr" className="flex flex-col items-center gap-0.5 py-2 text-[12px]"><Phone className="h-5 w-5 text-signal-bright" />{t("Call us")}</a> : <span />}
         {s.whatsapp ? <a href={waLink(s.whatsapp, msg)} target="_blank" rel="noreferrer" className="flex flex-col items-center gap-0.5 py-2 text-[12px]"><MessageCircle className="h-5 w-5 text-signal-bright" />WhatsApp</a> : <span />}
-        <Link to="/get-quote" className="flex flex-col items-center justify-center bg-signal py-2 text-[13px] font-semibold text-white">{t("Get a quote")}</Link>
+        <Link to="/get-quote" className="flex flex-col items-center justify-center bg-signal py-2 text-[13px] font-semibold text-ink">{t("Get a quote")}</Link>
       </div>
       {s.whatsapp && (
         <a href={waLink(s.whatsapp, msg)} target="_blank" rel="noreferrer" aria-label={t("WhatsApp us")}
@@ -260,7 +260,7 @@ export default function PublicLayout() {
   useEffect(() => { window.scrollTo(0, 0); }, [loc.pathname]);
   return (
     <div className="flex min-h-screen flex-col bg-white">
-      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:start-3 focus:top-3 focus:z-50 focus:rounded focus:bg-signal focus:px-3 focus:py-2 focus:text-white">Skip to content</a>
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:start-3 focus:top-3 focus:z-50 focus:rounded focus:bg-signal focus:px-3 focus:py-2 focus:text-ink">Skip to content</a>
       <Header />
       <main id="main" className="flex-1">
         <ErrorBoundary resetKey={loc.pathname}><Outlet /></ErrorBoundary>
@@ -281,7 +281,7 @@ export function PageHero({ title, text, children, crumbs, dark = true, className
             {crumbs.map(([to, l], n) => <span key={l}>{n > 0 && <span className="mx-2">/</span>}{to ? <Link to={to} className="hover:underline">{l}</Link> : <span className={dark ? "text-white/85" : "text-fg"}>{l}</span>}</span>)}
           </nav>
         )}
-        <h1 className={cn("page-title max-w-3xl text-[32px] font-extrabold leading-[1.1] md:text-[44px]", dark && "text-white")} style={{ letterSpacing: "-0.025em" }}>{title}</h1>
+        <h1 className={cn("page-title max-w-3xl text-[32px] font-semibold leading-[1.1] md:text-[44px]", dark && "text-white")} style={{ letterSpacing: "-0.025em" }}>{title}</h1>
         {text && <p className={cn("mt-4 max-w-2xl text-lg leading-relaxed", dark ? "text-white/80" : "text-muted")}>{text}</p>}
         {children && <div className="mt-6">{children}</div>}
       </div>
@@ -296,7 +296,7 @@ export function Section({ title, text, children, className, id, action, tone = "
         {(title || action) && (
           <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
             <div className="max-w-2xl">
-              {title && <h2 className={cn("text-[26px] font-extrabold leading-tight md:text-[34px]", tone === "ink" && "text-white")} style={{ letterSpacing: "-0.02em" }}>{title}</h2>}
+              {title && <h2 className={cn("text-[26px] font-semibold leading-tight md:text-[34px]", tone === "ink" && "text-white")} style={{ letterSpacing: "-0.02em" }}>{title}</h2>}
               {text && <p className={cn("mt-3 text-[17px] leading-relaxed", tone === "ink" ? "text-white/75" : "text-muted")}>{text}</p>}
             </div>
             {action}

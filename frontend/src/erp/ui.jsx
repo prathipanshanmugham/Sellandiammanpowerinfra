@@ -16,7 +16,7 @@ export function PageHead({ title, sub, icon, actions, back, children, className 
     <div className={cn("mb-5 flex flex-wrap items-start justify-between gap-3", className)}>
       <div className="min-w-0">
         {back && <Link to={back[0]} className="mb-1 inline-block text-sm text-muted hover:text-fg">{back[1]}</Link>}
-        <h1 className="flex items-center gap-2.5 font-display text-[22px] font-extrabold leading-tight md:text-[26px]">
+        <h1 className="flex items-center gap-2.5 font-display text-[22px] font-semibold leading-tight md:text-[26px]">
           {icon && <span className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-md bg-ink text-signal-bright sm:flex"><Icon name={icon} className="h-4 w-4" /></span>}
           <span className="min-w-0 break-words">{title}</span>
         </h1>
@@ -44,7 +44,7 @@ export function Kpi({ label, value, fmt, sub, link, change, good = "up", tone, c
   const body = (
     <div className={cn("h-full rounded-xl border border-edge bg-surface p-4 shadow-card", link && "transition-colors hover:border-fg/25", className)}>
       <p className="text-[14px] text-muted">{label}</p>
-      <p className={cn("mt-1.5 font-display text-[26px] font-extrabold leading-none tabular tracking-tight", tone === "bad" && "text-bad", tone === "good" && "text-good", tone === "warn" && "text-warn")}>{fmtBy(fmt, value)}</p>
+      <p className={cn("mt-1.5 font-display text-[26px] font-semibold leading-none tabular tracking-tight", tone === "bad" && "text-bad", tone === "good" && "text-good", tone === "warn" && "text-warn")}>{fmtBy(fmt, value)}</p>
       {(sub || change !== undefined) && (
         <p className="mt-2 flex items-center gap-1.5 text-xs text-muted">
           {change !== undefined && change !== null && (

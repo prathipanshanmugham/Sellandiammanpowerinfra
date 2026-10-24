@@ -12,12 +12,12 @@ import { PageHead, Kpi, Panel, Table, Bar, RISK, usePageTitle } from "../ui";
 function Dial({ score }) {
   const r = 52;
   const c = 2 * Math.PI * r;
-  const tone = score >= 75 ? "#1B7A4B" : score >= 50 ? "#E09B00" : "#B42318";
+  const tone = score >= 75 ? "#15803D" : score >= 50 ? "#D97706" : "#B91C1C";
   return (
     <svg viewBox="0 0 128 128" className="h-36 w-36" role="img" aria-label={`Business health ${score} out of 100`}>
       <circle cx="64" cy="64" r={r} fill="none" stroke="rgb(var(--edge))" strokeWidth="12" />
       <circle cx="64" cy="64" r={r} fill="none" stroke={tone} strokeWidth="12" strokeLinecap="round" strokeDasharray={`${(score / 100) * c} ${c}`} transform="rotate(-90 64 64)" />
-      <text x="64" y="66" textAnchor="middle" fontSize="34" fontWeight="800" fontFamily="Archivo, IBM Plex Sans, sans-serif" fill="rgb(var(--fg))">{score}</text>
+      <text x="64" y="66" textAnchor="middle" fontSize="34" fontWeight="600" fontFamily="Outfit, Plus Jakarta Sans, sans-serif" fill="rgb(var(--fg))">{score}</text>
       <text x="64" y="86" textAnchor="middle" fontSize="11" fill="rgb(var(--muted))">out of 100</text>
     </svg>
   );

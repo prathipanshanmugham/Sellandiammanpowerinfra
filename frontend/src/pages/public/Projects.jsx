@@ -78,7 +78,7 @@ export function ProjectDetail() {
           <div>
             <nav aria-label="Breadcrumb" className="mb-4 text-sm text-white/70"><Link to="/" className="hover:underline">Home</Link><span className="mx-2">/</span><Link to="/projects" className="hover:underline">Projects</Link></nav>
             <div className="flex flex-wrap gap-1.5">{p.ongoing && <Chip dark>Ongoing</Chip>}{p.sample && <Chip dark>Sample project</Chip>}</div>
-            <h1 className="mt-3 text-[30px] font-extrabold leading-[1.1] text-white md:text-[42px]" style={{ letterSpacing: "-0.025em" }}>{p.title}</h1>
+            <h1 className="mt-3 text-[30px] font-semibold leading-[1.1] text-white md:text-[42px]" style={{ letterSpacing: "-0.025em" }}>{p.title}</h1>
             <p className="mt-4 max-w-xl text-lg leading-relaxed text-white/80">{p.public_summary}</p>
             <p className="mt-5 flex flex-wrap gap-x-5 gap-y-1 text-sm text-white/75">
               {p.town && <span className="inline-flex items-center gap-1.5"><MapPin className="h-4 w-4" />{p.town}</span>}
@@ -91,18 +91,18 @@ export function ProjectDetail() {
       {(p.highlights || []).length > 0 && (
         <div className="border-b border-line bg-white">
           <dl className="container grid grid-cols-2 gap-6 py-7 md:grid-cols-4">
-            {p.highlights.map((h) => <div key={h.label}><dt className="text-sm text-muted">{h.label}</dt><dd className="mt-1 font-display text-[24px] font-extrabold leading-none tracking-tight">{h.value}</dd></div>)}
+            {p.highlights.map((h) => <div key={h.label}><dt className="text-sm text-muted">{h.label}</dt><dd className="mt-1 font-display text-[24px] font-semibold leading-none tracking-tight">{h.value}</dd></div>)}
           </dl>
         </div>
       )}
       <div className="container grid gap-12 py-14 lg:grid-cols-[1fr_340px]">
         <div className="max-w-[68ch] space-y-9">
           {[["The challenge", p.challenge], ["What we did", p.solution], ["The result", p.results]].filter(([, v]) => v).map(([h, v]) => (
-            <div key={h}><h2 className="text-[22px] font-extrabold">{h}</h2><p className="mt-3 whitespace-pre-line text-[16.5px] leading-8 text-fg/85">{v}</p></div>
+            <div key={h}><h2 className="text-[22px] font-semibold">{h}</h2><p className="mt-3 whitespace-pre-line text-[16.5px] leading-8 text-fg/85">{v}</p></div>
           ))}
           {data.testimonial && (
             <figure className="rounded-xl bg-paper p-6">
-              <Quote className="h-6 w-6 text-signal-deep" aria-hidden />
+              <Quote className="h-6 w-6 text-signal-ink" aria-hidden />
               <blockquote className="mt-3 text-[18px] leading-relaxed">{data.testimonial.quote}</blockquote>
               <figcaption className="mt-4 text-sm text-muted">{data.testimonial.person}, {data.testimonial.company}{data.testimonial.sample ? " (sample)" : ""}</figcaption>
             </figure>
@@ -116,7 +116,7 @@ export function ProjectDetail() {
             {facts.map(([k, v]) => <div key={k} className="flex justify-between gap-4 px-4 py-2.5"><dt className="text-muted">{k}</dt><dd className="text-end font-medium">{v}</dd></div>)}
           </dl>
           <div className="rounded-xl bg-ink p-5 text-white lg:sticky lg:top-24">
-            <h2 className="text-[18px] font-extrabold text-white">Need something similar?</h2>
+            <h2 className="text-[18px] font-semibold text-white">Need something similar?</h2>
             <p className="mb-4 mt-1 text-sm text-white/75">We'll look at your site and send a scope and price.</p>
             <div className="rounded-lg bg-white p-4 text-fg">
               <LeadForm form="similar_project" extra={{ service: p.service, message: `Similar to: ${p.title}` }} compact fields={["company", "town"]} submitLabel="Ask for a quote" />

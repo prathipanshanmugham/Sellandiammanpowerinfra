@@ -127,7 +127,7 @@ export function Approvals() {
                     <Link to={`/erp/e/${a.doc_entity}/${a.doc_id}`} className="font-medium hover:underline">{a.title}</Link>
                     <p className="mt-0.5 text-xs text-muted">Asked by {a.requested_by_name || "someone"} {ago(a.created_at)}</p>
                   </div>
-                  {a.amount > 0 && <p className="font-display text-[20px] font-extrabold tabular">{inr(a.amount)}</p>}
+                  {a.amount > 0 && <p className="font-display text-[20px] font-semibold tabular">{inr(a.amount)}</p>}
                   <div className="flex gap-2">
                     <Button size="sm" variant="outline" onClick={() => setRej(a)}><X className="h-4 w-4" />Reject</Button>
                     <Button size="sm" onClick={() => decide(a, "approve", "")}><Check className="h-4 w-4" />Approve</Button>

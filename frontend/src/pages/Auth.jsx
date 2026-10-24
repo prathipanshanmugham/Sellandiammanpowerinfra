@@ -18,7 +18,7 @@ function Shell({ children, staff }) {
       <div className="relative hidden overflow-hidden bg-ink lg:block">
         <div className="absolute inset-0 flex items-center justify-center p-16 opacity-90"><SLD className="h-full max-h-[620px] w-auto" /></div>
         <div className="absolute bottom-10 start-10 end-10 text-white">
-          <p className="font-display text-[26px] font-extrabold leading-tight text-white">{staff ? "Every project, store and bill in one place." : "Your project, drawings, bills and service in one place."}</p>
+          <p className="font-display text-[26px] font-semibold leading-tight text-white">{staff ? "Every project, store and bill in one place." : "Your project, drawings, bills and service in one place."}</p>
           <p className="mt-2 text-white/75">{staff ? "Sign in with your company email." : "Approvals, progress photos, invoices and breakdown requests."}</p>
         </div>
       </div>
@@ -56,7 +56,7 @@ export function LoginPage({ staff = false }) {
   const Picker = IS_DEMO ? demoPicker : null;
   return (
     <Shell staff={staff}>
-      <h1 className="text-[28px] font-extrabold">{staff ? "Staff sign in" : "Sign in"}</h1>
+      <h1 className="text-[28px] font-semibold">{staff ? "Staff sign in" : "Sign in"}</h1>
       <p className="mt-1 text-sm text-muted">{staff ? "For Sellandiamman Power Infra employees." : "For clients, consultants, vendors, subcontractors and referral partners."}</p>
       {Picker && <div className="mt-6"><Picker staff={staff} /></div>}
       <form onSubmit={go} className="mt-6 space-y-4" noValidate>
@@ -97,7 +97,7 @@ export function ForgotPage() {
   useTitle("Reset password");
   return (
     <Shell staff={sp.get("staff") === "1"}>
-      <h1 className="text-[28px] font-extrabold">Reset your password</h1>
+      <h1 className="text-[28px] font-semibold">Reset your password</h1>
       <p className="mt-1 text-sm text-muted">We'll email a link to set a new password. It works for 24 hours.</p>
       {msg ? <Alert tone="green" className="mt-6">{msg}</Alert> : (
         <form className="mt-6 space-y-4" onSubmit={async (e) => { e.preventDefault(); setBusy(true); setErr(""); try { setMsg((await api.post("/auth/forgot", { email })).data.message); } catch (ex) { setErr(errMsg(ex)); } finally { setBusy(false); } }}>
@@ -129,7 +129,7 @@ export function SetPasswordPage() {
   }
   return (
     <Shell>
-      <h1 className="text-[28px] font-extrabold">Set your password</h1>
+      <h1 className="text-[28px] font-semibold">Set your password</h1>
       {done ? (
         <div className="mt-6 space-y-4"><Alert tone="green">Password saved. Sign in with your email and the new password.</Alert><Button size="lg" className="w-full" onClick={() => nav(done.portal ? "/login" : "/erp/login")}>Go to sign in</Button></div>
       ) : (

@@ -22,7 +22,7 @@ function Hero() {
       <div className="container grid items-center gap-10 py-14 md:py-20 lg:grid-cols-[1.05fr_1fr] lg:gap-14">
         <div>
           {h.eyebrow && <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 px-3 py-1 text-[14px] text-white/85"><span className="h-1.5 w-1.5 rounded-full bg-signal" />{h.eyebrow}</p>}
-          <h1 className="hero-title font-display text-[40px] font-extrabold leading-[1.02] text-white sm:text-[52px] lg:text-[60px]" style={{ letterSpacing: "-0.035em" }}>
+          <h1 className="hero-title font-display text-[40px] font-semibold leading-[1.06] text-white sm:text-[52px] lg:text-[60px]" style={{ letterSpacing: "-0.02em" }}>
             {h.title || "Power infrastructure, engineered and energised."}
           </h1>
           <p className="mt-6 max-w-xl text-[17px] leading-relaxed text-white/80">{h.text}</p>
@@ -49,7 +49,7 @@ function Trust() {
       <div className="container grid grid-cols-2 divide-line md:grid-cols-4 md:divide-x md:rtl:divide-x-reverse">
         {items.map((x) => (
           <div key={x.label} className="py-6 md:px-6 md:first:ps-0">
-            <p dir="ltr" className="font-display text-[26px] font-extrabold leading-none tracking-tight rtl:text-right">{x.value}</p>
+            <p dir="ltr" className="font-display text-[26px] font-semibold leading-none tracking-tight rtl:text-right">{x.value}</p>
             <p className="mt-2 text-sm text-muted">{x.label}</p>
           </div>
         ))}
@@ -213,12 +213,12 @@ function CTA() {
     <section className="bg-signal">
       <div className="container flex flex-col items-start justify-between gap-6 py-12 md:flex-row md:items-center">
         <div>
-          <h2 className="text-[26px] font-extrabold leading-tight text-white md:text-[32px]" style={{ letterSpacing: "-0.02em" }}>Planning a substation, upgrade or AMC?</h2>
-          <p className="mt-2 max-w-xl text-white/90">Tell us what you need. An engineer calls you back, usually the same working day.</p>
+          <h2 className="text-[26px] font-semibold leading-tight text-ink md:text-[32px]" style={{ letterSpacing: "-0.02em" }}>Planning a substation, upgrade or AMC?</h2>
+          <p className="mt-2 max-w-xl text-ink/80">Tell us what you need. An engineer calls you back, usually the same working day.</p>
         </div>
         <div className="flex flex-wrap gap-3">
           <Button as={Link} to="/get-quote" variant="dark" size="lg">{t("Get a quote")}</Button>
-          {site.settings?.phone ? <Button as="a" href={telLink(site.settings.phone)} dir="ltr" variant="outline" size="lg" className="border-white/40 bg-transparent text-white hover:bg-white/10"><Phone className="h-4 w-4" />{site.settings.phone}</Button> : <CallbackButton />}
+          {site.settings?.phone ? <Button as="a" href={telLink(site.settings.phone)} dir="ltr" variant="outline" size="lg" className="border-ink/40 bg-transparent text-ink hover:bg-ink/10"><Phone className="h-4 w-4" />{site.settings.phone}</Button> : <CallbackButton />}
         </div>
       </div>
     </section>

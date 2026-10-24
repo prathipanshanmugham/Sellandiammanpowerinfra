@@ -61,7 +61,7 @@ export function PortalLayout() {
 function Head({ title, sub, actions }) {
   return (
     <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-      <div><h1 className="text-[24px] font-extrabold leading-tight md:text-[28px]">{title}</h1>{sub && <p className="mt-1 text-sm text-muted">{sub}</p>}</div>
+      <div><h1 className="text-[24px] font-semibold leading-tight md:text-[28px]">{title}</h1>{sub && <p className="mt-1 text-sm text-muted">{sub}</p>}</div>
       {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
     </div>
   );
@@ -135,7 +135,7 @@ export function ClientHome() {
       <Head title={data.account?.name || "Welcome"} sub={`Signed in as ${user.name}`} actions={<Button as={Link} to="/client/service?new=1" variant="outline"><Wrench className="h-4 w-4" />Report a problem</Button>} />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {[["Live projects", live.length, "/client/projects"], ["Waiting for you", data.approvals.length, null], ["Outstanding", inr(data.outstanding), "/client/bills"], ["Open service requests", data.tickets.length, "/client/service"]].map(([l, v, to]) => {
-          const body = <div className={cn("rounded-xl border border-edge bg-surface p-4 shadow-card", to && "hover:border-fg/25")}><p className="text-[14px] text-muted">{l}</p><p className="mt-1 font-display text-[24px] font-extrabold tabular">{v}</p></div>;
+          const body = <div className={cn("rounded-xl border border-edge bg-surface p-4 shadow-card", to && "hover:border-fg/25")}><p className="text-[14px] text-muted">{l}</p><p className="mt-1 font-display text-[24px] font-semibold tabular">{v}</p></div>;
           return to ? <Link key={l} to={to}>{body}</Link> : <div key={l}>{body}</div>;
         })}
       </div>
@@ -144,7 +144,7 @@ export function ClientHome() {
           <ul className="divide-y divide-edge">
             {data.approvals.map((a) => (
               <li key={`${a.entity}:${a.id}`} className="flex flex-wrap items-center gap-3 px-4 py-3">
-                <ShieldCheck className="h-5 w-5 shrink-0 text-signal-deep" />
+                <ShieldCheck className="h-5 w-5 shrink-0 text-signal-ink" />
                 <div className="min-w-0 flex-1"><p className="text-sm font-medium">{a.title}</p>{a.amount ? <p className="text-xs text-muted">{inr(a.amount)}</p> : null}</div>
                 <Button size="sm" onClick={() => setAppr(a)}>Review</Button>
               </li>
@@ -213,8 +213,8 @@ export function ClientProject() {
       <Link to="/client/projects" className="mb-2 inline-flex items-center gap-1 text-sm text-muted hover:text-fg"><ArrowLeft className="h-3.5 w-3.5" />All projects</Link>
       <Head title={p.name} sub={[p.code, p.town, p._refs?.users?.[p.manager_id] ? `Project manager ${p._refs.users[p.manager_id]}` : null].filter(Boolean).join(", ")} />
       <div className="mb-5 grid grid-cols-2 gap-3 md:grid-cols-4">
-        <div className="rounded-xl border border-edge bg-surface p-4"><p className="text-xs text-muted">Work done</p><p className="mt-1 font-display text-[22px] font-extrabold tabular">{pct(p.percent_complete || 0, 0)}</p><Progress value={p.percent_complete || 0} tone="signal" className="mt-2" /></div>
-        <div className="rounded-xl border border-edge bg-surface p-4"><p className="text-xs text-muted">Contract value</p><p className="mt-1 font-display text-[22px] font-extrabold tabular">{inr(p.contract_value, { compact: true })}</p></div>
+        <div className="rounded-xl border border-edge bg-surface p-4"><p className="text-xs text-muted">Work done</p><p className="mt-1 font-display text-[22px] font-semibold tabular">{pct(p.percent_complete || 0, 0)}</p><Progress value={p.percent_complete || 0} tone="signal" className="mt-2" /></div>
+        <div className="rounded-xl border border-edge bg-surface p-4"><p className="text-xs text-muted">Contract value</p><p className="mt-1 font-display text-[22px] font-semibold tabular">{inr(p.contract_value, { compact: true })}</p></div>
         <div className="rounded-xl border border-edge bg-surface p-4"><p className="text-xs text-muted">Started</p><p className="mt-1 font-display text-[18px] font-bold">{fmtDate(p.start_date)}</p></div>
         <div className="rounded-xl border border-edge bg-surface p-4"><p className="text-xs text-muted">Planned finish</p><p className="mt-1 font-display text-[18px] font-bold">{fmtDate(p.end_date)}</p></div>
       </div>
@@ -520,9 +520,9 @@ export function PartnerHome() {
     <div className="space-y-5">
       <Head title={data.partner?.name || "Referrals"} sub={`You earn ${data.partner?.commission_pct || 0}% of the contract value on referrals that become projects.`} />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-        <div className="rounded-xl border border-edge bg-surface p-4"><p className="text-xs text-muted">Referrals</p><p className="mt-1 font-display text-[24px] font-extrabold tabular">{data.referrals.length}</p></div>
-        <div className="rounded-xl border border-edge bg-surface p-4"><p className="text-xs text-muted">Won</p><p className="mt-1 font-display text-[24px] font-extrabold tabular">{data.referrals.filter((r) => r.status === "Won").length}</p></div>
-        <div className="rounded-xl border border-edge bg-surface p-4"><p className="text-xs text-muted">Commission earned</p><p className="mt-1 font-display text-[24px] font-extrabold tabular">{inr(data.commission_total)}</p></div>
+        <div className="rounded-xl border border-edge bg-surface p-4"><p className="text-xs text-muted">Referrals</p><p className="mt-1 font-display text-[24px] font-semibold tabular">{data.referrals.length}</p></div>
+        <div className="rounded-xl border border-edge bg-surface p-4"><p className="text-xs text-muted">Won</p><p className="mt-1 font-display text-[24px] font-semibold tabular">{data.referrals.filter((r) => r.status === "Won").length}</p></div>
+        <div className="rounded-xl border border-edge bg-surface p-4"><p className="text-xs text-muted">Commission earned</p><p className="mt-1 font-display text-[24px] font-semibold tabular">{inr(data.commission_total)}</p></div>
       </div>
       <div className="grid gap-4 lg:grid-cols-[1.3fr_1fr]">
         <Panel title="Your referrals" bodyClass="p-0">

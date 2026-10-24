@@ -9,19 +9,20 @@ import { cn } from "@/lib/utils";
 
 // ------------------------------------------------------------------ buttons
 const BTN = {
-  primary: "bg-signal text-white hover:bg-signal-deep active:bg-signal-deep font-semibold",
+  primary: "bg-signal text-ink hover:bg-signal-deep active:bg-signal-deep font-semibold",
   dark: "bg-ink text-white hover:bg-ink-700 font-semibold",
-  outline: "border border-edge bg-surface text-fg hover:bg-canvas",
+  outline: "border border-steel-light bg-surface text-fg hover:border-steel-dark hover:bg-canvas",
   ghost: "text-fg hover:bg-fg/5",
   danger: "bg-bad text-white hover:bg-bad/90 font-semibold",
   light: "border border-white/35 text-white hover:bg-white/10",
   link: "text-cable underline-offset-4 hover:underline px-0 h-auto",
 };
-const SIZE = { sm: "h-8 px-3 text-[14px] gap-1.5 rounded-md", md: "h-10 px-4 text-sm gap-2 rounded-md", lg: "h-12 px-6 text-[16px] gap-2 rounded-lg", icon: "h-9 w-9 rounded-md" };
+// min heights, so a long translated label wraps onto a second line instead of running off a phone screen
+const SIZE = { sm: "min-h-8 px-3 py-1 text-[14px] gap-1.5 rounded-md", md: "min-h-10 px-4 py-1.5 text-sm gap-2 rounded-md", lg: "min-h-12 px-6 py-2 text-[16px] gap-2 rounded-lg", icon: "h-9 w-9 rounded-md" };
 
 export const Button = forwardRef(function Button({ variant = "primary", size = "md", loading, className, children, as: As = "button", ...p }, ref) {
   return (
-    <As ref={ref} className={cn("inline-flex select-none items-center justify-center whitespace-nowrap transition-colors disabled:pointer-events-none disabled:opacity-50", BTN[variant], SIZE[size], className)}
+    <As ref={ref} className={cn("inline-flex max-w-full select-none items-center justify-center text-center leading-tight transition-colors disabled:pointer-events-none disabled:opacity-50", BTN[variant], SIZE[size], className)}
       disabled={As === "button" ? p.disabled || loading : undefined} {...p}>
       {loading && <Loader2 className="h-4 w-4 animate-spin" aria-hidden />}
       {children}
@@ -38,7 +39,7 @@ export const IconButton = forwardRef(function IconButton({ label, className, chi
 });
 
 // ------------------------------------------------------------------ inputs
-const FIELD = "w-full rounded-md border border-edge bg-surface px-3 text-fg placeholder:text-muted/70 focus:border-signal-deep focus:outline-none focus:ring-2 focus:ring-signal/40 disabled:bg-canvas disabled:text-muted";
+const FIELD = "w-full rounded-md border border-edge bg-surface px-3 text-fg placeholder:text-muted/70 focus:border-ink focus:outline-none focus:ring-2 focus:ring-signal/70 disabled:bg-canvas disabled:text-muted";
 export const Input = forwardRef(function Input({ className, ...p }, ref) {
   return <input ref={ref} className={cn(FIELD, "h-10", className)} {...p} />;
 });
@@ -62,8 +63,8 @@ export function Checkbox({ checked, onChange, label, className, id, disabled }) 
     <label className={cn("inline-flex cursor-pointer items-start gap-2.5 text-sm", disabled && "cursor-not-allowed opacity-60", className)} htmlFor={id}>
       <span className="relative mt-0.5 inline-flex">
         <input id={id} type="checkbox" className="peer sr-only" checked={!!checked} onChange={(e) => onChange?.(e.target.checked)} disabled={disabled} />
-        <span className="flex h-[18px] w-[18px] items-center justify-center rounded border border-edge bg-surface peer-checked:border-signal peer-checked:bg-signal peer-focus-visible:ring-2 peer-focus-visible:ring-signal/40">
-          {checked && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
+        <span className="flex h-[18px] w-[18px] items-center justify-center rounded border border-edge bg-surface peer-checked:border-signal peer-checked:bg-signal peer-focus-visible:ring-2 peer-focus-visible:ring-ink/50">
+          {checked && <Check className="h-3 w-3 text-ink" strokeWidth={3} />}
         </span>
       </span>
       {label && <span className="leading-snug">{label}</span>}
@@ -94,7 +95,7 @@ export function Field({ label, hint, error, required, children, className, htmlF
 // ------------------------------------------------------------------ display
 const TONE = {
   gray: "bg-fg/[.06] text-fg/85", blue: "bg-signal-soft text-signal-ink", amber: "bg-amber-soft text-amber-ink", green: "bg-good/10 text-good",
-  red: "bg-bad/10 text-bad", violet: "bg-[#EEEAFB] text-[#5B3FB8]", teal: "bg-[#E2F4F2] text-[#0F6B63]", ink: "bg-ink text-white", signal: "bg-signal text-white",
+  red: "bg-bad/10 text-bad", violet: "bg-[#EEEAFB] text-[#5B3FB8]", teal: "bg-[#E2F4F2] text-[#0F6B63]", ink: "bg-ink text-white", signal: "bg-signal text-ink",
 };
 export function Badge({ tone = "gray", className, children, dot }) {
   return (

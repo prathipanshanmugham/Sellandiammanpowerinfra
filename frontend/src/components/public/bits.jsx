@@ -46,7 +46,7 @@ export function ProjectCard({ p, big }) {
 export function Stat({ value, label, dark }) {
   return (
     <div>
-      <p className={cn("font-display text-[28px] font-extrabold leading-none md:text-[34px]", dark ? "text-white" : "text-fg")} style={{ letterSpacing: "-0.03em" }}>{value}</p>
+      <p className={cn("font-display text-[28px] font-semibold leading-none md:text-[34px]", dark ? "text-white" : "text-fg")} style={{ letterSpacing: "-0.015em" }}>{value}</p>
       <p className={cn("mt-2 text-sm leading-snug", dark ? "text-white/75" : "text-muted")}>{label}</p>
     </div>
   );

@@ -20,8 +20,8 @@ SRC = ROOT / "scripts/brand/sellandiamman-logo-source.png"
 PUBLIC = ROOT / "frontend/public"
 UP = 4
 COLORS = {"dark": {"s": "#A9ADB3", "a": "#FFC400", "word": "#FFFFFF", "sub": "#A9ADB3"},
-          "light": {"s": "#80858C", "a": "#F2B300", "word": "#0E1013", "sub": "#4A515C"}}
-INK = "#0E1013"
+          "light": {"s": "#80858C", "a": "#F2B300", "word": "#0F172A", "sub": "#475569"}}
+INK = "#0F172A"
 
 
 def masks():
@@ -126,7 +126,7 @@ def main():
         return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W:.0f} {H:.0f}" role="img" aria-label="Sellandiamman Power Infra">{rect}'
                 f'<g transform="translate({mx:.1f} 20)"><path fill="{c["s"]}" fill-rule="evenodd" d="{mark["s"]}"/><path fill="{c["a"]}" fill-rule="evenodd" d="{mark["a"]}"/></g>'
                 f'<g transform="translate({wx:.1f} {20 + mark["h"] + gap:.1f}) scale({scale:.4f})"><path fill="{c["word"]}" fill-rule="evenodd" d="{word["d"]}"/></g>'
-                f'<text x="{W / 2:.0f}" y="{sub_y:.0f}" text-anchor="middle" font-family="Archivo, Arial, sans-serif" font-weight="700" font-size="46" letter-spacing="14" fill="{c["sub"]}">POWER INFRA</text></svg>')
+                f'<text x="{W / 2:.0f}" y="{sub_y:.0f}" text-anchor="middle" font-family="Outfit, Arial, sans-serif" font-weight="600" font-size="46" letter-spacing="14" fill="{c["sub"]}">POWER INFRA</text></svg>')
 
     (PUBLIC / "brand/mark-dark.svg").write_text(mark_svg("dark"))
     (PUBLIC / "brand/mark-light.svg").write_text(mark_svg("light"))
@@ -141,7 +141,7 @@ def main():
 async def render_pngs(fav, lockup, mark_dark):
     import base64
     from playwright.async_api import async_playwright
-    ARCHIVO = base64.b64encode((ROOT / 'frontend/node_modules/@fontsource/archivo/files/archivo-latin-800-normal.woff2').read_bytes()).decode()
+    OUTFIT = base64.b64encode((ROOT / 'frontend/node_modules/@fontsource/outfit/files/outfit-latin-700-normal.woff2').read_bytes()).decode()
     async with async_playwright() as p:
         b = await p.chromium.launch()
         page = await b.new_page(device_scale_factor=1)
@@ -152,10 +152,10 @@ async def render_pngs(fav, lockup, mark_dark):
         await page.set_viewport_size({"width": 600, "height": 420})
         await page.set_content(f'<html><body style="margin:0;background:{INK}">{lockup.replace("<svg ", "<svg width=\"600\" ", 1)}</body></html>')
         await page.screenshot(path=str(PUBLIC / "brand/logo-dark.png"))
-        html = f"""<html><head><style>@font-face{{font-family:Archivo;font-weight:800;src:url(data:font/woff2;base64,{ARCHIVO})}}
-        body{{margin:0;width:1200px;height:630px;background:{INK};font-family:Archivo,Arial,sans-serif;color:#fff;position:relative;overflow:hidden}}
-        .m{{position:absolute;left:84px;top:96px;width:260px}} h1{{position:absolute;left:84px;top:300px;margin:0;font-size:64px;line-height:1.05;letter-spacing:-1.5px;font-weight:800;width:880px}}
-        p{{position:absolute;left:86px;top:470px;font-size:28px;color:#A3A8AF;margin:0;font-family:Arial,sans-serif}} .line{{position:absolute;left:0;right:0;bottom:64px;height:6px;background:#0B5CFF}}</style></head>
+        html = f"""<html><head><style>@font-face{{font-family:Outfit;font-weight:700;src:url(data:font/woff2;base64,{OUTFIT})}}
+        body{{margin:0;width:1200px;height:630px;background:{INK};font-family:Outfit,Arial,sans-serif;color:#fff;position:relative;overflow:hidden}}
+        .m{{position:absolute;left:84px;top:96px;width:260px}} h1{{position:absolute;left:84px;top:300px;margin:0;font-size:64px;line-height:1.05;letter-spacing:-1px;font-weight:700;width:880px}}
+        p{{position:absolute;left:86px;top:470px;font-size:28px;color:#94A3B8;margin:0;font-family:Arial,sans-serif}} .line{{position:absolute;left:0;right:0;bottom:64px;height:6px;background:#FFC400}}</style></head>
         <body><div class="m">{mark_dark.replace('<svg ', '<svg width="260" ', 1)}</div><h1>Power infrastructure, engineered and energised.</h1>
         <p>Sellandiamman Power Infra, LT and HT electrical contracting</p><div class="line"></div></body></html>"""
         await page.set_viewport_size({"width": 1200, "height": 630})

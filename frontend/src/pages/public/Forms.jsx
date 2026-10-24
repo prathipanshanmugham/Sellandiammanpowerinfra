@@ -198,9 +198,9 @@ export function EmergencyPage() {
     <>
       <section className="bg-bad text-white">
         <div className="container py-10 md:py-14">
-          <h1 className="text-[30px] font-extrabold leading-tight text-white md:text-[42px]" style={{ letterSpacing: "-0.02em" }}>Power down? Call the breakdown line.</h1>
+          <h1 className="text-[30px] font-semibold leading-tight text-white md:text-[42px]" style={{ letterSpacing: "-0.02em" }}>Power down? Call the breakdown line.</h1>
           <p className="mt-3 max-w-2xl text-lg text-white/85">Keep people away from the equipment. Don't reset a tripped HT breaker until the cause is found.</p>
-          {s.emergency_phone && <a href={telLink(s.emergency_phone)} dir="ltr" className="mt-6 inline-flex h-14 items-center gap-3 rounded-lg bg-white px-6 font-display text-[22px] font-extrabold text-bad tabular"><Phone className="h-6 w-6" />{s.emergency_phone}</a>}
+          {s.emergency_phone && <a href={telLink(s.emergency_phone)} dir="ltr" className="mt-6 inline-flex h-14 items-center gap-3 rounded-lg bg-white px-6 font-display text-[22px] font-semibold text-bad tabular"><Phone className="h-6 w-6" />{s.emergency_phone}</a>}
         </div>
       </section>
       <TwoCol aside={<div className="rounded-xl bg-paper p-5 text-sm leading-relaxed"><h2 className="font-display text-[17px] font-bold">While you wait</h2>
@@ -377,7 +377,7 @@ export function AssetPage() {
   return (
     <div className="container max-w-2xl py-10">
       <p className="flex items-center gap-2 text-sm text-muted"><Wrench className="h-4 w-4" />Maintained by Sellandiamman Power Infra</p>
-      <h1 className="mt-2 text-[28px] font-extrabold">{a.kind} {a.code}</h1>
+      <h1 className="mt-2 text-[28px] font-semibold">{a.kind} {a.code}</h1>
       <dl className="mt-5 divide-y divide-line rounded-xl border border-line text-[16px]">
         {rows.map(([k, x]) => <div key={k} className="flex justify-between gap-4 px-4 py-2.5"><dt className="text-muted">{k}</dt><dd className="text-end font-medium">{x}</dd></div>)}
       </dl>

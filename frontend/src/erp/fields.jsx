@@ -173,7 +173,7 @@ export function RefPicker({ f, value, onChange, refs, onRefTitle, placeholder = 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button type="button" className={cn("flex h-10 w-full items-center justify-between gap-2 rounded-md border border-edge bg-surface px-3 text-left text-sm focus:border-signal-deep focus:outline-none focus:ring-2 focus:ring-signal/40", className)}>
+        <button type="button" className={cn("flex h-10 w-full items-center justify-between gap-2 rounded-md border border-edge bg-surface px-3 text-left text-sm focus:border-ink focus:outline-none focus:ring-2 focus:ring-signal/70", className)}>
           <span className={cn("truncate", !value && "text-muted/80")}>{title || placeholder}</span>
           <span className="flex items-center gap-1">
             {value && <span role="button" tabIndex={-1} onClick={(ev) => { ev.stopPropagation(); onChange(null); }} className="rounded p-0.5 text-muted hover:text-bad" aria-label="Clear"><X className="h-3.5 w-3.5" /></span>}

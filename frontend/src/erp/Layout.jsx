@@ -21,7 +21,7 @@ export const setDemoBar = (C) => { demoBar = C; };
 
 function useTheme() {
   const [t, setT] = useState(() => store.get("spi_theme", "light"));
-  useEffect(() => { document.documentElement.dataset.theme = t; store.set("spi_theme", t); return () => { document.documentElement.dataset.theme = "light"; }; }, [t]);
+  useEffect(() => { document.documentElement.dataset.spiTheme = t; store.set("spi_theme", t); return () => { document.documentElement.dataset.spiTheme = "light"; }; }, [t]);
   return [t, setT];
 }
 
@@ -47,7 +47,7 @@ function Sidebar({ sections, onNavigate, counts }) {
                       className={({ isActive }) => cn("flex items-center gap-2.5 rounded-md px-2 py-1.5 text-[14.5px] text-white/85 hover:bg-white/[.06] hover:text-white", (isActive || (!i.end && loc.pathname.startsWith(`${i.to}/`))) && "bg-white/[.09] font-medium text-white")}>
                       <Icon name={i.icon} className="h-4 w-4 shrink-0 text-white/65" />
                       <span className="truncate">{i.label}</span>
-                      {i.badge && counts?.[i.badge] > 0 && <span className="ml-auto rounded-full bg-signal px-1.5 text-[12px] font-bold text-white tabular">{counts[i.badge]}</span>}
+                      {i.badge && counts?.[i.badge] > 0 && <span className="ml-auto rounded-full bg-signal px-1.5 text-[12px] font-bold text-ink tabular">{counts[i.badge]}</span>}
                     </NavLink>
                   </li>
                 ))}
