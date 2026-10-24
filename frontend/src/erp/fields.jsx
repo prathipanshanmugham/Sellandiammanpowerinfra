@@ -73,7 +73,7 @@ export function LinesView({ f, rows, refs }) {
   const totals = cols.map((c) => (["money"].includes(c.t) || (c.t === "number" && /amount|qty|total/i.test(c.k)) ? rows.reduce((a, r) => a + (Number(r[c.k]) || 0), 0) : null));
   return (
     <div className="overflow-x-auto rounded-lg border border-edge">
-      <table className="w-full text-sm">
+      <table className="w-full text-[14px]">
         <thead className="bg-canvas text-left text-xs text-muted">
           <tr><th className="w-8 px-2 py-2 font-medium">#</th>{cols.map((c) => <th key={c.k} className={cn("whitespace-nowrap px-2 py-2 font-medium", ["money", "number", "percent"].includes(c.t) && "text-right")}>{c.l}</th>)}</tr>
         </thead>
@@ -102,7 +102,7 @@ export function FieldInput({ f, value, onChange, refs, onRefTitle, doc, id }) {
   if (ro) return <div className="flex min-h-10 items-center rounded-md bg-canvas px-3 text-sm"><FieldValue f={f} v={value} refs={refs} compact /></div>;
   switch (f.t) {
     case "textarea": return <Textarea id={id} value={value ?? ""} onChange={(e) => onChange(e.target.value)} rows={3} />;
-    case "markdown": return <Textarea id={id} value={value ?? ""} onChange={(e) => onChange(e.target.value)} rows={8} className="font-mono text-[13px]" />;
+    case "markdown": return <Textarea id={id} value={value ?? ""} onChange={(e) => onChange(e.target.value)} rows={8} className="font-mono text-[14px]" />;
     case "number": case "money": case "percent":
       return (
         <div className="relative">
@@ -137,7 +137,7 @@ function MultiSelect({ f, value, onChange }) {
       {opts.map((o) => {
         const on = value.includes(o.value);
         return <button key={o.value} type="button" onClick={() => onChange(on ? value.filter((x) => x !== o.value) : [...value, o.value])} aria-pressed={on}
-          className={cn("rounded px-2 py-1 text-xs", on ? "bg-ink text-white" : "bg-canvas text-fg/75 hover:bg-fg/10")}>{o.label}</button>;
+          className={cn("rounded px-2 py-1 text-xs", on ? "bg-ink text-white" : "bg-canvas text-fg/85 hover:bg-fg/10")}>{o.label}</button>;
       })}
     </div>
   );
@@ -280,7 +280,7 @@ export function LinesEditor({ f, rows, onChange, refs, onRefTitle, doc }) {
           <div className="grid grid-cols-2 gap-2 md:grid-cols-6">
             {editable.map((x) => (
               <label key={x.k} className={cn("block min-w-0", wide(x) ? "col-span-2 md:col-span-6" : x.t === "ref" ? "col-span-2 md:col-span-3" : "col-span-1")}>
-                <span className="mb-0.5 block text-[11px] text-muted">{x.l}{x.unit ? ` (${x.unit})` : ""}</span>
+                <span className="mb-0.5 block text-[12px] text-muted">{x.l}{x.unit ? ` (${x.unit})` : ""}</span>
                 {x.t === "textarea" ? <Textarea rows={2} value={r[x.k] ?? ""} onChange={(e) => set(i, x.k, e.target.value)} />
                   : x.t === "select" ? <Select value={r[x.k] ?? ""} onChange={(e) => set(i, x.k, e.target.value || null)} options={optionsFor(meta, x)} placeholder="—" className="h-9" />
                     : x.t === "ref" ? <RefPicker f={x} value={r[x.k]} onChange={(v) => set(i, x.k, v)} refs={refs} onRefTitle={onRefTitle} className="h-9" />

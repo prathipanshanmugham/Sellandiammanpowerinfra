@@ -121,10 +121,10 @@ export function Details({ e, doc }) {
         if (!narrow.some((f) => doc[f.k] !== null && doc[f.k] !== undefined && doc[f.k] !== "") && !wide.length) return null;
         return (
           <section key={g.group || "main"} className="rounded-xl border border-edge bg-surface p-4 shadow-card">
-            {g.group && <h2 className="mb-3 font-sans text-[13px] font-semibold tracking-normal text-muted">{g.group}</h2>}
+            {g.group && <h2 className="mb-3 font-sans text-[14px] font-semibold tracking-normal text-muted">{g.group}</h2>}
             {narrow.length > 0 && (
               <dl className="grid gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
-                {narrow.map((f) => <div key={f.k} className="min-w-0"><dt className="text-xs text-muted">{f.l}</dt><dd className="mt-0.5 break-words text-[14px]"><FieldValue f={f} v={doc[f.k]} refs={doc._refs} e={e} /></dd></div>)}
+                {narrow.map((f) => <div key={f.k} className="min-w-0"><dt className="text-xs text-muted">{f.l}</dt><dd className="mt-0.5 break-words text-[15px]"><FieldValue f={f} v={doc[f.k]} refs={doc._refs} e={e} /></dd></div>)}
               </dl>
             )}
             {wide.map((f) => <div key={f.k} className="mt-4"><p className="mb-1.5 text-xs text-muted">{f.l}</p><FieldValue f={f} v={doc[f.k]} refs={doc._refs} e={e} /></div>)}
@@ -168,7 +168,7 @@ function HistoryList({ entityKey, id }) {
           <span className={cn("absolute -left-[26px] top-1 h-3 w-3 rounded-full border-2 border-surface", h.action === "reject" || h.action === "delete" ? "bg-bad" : h.action === "approve" ? "bg-good" : "bg-steel")} />
           <p className="text-sm"><span className="font-medium">{ACTION_LABEL[h.action] || h.action.replace(/_/g, " ")}</span> by {h.user_name || "System"}</p>
           <p className="text-xs text-muted tabular">{fmtDateTime(h.at)}</p>
-          {h.details?.changes && <ul className="mt-1 space-y-0.5 text-xs text-muted">{Object.entries(h.details.changes).slice(0, 8).map(([k, v]) => <li key={k}><span className="font-medium text-fg/75">{k.replace(/_id$/, "").replace(/_/g, " ")}</span>{Array.isArray(v) ? <>: {short(v[0])} to {short(v[1])}</> : " changed"}</li>)}</ul>}
+          {h.details?.changes && <ul className="mt-1 space-y-0.5 text-xs text-muted">{Object.entries(h.details.changes).slice(0, 8).map(([k, v]) => <li key={k}><span className="font-medium text-fg/85">{k.replace(/_id$/, "").replace(/_/g, " ")}</span>{Array.isArray(v) ? <>: {short(v[0])} to {short(v[1])}</> : " changed"}</li>)}</ul>}
           {h.details?.reason && <p className="mt-1 text-xs">“{h.details.reason}”</p>}
         </li>
       ))}

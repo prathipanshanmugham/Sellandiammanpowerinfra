@@ -249,7 +249,7 @@ function AddLogin({ presets, roles, onClose, onDone }) {
         <Field label="Password"><Input type="password" value={v.password} onChange={(e) => setV((s) => ({ ...s, password: e.target.value }))} autoComplete="new-password" /></Field>
         <Field label="Notes"><Input value={v.notes} onChange={(e) => setV((s) => ({ ...s, notes: e.target.value }))} /></Field>
         <Field label="Who can see it" className="sm:col-span-2">
-          <div className="flex flex-wrap gap-1.5">{roles.map((r) => { const on = v.share_roles.includes(r.key); return <button key={r.key} type="button" onClick={() => setV((s) => ({ ...s, share_roles: on ? s.share_roles.filter((x) => x !== r.key) : [...s.share_roles, r.key] }))} className={cn("rounded px-2 py-1 text-xs", on ? "bg-ink text-white" : "bg-canvas text-fg/75")}>{r.label}</button>; })}</div>
+          <div className="flex flex-wrap gap-1.5">{roles.map((r) => { const on = v.share_roles.includes(r.key); return <button key={r.key} type="button" onClick={() => setV((s) => ({ ...s, share_roles: on ? s.share_roles.filter((x) => x !== r.key) : [...s.share_roles, r.key] }))} className={cn("rounded px-2 py-1 text-xs", on ? "bg-ink text-white" : "bg-canvas text-fg/85")}>{r.label}</button>; })}</div>
         </Field>
       </div>
     </Dialog>

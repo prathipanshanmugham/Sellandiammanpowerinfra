@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { CheckCircle2, Paperclip, X, CalendarDays, Upload, Phone } from "lucide-react";
 import { api, errMsg, store } from "@/lib/api";
 import { tracking } from "@/lib/tracking";
-import { useT } from "@/lib/i18n";
+import { useT, useLocale } from "@/lib/i18n";
 import { fmtDate, telLink } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Button, Input, Select, Textarea, Field, Checkbox, Alert, Dialog } from "@/components/ui/kit";
@@ -14,18 +14,19 @@ export const CONSENT = "I agree that Sellandiamman Power Infra may contact me by
 export function Consent({ checked, onChange, id = "consent" }) {
   return (
     <Checkbox id={id} checked={checked} onChange={onChange}
-      label={<span className="text-[13px] text-muted">I agree that Sellandiamman Power Infra may contact me by phone, WhatsApp or email about this enquiry, as explained in the <Link to="/privacy" className="text-cable underline">privacy notice</Link>.</span>} />
+      label={<span className="text-[14px] text-muted"><span>I agree that Sellandiamman Power Infra may contact me by phone, WhatsApp or email about this enquiry.</span> <Link to="/privacy" className="text-cable underline">Read the privacy notice</Link></span>} />
   );
 }
 
 // Hidden field that people never fill; bots do.
 export const Honeypot = ({ value, onChange }) => (
-  <div aria-hidden className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden">
+  <div aria-hidden className="absolute start-[-9999px] top-auto h-px w-px overflow-hidden">
     <label>Website <input tabIndex={-1} autoComplete="off" value={value} onChange={(e) => onChange(e.target.value)} /></label>
   </div>
 );
 
 export function FileDrop({ files, onChange, label = "Drawings, load list, bills or photos", max = 6, accept = ".pdf,.jpg,.jpeg,.png,.webp,.xlsx,.docx" }) {
+  const t = useT();
   const ref = useRef(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
@@ -34,7 +35,7 @@ export function FileDrop({ files, onChange, label = "Drawings, load list, bills 
     setBusy(true);
     const out = [...files];
     for (const f of Array.from(list).slice(0, max - files.length)) {
-      if (f.size > 15 * 1024 * 1024) { setErr(`${f.name} is larger than 15 MB`); continue; }
+      if (f.size > 15 * 1024 * 1024) { setErr(t("{name} is larger than 15 MB", { name: f.name })); continue; }
       const fd = new FormData();
       fd.append("file", f);
       try { const r = await api.post("/public/upload", fd); out.push(r.data); } catch (e) { setErr(errMsg(e)); }
@@ -45,9 +46,9 @@ export function FileDrop({ files, onChange, label = "Drawings, load list, bills 
   return (
     <div>
       <button type="button" onClick={() => ref.current?.click()} onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); pick(e.dataTransfer.files); }}
-        className="flex w-full items-center gap-3 rounded-md border border-dashed border-edge bg-canvas px-4 py-3 text-left text-sm text-muted hover:border-fg/30">
+        className="flex w-full items-center gap-3 rounded-md border border-dashed border-edge bg-canvas px-4 py-3 text-start text-sm text-muted hover:border-fg/30">
         <Upload className="h-4 w-4 shrink-0" aria-hidden />
-        <span>{busy ? "Uploading…" : <>{label} <span className="text-fg/60">— PDF, photo, Excel; up to 15 MB each</span></>}</span>
+        <span>{busy ? "Uploading…" : <>{label} <span className="text-fg/75">{t("PDF, photo or Excel, up to 15 MB each")}</span></>}</span>
       </button>
       <input ref={ref} type="file" className="hidden" multiple accept={accept} onChange={(e) => pick(e.target.files)} />
       {err && <p className="mt-1 text-xs text-bad">{err}</p>}
@@ -55,7 +56,7 @@ export function FileDrop({ files, onChange, label = "Drawings, load list, bills 
         <ul className="mt-2 space-y-1">
           {files.map((f) => (
             <li key={f.id} className="flex items-center gap-2 text-sm"><Paperclip className="h-3.5 w-3.5 text-muted" /><span className="truncate">{f.name}</span>
-              <button type="button" onClick={() => onChange(files.filter((x) => x.id !== f.id))} className="ml-auto text-muted hover:text-bad" aria-label={`Remove ${f.name}`}><X className="h-4 w-4" /></button></li>
+              <button type="button" onClick={() => onChange(files.filter((x) => x.id !== f.id))} className="ms-auto text-muted hover:text-bad" aria-label={`Remove ${f.name}`}><X className="h-4 w-4" /></button></li>
           ))}
         </ul>
       )}
@@ -71,13 +72,14 @@ export function useLeadForm(initial = {}) {
 
 export function Done({ title = "Thank you", reference, children, compact }) {
   const site = useSite();
+  const t = useT();
   return (
     <div className={cn("rounded-lg border border-good/30 bg-good/5 p-5", compact && "p-4")} role="status">
       <div className="flex items-start gap-3">
         <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-good" />
         <div>
           <p className="font-semibold">{title}</p>
-          {reference && <p className="mt-1 text-sm">Your reference is <span className="font-semibold tabular">{reference}</span>. An engineer will call you within {site.settings?.first_response_text || "30 working minutes"}.</p>}
+          {reference && <p className="mt-1 text-sm">{t("Your reference is {ref}.", { ref: <span key="r" className="font-semibold tabular">{reference}</span> })} {t("An engineer will call you within {time}.", { time: t(site.settings?.first_response_text || "30 working minutes") })}</p>}
           {children}
         </div>
       </div>
@@ -239,6 +241,7 @@ export function QuoteWizard({ preset = {} }) {
 
 // ------------------------------------------------------------------ site survey booking
 export function SurveyBooking({ defaultType = "site_survey" }) {
+  const locale = useLocale();
   const [slots, setSlots] = useState(null);
   const [pick, setPick] = useState(null);
   const [day, setDay] = useState(null);
@@ -283,9 +286,9 @@ export function SurveyBooking({ defaultType = "site_survey" }) {
             {slots.map((x) => (
               <button type="button" key={x.date} disabled={!x.slots.length} onClick={() => { setDay(x.date); setPick(null); }}
                 className={cn("flex w-[68px] shrink-0 flex-col items-center rounded-md border py-2 text-xs disabled:opacity-35", day === x.date ? "border-ink bg-ink text-white" : "border-edge hover:border-fg/30")}>
-                <span>{new Date(`${x.date}T00:00:00+05:30`).toLocaleDateString("en-IN", { weekday: "short" })}</span>
+                <span>{new Date(`${x.date}T00:00:00+05:30`).toLocaleDateString(locale, { weekday: "short" })}</span>
                 <span className="font-display text-lg font-bold">{x.date.slice(8)}</span>
-                <span>{new Date(`${x.date}T00:00:00+05:30`).toLocaleDateString("en-IN", { month: "short" })}</span>
+                <span>{new Date(`${x.date}T00:00:00+05:30`).toLocaleDateString(locale, { month: "short" })}</span>
               </button>
             ))}
           </div>
@@ -297,7 +300,7 @@ export function SurveyBooking({ defaultType = "site_survey" }) {
           <div className="flex flex-wrap gap-2">
             {today.slots.map((s) => {
               const key = `${today.date}T${s}`;
-              return <button type="button" key={s} onClick={() => setPick(key)} className={cn("rounded-md border px-4 py-2 text-sm tabular", pick === key ? "border-signal bg-signal font-semibold text-ink" : "border-edge hover:border-fg/30")}>{s}</button>;
+              return <button type="button" key={s} onClick={() => setPick(key)} className={cn("rounded-md border px-4 py-2 text-sm tabular", pick === key ? "border-signal bg-signal font-semibold text-white" : "border-edge hover:border-fg/30")}>{s}</button>;
             })}
           </div>
         </div>
@@ -334,5 +337,5 @@ export function PhoneLink({ className }) {
   const site = useSite();
   const p = site.settings?.phone;
   if (!p) return null;
-  return <a href={telLink(p)} className={className}>{p}</a>;
+  return <a href={telLink(p)} dir="ltr" className={className}>{p}</a>;
 }

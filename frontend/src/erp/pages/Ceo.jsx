@@ -12,12 +12,12 @@ import { PageHead, Kpi, Panel, Table, Bar, RISK, usePageTitle } from "../ui";
 function Dial({ score }) {
   const r = 52;
   const c = 2 * Math.PI * r;
-  const tone = score >= 75 ? "#1F7A4D" : score >= 50 ? "#E0A800" : "#B42318";
+  const tone = score >= 75 ? "#1B7A4B" : score >= 50 ? "#E09B00" : "#B42318";
   return (
     <svg viewBox="0 0 128 128" className="h-36 w-36" role="img" aria-label={`Business health ${score} out of 100`}>
       <circle cx="64" cy="64" r={r} fill="none" stroke="rgb(var(--edge))" strokeWidth="12" />
       <circle cx="64" cy="64" r={r} fill="none" stroke={tone} strokeWidth="12" strokeLinecap="round" strokeDasharray={`${(score / 100) * c} ${c}`} transform="rotate(-90 64 64)" />
-      <text x="64" y="66" textAnchor="middle" fontSize="34" fontWeight="800" fontFamily="Montserrat" fill="rgb(var(--fg))">{score}</text>
+      <text x="64" y="66" textAnchor="middle" fontSize="34" fontWeight="800" fontFamily="Archivo, IBM Plex Sans, sans-serif" fill="rgb(var(--fg))">{score}</text>
       <text x="64" y="86" textAnchor="middle" fontSize="11" fill="rgb(var(--muted))">out of 100</text>
     </svg>
   );
@@ -54,9 +54,9 @@ export default function Ceo() {
             <ul className="w-full flex-1 space-y-2.5">
               {data.pillars.map((p) => (
                 <li key={p.key}>
-                  <div className="flex items-baseline justify-between gap-2 text-sm"><span className="font-medium">{p.label}</span><span className="tabular text-muted">{p.score}<span className="text-xs">/100, weight {p.weight}%</span></span></div>
-                  <Bar value={p.score} max={100} tone={p.score >= 75 ? "good" : p.score >= 50 ? "signal" : "bad"} className="mt-1" />
-                  <p className="mt-0.5 text-xs text-muted">{p.note}</p>
+                  <div className="flex items-baseline justify-between gap-2 text-sm"><span className="font-medium">{p.label}</span><span className="shrink-0 tabular"><span className="font-semibold">{p.score}</span><span className="text-xs text-muted">/100</span></span></div>
+                  <Bar value={p.score} max={100} tone={p.score >= 75 ? "good" : p.score >= 50 ? "amber" : "bad"} className="mt-1" />
+                  <p className="mt-0.5 text-xs text-muted">{p.note}. Weight {p.weight}%</p>
                 </li>
               ))}
             </ul>

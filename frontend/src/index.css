@@ -4,47 +4,63 @@
 
 :root {
   --surface: 255 255 255;
-  --canvas: 244 246 249;
-  --fg: 10 22 38;
-  --muted: 91 100 114;
-  --edge: 214 220 228;
+  --canvas: 243 244 246;
+  --fg: 14 16 19;
+  --muted: 74 81 92;
+  --edge: 221 224 228;
+  /* Latin and Cyrillic come from the bundled faces; every other script falls through to the device's own fonts */
+  --font-scripts: "Noto Sans Devanagari", "Noto Sans Tamil", "Noto Sans Bengali", "Noto Sans Telugu", "Noto Sans Kannada", "Noto Sans Malayalam", "Noto Sans Gujarati", "Noto Sans Gurmukhi", "Noto Sans Oriya", "Nirmala UI", "Noto Sans Arabic", "Segoe UI", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", system-ui, sans-serif;
+  --font-sans: "IBM Plex Sans", var(--font-scripts);
+  --font-display: "Archivo", "IBM Plex Sans", var(--font-scripts);
   color-scheme: light;
 }
+/* the same Chinese characters are drawn differently in Japanese and Chinese fonts, so each gets its own first choice */
+html:lang(ja) { --font-scripts: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", "Noto Sans CJK JP", system-ui, sans-serif; }
+html:lang(zh) { --font-scripts: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", "Noto Sans CJK SC", system-ui, sans-serif; }
+html:lang(ar) { --font-scripts: "Noto Sans Arabic", "Segoe UI", "Geeza Pro", "Tahoma", system-ui, sans-serif; }
+html:lang(ur) { --font-scripts: "Noto Naskh Arabic", "Noto Sans Arabic", "Segoe UI", "Geeza Pro", "Tahoma", system-ui, sans-serif; }
 [data-theme="dark"] {
-  --surface: 14 29 49;
-  --canvas: 6 16 29;
-  --fg: 232 236 241;
-  --muted: 152 163 178;
-  --edge: 34 55 79;
+  --surface: 23 25 29;
+  --canvas: 13 14 16;
+  --fg: 236 238 241;
+  --muted: 163 169 178;
+  --edge: 46 50 57;
   color-scheme: dark;
 }
 
 @layer base {
   html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
-  body { @apply bg-canvas text-fg font-sans antialiased; font-feature-settings: "cv11", "ss01"; text-rendering: optimizeLegibility; }
-  h1, h2, h3, h4 { @apply font-display text-fg; letter-spacing: -0.015em; }
-  :focus-visible { outline: 2px solid #FFC400; outline-offset: 2px; border-radius: 4px; }
+  body { @apply bg-canvas text-fg font-sans antialiased; text-rendering: optimizeLegibility; }
+  h1, h2, h3, h4 { @apply font-display text-fg; letter-spacing: -0.01em; text-wrap: balance; }
+  :focus-visible { outline: 2px solid #0B5CFF; outline-offset: 2px; border-radius: 4px; }
   input, select, textarea { font-size: 16px; }
-  @media (min-width: 768px) { input, select, textarea { font-size: 14px; } }
+  @media (min-width: 768px) { input, select, textarea { font-size: 15px; } }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
-  ::selection { background: #FFC400; color: #0A1626; }
+  ::selection { background: #0B5CFF; color: #FFFFFF; }
 }
 
 @layer components {
-  .lead-text { @apply text-lg leading-relaxed text-muted; }
-  .prose-site { @apply text-[15.5px] leading-7 text-fg/90; max-width: 68ch; }
+  .lead-text { @apply text-lg leading-relaxed text-fg/80; }
+  .prose-site { @apply text-[17px] leading-[1.75] text-fg; max-width: 68ch; }
   .prose-site p { @apply my-3; }
   .prose-site h2 { @apply mt-8 mb-2 text-xl font-bold; }
   .prose-site h3 { @apply mt-6 mb-2 text-lg font-bold; }
-  .prose-site ul { @apply my-3 list-disc pl-5 space-y-1; }
-  .prose-site a { @apply text-cable underline underline-offset-2; }
+  .prose-site ul { @apply my-3 list-disc ps-5 space-y-1; }
+  .prose-site a { @apply text-signal-deep underline underline-offset-2; }
   .tabular { font-variant-numeric: tabular-nums; }
-  .field-label { @apply mb-1 block text-[13px] font-medium text-fg/80; }
+  .field-label { @apply mb-1.5 block text-[14px] font-medium text-fg; }
   .scrollbar-thin { scrollbar-width: thin; }
 }
 
 /* the single-line diagram in the hero: drawn once on load */
-.sld-wire { stroke-dasharray: var(--len); stroke-dashoffset: var(--len); animation: energise 2.4s cubic-bezier(.6,.05,.3,1) forwards; animation-delay: var(--d, 0s); }
+.sld-wire { filter: drop-shadow(0 0 3px rgba(77,139,255,.55)); stroke-dasharray: var(--len); stroke-dashoffset: var(--len); animation: energise 2.4s cubic-bezier(.6,.05,.3,1) forwards; animation-delay: var(--d, 0s); }
 .sld-node { opacity: 0; animation: nodeon .4s ease-out forwards; animation-delay: var(--d, 0s); }
 @keyframes nodeon { to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .sld-wire { stroke-dashoffset: 0; animation: none; } .sld-node { opacity: 1; animation: none; } }
+
+/* Indic, Arabic and CJK scripts need taller lines and no negative tracking, or marks above and below the letters get clipped */
+[data-script="complex"] h1, [data-script="complex"] h2, [data-script="complex"] h3, [data-script="complex"] h4 { line-height: 1.32 !important; letter-spacing: 0 !important; }
+[data-script="complex"] body { line-height: 1.7; }
+/* Indic, Arabic and CJK scripts carry more ink per word; the big titles come down a step so they don't run to five lines. */
+[data-script="complex"] .hero-title { font-size: clamp(30px, 4.4vw, 50px) !important; }
+[data-script="complex"] .page-title { font-size: clamp(27px, 3.4vw, 38px) !important; }

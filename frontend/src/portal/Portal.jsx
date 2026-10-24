@@ -40,13 +40,13 @@ export function PortalLayout() {
         <div className="container flex h-14 items-center justify-between gap-3">
           <Link to="/" aria-label="Website"><Logo theme="dark" compact /></Link>
           <div className="flex items-center gap-3 text-sm">
-            <span className="hidden text-white/70 sm:inline">{user?.name}</span>
-            <button type="button" onClick={async () => { await logout(); nav("/login"); }} className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-white/80 hover:bg-white/10 hover:text-white"><LogOut className="h-4 w-4" />Sign out</button>
+            <span className="hidden text-white/80 sm:inline">{user?.name}</span>
+            <button type="button" onClick={async () => { await logout(); nav("/login"); }} className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-white/85 hover:bg-white/10 hover:text-white"><LogOut className="h-4 w-4" />Sign out</button>
           </div>
         </div>
         <nav className="container scrollbar-thin flex gap-1 overflow-x-auto" aria-label="Portal">
           {(NAVS[user?.role] || []).map(([to, l, end]) => (
-            <NavLink key={to} to={to} end={end} className={({ isActive }) => cn("shrink-0 border-b-2 px-3 py-2.5 text-sm", isActive ? "border-signal font-semibold text-white" : "border-transparent text-white/65 hover:text-white")}>{l}</NavLink>
+            <NavLink key={to} to={to} end={end} className={({ isActive }) => cn("shrink-0 border-b-2 px-3 py-2.5 text-sm", isActive ? "border-signal font-semibold text-white" : "border-transparent text-white/75 hover:text-white")}>{l}</NavLink>
           ))}
         </nav>
       </header>
@@ -135,7 +135,7 @@ export function ClientHome() {
       <Head title={data.account?.name || "Welcome"} sub={`Signed in as ${user.name}`} actions={<Button as={Link} to="/client/service?new=1" variant="outline"><Wrench className="h-4 w-4" />Report a problem</Button>} />
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {[["Live projects", live.length, "/client/projects"], ["Waiting for you", data.approvals.length, null], ["Outstanding", inr(data.outstanding), "/client/bills"], ["Open service requests", data.tickets.length, "/client/service"]].map(([l, v, to]) => {
-          const body = <div className={cn("rounded-xl border border-edge bg-surface p-4 shadow-card", to && "hover:border-fg/25")}><p className="text-[13px] text-muted">{l}</p><p className="mt-1 font-display text-[24px] font-extrabold tabular">{v}</p></div>;
+          const body = <div className={cn("rounded-xl border border-edge bg-surface p-4 shadow-card", to && "hover:border-fg/25")}><p className="text-[14px] text-muted">{l}</p><p className="mt-1 font-display text-[24px] font-extrabold tabular">{v}</p></div>;
           return to ? <Link key={l} to={to}>{body}</Link> : <div key={l}>{body}</div>;
         })}
       </div>
@@ -317,7 +317,7 @@ function RateTicket({ t, onClose }) {
     <Dialog open onOpenChange={(x) => !x && onClose()} title={`How did we do? ${t.code}`} description={t.title}
       footer={<><Button variant="outline" onClick={() => send(true)}>Still not fixed</Button><Button onClick={() => send(false)}>Send rating</Button></>}>
       <div className="space-y-3">
-        <div className="flex gap-1" role="radiogroup" aria-label="Rating">{[1, 2, 3, 4, 5].map((n) => <button key={n} type="button" role="radio" aria-checked={r === n} onClick={() => setR(n)} aria-label={`${n} stars`}><Star className={cn("h-7 w-7", n <= r ? "fill-signal text-signal" : "text-steel")} /></button>)}</div>
+        <div className="flex gap-1" role="radiogroup" aria-label="Rating">{[1, 2, 3, 4, 5].map((n) => <button key={n} type="button" role="radio" aria-checked={r === n} onClick={() => setR(n)} aria-label={`${n} stars`}><Star className={cn("h-7 w-7", n <= r ? "fill-signal text-signal-bright" : "text-steel")} /></button>)}</div>
         <Field label="Anything to add?"><Textarea value={fb} onChange={(e) => setFb(e.target.value)} /></Field>
       </div>
     </Dialog>

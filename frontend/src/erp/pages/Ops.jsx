@@ -154,7 +154,7 @@ export function Finance() {
                 <YAxis tickFormatter={(v) => inr(v, { compact: true })} tick={{ fontSize: 11, fill: "rgb(var(--muted))" }} tickLine={false} axisLine={false} width={64} />
                 <Tooltip formatter={(v) => inr(v)} contentStyle={{ fontSize: 12, borderRadius: 8 }} cursor={{ fill: "rgb(var(--fg) / .04)" }} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <RBar dataKey="in" name="Money in" fill="#1F7A4D" radius={[3, 3, 0, 0]} />
+                <RBar dataKey="in" name="Money in" fill="#1B7A4B" radius={[3, 3, 0, 0]} />
                 <RBar dataKey="out" name="Money out" fill="#B42318" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -215,7 +215,7 @@ function Ageing({ rows, nameKey, link, expand }) {
   return (
     <div className="overflow-hidden rounded-xl border border-edge bg-surface">
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full text-[14px]">
           <thead className="border-b border-edge text-left text-xs text-muted"><tr><th className="px-3 py-2 font-medium">{nameKey === "client" ? "Client" : "Vendor"}</th>{["Not due", "1–30 days", "31–60", "61–90", "Over 90"].map((h) => <th key={h} className="px-3 py-2 text-right font-medium">{h}</th>)}<th className="px-3 py-2 text-right font-medium">Total</th></tr></thead>
           <tbody className="divide-y divide-edge">
             {rows.map((r, i) => (

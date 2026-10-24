@@ -34,9 +34,9 @@ export function ToolsHub() {
       <PageHero title="Calculators for LT and HT customers" text="Work out your load, supply, equipment sizes and savings before you talk to anyone. Each result shows the working and the standard it follows, and you can download it as a PDF.">
         <label className="relative block max-w-md">
           <span className="sr-only">Search calculators</span>
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/50" aria-hidden />
+          <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/65" aria-hidden />
           <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search, e.g. cable, solar, earthing"
-            className="h-11 w-full rounded-lg border border-white/20 bg-white/5 pl-9 pr-3 text-white placeholder:text-white/45 focus:border-signal focus:outline-none" />
+            className="h-11 w-full rounded-lg border border-white/20 bg-white/5 ps-9 pe-3 text-white placeholder:text-white/65 focus:border-signal focus:outline-none" />
         </label>
       </PageHero>
       <div className="container py-12">
@@ -52,9 +52,9 @@ export function ToolsHub() {
                 {g.tools.map((t) => (
                   <li key={t.slug} className="bg-white">
                     <Link to={`/tools/${t.slug}`} className="group flex h-full gap-3.5 p-4 hover:bg-paper">
-                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-ink text-signal"><Icon name={t.icon} className="h-[18px] w-[18px]" /></span>
-                      <span><span className="block font-display text-[15px] font-bold leading-snug group-hover:underline group-hover:decoration-signal group-hover:underline-offset-4">{t.title}</span>
-                        <span className="mt-1 block text-[13.5px] leading-relaxed text-muted">{t.summary}</span></span>
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-ink text-signal-bright"><Icon name={t.icon} className="h-[18px] w-[18px]" /></span>
+                      <span><span className="block font-display text-[16px] font-bold leading-snug group-hover:underline group-hover:decoration-signal group-hover:underline-offset-4">{t.title}</span>
+                        <span className="mt-1 block text-[14.5px] leading-relaxed text-muted">{t.summary}</span></span>
                     </Link>
                   </li>
                 ))}
@@ -76,7 +76,7 @@ export function StaffToolsHub() {
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {TOOLS.groups.map((g) => (
           <section key={g.key} className="rounded-xl border border-edge bg-surface shadow-card">
-            <h2 className="border-b border-edge px-4 py-3 font-sans text-[15px] font-semibold tracking-normal">{g.label}</h2>
+            <h2 className="border-b border-edge px-4 py-3 font-sans text-[16px] font-semibold tracking-normal">{g.label}</h2>
             <ul className="divide-y divide-edge">{TOOLS.tools.filter((t) => t.group === g.key).map((t) => <li key={t.slug}><Link to={`/erp/tools/${t.slug}`} className="flex items-center gap-2.5 px-4 py-2.5 text-sm hover:bg-canvas"><Icon name={t.icon} className="h-4 w-4 text-muted" />{t.title}</Link></li>)}</ul>
           </section>
         ))}
@@ -117,21 +117,24 @@ export function ToolPage({ staff = false }) {
         <div className="container py-8 md:py-10">
           <nav aria-label="Breadcrumb" className="mb-3 text-sm text-muted"><Link to={base} className="hover:underline">Calculators</Link><span className="mx-2">/</span>{group?.label}</nav>
           <h1 className="flex items-center gap-3 text-[28px] font-extrabold leading-tight md:text-[36px]" style={{ letterSpacing: "-0.02em" }}>
-            <span className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-ink text-signal sm:flex"><Icon name={spec.icon} className="h-5 w-5" /></span>{spec.title}
+            <span className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-ink text-signal-bright sm:flex"><Icon name={spec.icon} className="h-5 w-5" /></span>{spec.title}
           </h1>
-          <p className="mt-2 max-w-2xl text-[16px] text-muted">{spec.summary}</p>
+          <p className="mt-2 max-w-2xl text-[17px] text-muted">{spec.summary}</p>
         </div>
       </section>
       <div className="container grid gap-8 py-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-10">
         <form className="space-y-4 self-start rounded-xl border border-line bg-white p-5 lg:sticky lg:top-24" onSubmit={(e) => e.preventDefault()} aria-label="Inputs">
           <div className="flex items-center justify-between"><h2 className="font-display text-[17px] font-bold">Your inputs</h2>
             <Button type="button" variant="ghost" size="sm" onClick={() => setV(initial(spec))}><RotateCcw className="h-3.5 w-3.5" />Reset</Button></div>
-          {spec.inputs.filter((f) => visible(f, v)).map((f) => <InputField key={f.k} f={f} value={v[f.k]} C={C} onChange={(x) => setV((s) => ({ ...s, [f.k]: x }))} />)}
+          {/* Calculator fields are English technical text with numbers and units, so they stay left-to-right in Arabic and Urdu too. */}
+          <div dir="ltr" className="space-y-4">
+            {spec.inputs.filter((f) => visible(f, v)).map((f) => <InputField key={f.k} f={f} value={v[f.k]} C={C} onChange={(x) => setV((s) => ({ ...s, [f.k]: x }))} />)}
+          </div>
           {res?.headline && (
             <button type="button" onClick={() => document.getElementById("calc-result")?.scrollIntoView({ behavior: "smooth", block: "start" })}
-              className="flex w-full items-center justify-between rounded-lg bg-ink px-4 py-3 text-left text-white lg:hidden">
-              <span className="text-sm text-white/70">{res.headline.label}</span>
-              <span className="font-display text-lg font-extrabold tabular">{fmtItem(res.headline)}<span className="ml-2 text-sm font-medium text-signal">See result</span></span>
+              className="flex w-full items-center justify-between rounded-lg bg-ink px-4 py-3 text-start text-white lg:hidden">
+              <span className="text-sm text-white/80">{res.headline.label}</span>
+              <span className="font-display text-lg font-extrabold tabular">{fmtItem(res.headline)}<span className="ms-2 text-sm font-medium text-signal-bright">See result</span></span>
             </button>
           )}
         </form>
@@ -139,7 +142,7 @@ export function ToolPage({ staff = false }) {
           {err ? <Alert tone="amber" icon={Info} title="Check the inputs">{err}</Alert> : res ? <Result res={res} onLead={staff ? null : setLead} /> : null}
           {related.length > 0 && (
             <div className="mt-10">
-              <h2 className="font-display text-[16px] font-bold">Related calculators</h2>
+              <h2 className="font-display text-[17px] font-bold">Related calculators</h2>
               <ul className="mt-3 grid gap-2 sm:grid-cols-2">
                 {related.map((t) => <li key={t.slug}><Link to={`${base}/${t.slug}`} className="flex items-center gap-2 rounded-md border border-line px-3 py-2.5 text-sm hover:border-fg/30"><Icon name={t.icon} className="h-4 w-4 text-signal-deep" />{t.title}</Link></li>)}
               </ul>
@@ -159,8 +162,8 @@ function InputField({ f, value, onChange, C }) {
     return (
       <Field label={label} htmlFor={id}>
         <div className="relative">
-          <Input id={id} inputMode="decimal" value={value ?? ""} onChange={(e) => onChange(e.target.value.replace(/[^\d.\-]/g, ""))} className={f.unit ? "pr-14" : ""} />
-          {f.unit && <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted">{f.unit}</span>}
+          <Input id={id} inputMode="decimal" value={value ?? ""} onChange={(e) => onChange(e.target.value.replace(/[^\d.\-]/g, ""))} className={f.unit ? "pe-14" : ""} />
+          {f.unit && <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-sm text-muted">{f.unit}</span>}
         </div>
       </Field>
     );
@@ -201,7 +204,7 @@ function InputField({ f, value, onChange, C }) {
             <div key={n} className="grid gap-2 rounded-lg border border-line p-2.5 sm:[grid-template-columns:var(--cols)]" style={{ "--cols": f.fields.map((x) => (x.t === "text" ? "minmax(0,1.9fr)" : x.t === "select" ? "minmax(0,1.6fr)" : "minmax(0,1fr)")).join(" ") + " 36px" }}>
               {f.fields.map((x) => (
                 <label key={x.k} className={cn("block min-w-0", x.t === "text" && f.fields.length > 3 && "sm:col-span-1")}>
-                  <span className="mb-0.5 block text-[11px] text-muted">{x.l}</span>
+                  <span className="mb-0.5 block text-[12px] text-muted">{x.l}</span>
                   {x.t === "select" ? <Select value={r[x.k] ?? ""} onChange={(e) => set(n, x.k, e.target.value)} options={x.opts} className="h-9" />
                     : <Input value={r[x.k] ?? ""} inputMode={x.t === "number" ? "decimal" : undefined} onChange={(e) => set(n, x.k, x.t === "number" ? e.target.value.replace(/[^\d.]/g, "") : e.target.value)} className="h-9" />}
                 </label>
@@ -227,9 +230,10 @@ export function fmtItem(it) {
   return it.unit ? `${s} ${it.unit}` : s;
 }
 const cellText = (x) => (typeof x === "number" ? new Intl.NumberFormat("en-IN", { maximumFractionDigits: 2 }).format(x) : x ?? "");
-const STATUS = { ok: ["border-good/30 bg-good/[.06]", CheckCircle2, "text-good"], warn: ["border-signal/60 bg-signal-soft/60", AlertTriangle, "text-signal-ink"], bad: ["border-bad/30 bg-bad/[.06]", XCircle, "text-bad"] };
+const STATUS = { ok: ["border-good/30 bg-good/[.06]", CheckCircle2, "text-good"], warn: ["border-amber/60 bg-amber-soft/70", AlertTriangle, "text-amber-ink"], bad: ["border-bad/30 bg-bad/[.06]", XCircle, "text-bad"] };
 
 function Result({ res, onLead }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [S, StIcon, stTone] = STATUS[res.status] || STATUS.ok;
   const h = res.headline || {};
@@ -237,16 +241,16 @@ function Result({ res, onLead }) {
     <div aria-live="polite">
       <div className="overflow-hidden rounded-xl bg-ink text-white">
         <div className="p-6">
-          <p className="text-sm text-white/60">{h.label}</p>
-          <p className="mt-1 font-display text-[42px] font-extrabold leading-none tabular md:text-[52px]" style={{ letterSpacing: "-0.03em" }}>
+          <p dir="auto" className="text-sm text-white/75">{h.label}</p>
+          <p dir="ltr" className="mt-1 text-start font-display text-[42px] font-extrabold leading-none tabular md:text-[52px]" style={{ letterSpacing: "-0.03em" }}>
             {h.fmt === "inr" || h.unit === "₹" ? inr(h.value) : typeof h.value === "number" ? num(h.value) : h.value}
-            {h.unit && h.unit !== "₹" && <span className="ml-2 text-[22px] font-bold text-signal">{h.unit}</span>}
+            {h.unit && h.unit !== "₹" && <span className="ms-2 text-[22px] font-bold text-signal-bright">{h.unit}</span>}
           </p>
-          {h.sub && <p className="mt-2 text-[15px] text-white/75">{h.sub}</p>}
+          {h.sub && <p dir="auto" className="mt-2 text-[16px] text-white/85">{h.sub}</p>}
         </div>
-        <div className={cn("flex gap-3 border-t border-white/10 bg-white text-fg px-5 py-4", "border-l-4", res.status === "bad" ? "border-l-bad" : res.status === "warn" ? "border-l-signal" : "border-l-good")}>
+        <div className={cn("flex gap-3 border-t border-white/10 bg-white text-fg px-5 py-4", "border-s-4", res.status === "bad" ? "border-s-bad" : res.status === "warn" ? "border-s-amber" : "border-s-good")}>
           <StIcon className={cn("mt-0.5 h-5 w-5 shrink-0", stTone)} aria-hidden />
-          <p className="text-[15px] leading-relaxed">{res.verdict}</p>
+          <p dir="auto" className="text-[16px] leading-relaxed">{res.verdict}</p>
         </div>
       </div>
       <div className="mt-4 flex flex-wrap gap-2 print:hidden">
@@ -256,28 +260,28 @@ function Result({ res, onLead }) {
         </> : !IN_FRAME && <Button variant="outline" onClick={() => window.print()}><FileDown className="h-4 w-4" />Print or save as PDF</Button>}
       </div>
       {res.items?.length > 0 && (
-        <dl className="mt-6 divide-y divide-line rounded-xl border border-line bg-white">
+        <dl dir="ltr" className="mt-6 divide-y divide-line rounded-xl border border-line bg-white">
           {res.items.map((it, n) => (
             <div key={n} className="flex items-baseline justify-between gap-4 px-4 py-2.5">
               <dt className="text-sm text-muted">{it.label}</dt>
-              <dd className={cn("text-right font-semibold tabular", it.tone === "good" && "text-good", it.tone === "bad" && "text-bad", it.tone === "warn" && "text-warn", it.tone === "accent" && "rounded bg-signal-soft px-1.5 text-signal-ink")}>{fmtItem(it)}</dd>
+              <dd className={cn("text-end font-semibold tabular", it.tone === "good" && "text-good", it.tone === "bad" && "text-bad", it.tone === "warn" && "text-warn", it.tone === "accent" && "rounded bg-signal-soft px-1.5 text-signal-ink")}>{fmtItem(it)}</dd>
             </div>
           ))}
         </dl>
       )}
       {res.checklist?.length > 0 && (
-        <ol className="mt-6 space-y-2 rounded-xl border border-line bg-white p-5">
-          {res.checklist.map((c, n) => <li key={n} className="flex gap-3 text-[15px]"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-paper text-xs font-bold tabular">{n + 1}</span>{c}</li>)}
+        <ol dir="auto" className="mt-6 space-y-2 rounded-xl border border-line bg-white p-5">
+          {res.checklist.map((c, n) => <li key={n} className="flex gap-3 text-[16px]"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-paper text-xs font-bold tabular">{n + 1}</span>{c}</li>)}
         </ol>
       )}
       {res.table && !res.checklist?.length && (
-        <div className="mt-6 overflow-hidden rounded-xl border border-line bg-white">
+        <div dir="ltr" className="mt-6 overflow-hidden rounded-xl border border-line bg-white">
           {res.table.title && <p className="border-b border-line px-4 py-2.5 text-sm font-semibold">{res.table.title}</p>}
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead><tr className="bg-paper text-left">{res.table.columns.map((c, i) => <th key={i} scope="col" className={cn("whitespace-nowrap px-3 py-2 font-medium text-muted", i > 0 && "text-right")}>{c}</th>)}</tr></thead>
+              <thead><tr className="bg-paper text-start">{res.table.columns.map((c, i) => <th key={i} scope="col" className={cn("whitespace-nowrap px-3 py-2 font-medium text-muted", i > 0 && "text-end")}>{c}</th>)}</tr></thead>
               <tbody className="divide-y divide-line">
-                {res.table.rows.map((r, i) => <tr key={i}>{r.map((x, j) => <td key={j} className={cn("whitespace-nowrap px-3 py-2 tabular", j > 0 && "text-right", /total/i.test(String(r[0])) && "font-semibold")}>{cellText(x)}</td>)}</tr>)}
+                {res.table.rows.map((r, i) => <tr key={i}>{r.map((x, j) => <td key={j} className={cn("whitespace-nowrap px-3 py-2 tabular", j > 0 && "text-end", /total/i.test(String(r[0])) && "font-semibold")}>{cellText(x)}</td>)}</tr>)}
               </tbody>
             </table>
           </div>
@@ -285,24 +289,24 @@ function Result({ res, onLead }) {
       )}
       {res.steps?.length > 0 && (
         <div className="mt-6 rounded-xl border border-line bg-white">
-          <button type="button" onClick={() => setOpen((x) => !x)} aria-expanded={open} className="flex w-full items-center justify-between px-4 py-3 text-left text-sm font-semibold">
-            Show the working ({res.steps.length} steps)<ChevronDown className={cn("h-4 w-4 transition-transform", open && "rotate-180")} />
+          <button type="button" onClick={() => setOpen((x) => !x)} aria-expanded={open} className="flex w-full items-center justify-between px-4 py-3 text-start text-sm font-semibold">
+            {t("Show the working ({n} steps)", { n: res.steps.length })}<ChevronDown className={cn("h-4 w-4 transition-transform", open && "rotate-180")} />
           </button>
           {open && (
-            <ol className="divide-y divide-line border-t border-line">
+            <ol dir="ltr" className="divide-y divide-line border-t border-line">
               {res.steps.map((s, n) => (
                 <li key={n} className="grid gap-1 px-4 py-2.5 text-sm sm:grid-cols-[1fr_auto] sm:gap-4">
-                  <div><p className="font-medium">{s.label}</p><p className="font-mono text-[12.5px] text-muted">{s.formula}</p></div>
-                  {s.value !== "" && s.value !== null && s.value !== undefined && <p className="font-semibold tabular sm:text-right">{typeof s.value === "number" ? new Intl.NumberFormat("en-IN", { maximumFractionDigits: 3 }).format(s.value) : s.value}{s.unit ? ` ${s.unit}` : ""}</p>}
+                  <div><p className="font-medium">{s.label}</p><p className="font-mono text-[13.5px] text-muted">{s.formula}</p></div>
+                  {s.value !== "" && s.value !== null && s.value !== undefined && <p className="font-semibold tabular sm:text-end">{typeof s.value === "number" ? new Intl.NumberFormat("en-IN", { maximumFractionDigits: 3 }).format(s.value) : s.value}{s.unit ? ` ${s.unit}` : ""}</p>}
                 </li>
               ))}
             </ol>
           )}
         </div>
       )}
-      {res.notes?.length > 0 && <ul className="mt-6 space-y-1.5 text-sm text-muted">{res.notes.map((n, i) => <li key={i} className="flex gap-2"><Info className="mt-0.5 h-4 w-4 shrink-0" />{n}</li>)}</ul>}
+      {res.notes?.length > 0 && <ul className="mt-6 space-y-1.5 text-sm text-muted">{res.notes.map((n, i) => <li key={i} dir="auto" className="flex gap-2"><Info className="mt-0.5 h-4 w-4 shrink-0" />{n}</li>)}</ul>}
       <p className="mt-6 border-t border-line pt-4 text-xs leading-relaxed text-muted">
-        Basis: {res.basis}. Rates as of {res.rates_as_of}. This is an estimate for planning; the final design must be done and signed by a licensed electrical engineer.
+        {t("Basis: {basis}.", { basis: <bdi key="b">{res.basis}</bdi> })} {res.rates_as_of && t("Rates as of {date}.", { date: <bdi key="d">{res.rates_as_of}</bdi> })} {t("This is an estimate for planning; the final design must be done and signed by a licensed electrical engineer.")}
       </p>
     </div>
   );

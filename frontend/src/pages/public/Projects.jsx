@@ -3,6 +3,7 @@ import { Link, useParams, useSearchParams } from "react-router-dom";
 import { Quote, MapPin, CalendarDays } from "lucide-react";
 import { fileUrl } from "@/lib/api";
 import { useMeta, cn } from "@/lib/utils";
+import { useT } from "@/lib/i18n";
 import { Button, Select, Skeleton } from "@/components/ui/kit";
 import { useSite, optLabel } from "@/components/public/site";
 import { PageHero, Section } from "@/components/public/Layout";
@@ -14,6 +15,7 @@ const FILTERS = [["service", "Service", "services"], ["sector", "Sector", "secto
 
 export function ProjectsPage() {
   const site = useSite();
+  const t = useT();
   const [sp, setSp] = useSearchParams();
   const qs = sp.toString();
   const { data, loading } = useGet(`/public/projects${qs ? `?${qs}` : ""}`, [qs]);
@@ -41,7 +43,7 @@ export function ProjectsPage() {
             </label>
           ))}
           {active && <Button variant="ghost" size="sm" onClick={() => setSp({}, { replace: true })}>Clear filters</Button>}
-          {data && <p className="ml-auto self-center text-sm text-muted tabular">{data.items.length} project{data.items.length === 1 ? "" : "s"}</p>}
+          {data && <p className="ms-auto self-center text-sm text-muted tabular">{data.items.length === 1 ? t("1 project") : t("{n} projects", { n: data.items.length })}</p>}
         </div>
       </div>
       <Section>
@@ -74,11 +76,11 @@ export function ProjectDetail() {
       <section className="bg-ink text-white">
         <div className="container grid gap-10 py-12 md:py-16 lg:grid-cols-[1fr_1.1fr] lg:items-center">
           <div>
-            <nav aria-label="Breadcrumb" className="mb-4 text-sm text-white/55"><Link to="/" className="hover:underline">Home</Link><span className="mx-2">/</span><Link to="/projects" className="hover:underline">Projects</Link></nav>
+            <nav aria-label="Breadcrumb" className="mb-4 text-sm text-white/70"><Link to="/" className="hover:underline">Home</Link><span className="mx-2">/</span><Link to="/projects" className="hover:underline">Projects</Link></nav>
             <div className="flex flex-wrap gap-1.5">{p.ongoing && <Chip dark>Ongoing</Chip>}{p.sample && <Chip dark>Sample project</Chip>}</div>
             <h1 className="mt-3 text-[30px] font-extrabold leading-[1.1] text-white md:text-[42px]" style={{ letterSpacing: "-0.025em" }}>{p.title}</h1>
-            <p className="mt-4 max-w-xl text-lg leading-relaxed text-white/70">{p.public_summary}</p>
-            <p className="mt-5 flex flex-wrap gap-x-5 gap-y-1 text-sm text-white/60">
+            <p className="mt-4 max-w-xl text-lg leading-relaxed text-white/80">{p.public_summary}</p>
+            <p className="mt-5 flex flex-wrap gap-x-5 gap-y-1 text-sm text-white/75">
               {p.town && <span className="inline-flex items-center gap-1.5"><MapPin className="h-4 w-4" />{p.town}</span>}
               {p.year && <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-4 w-4" />{p.year}</span>}
             </p>
@@ -111,11 +113,11 @@ export function ProjectDetail() {
         </div>
         <aside className="space-y-6">
           <dl className="divide-y divide-line rounded-xl border border-line text-sm">
-            {facts.map(([k, v]) => <div key={k} className="flex justify-between gap-4 px-4 py-2.5"><dt className="text-muted">{k}</dt><dd className="text-right font-medium">{v}</dd></div>)}
+            {facts.map(([k, v]) => <div key={k} className="flex justify-between gap-4 px-4 py-2.5"><dt className="text-muted">{k}</dt><dd className="text-end font-medium">{v}</dd></div>)}
           </dl>
           <div className="rounded-xl bg-ink p-5 text-white lg:sticky lg:top-24">
             <h2 className="text-[18px] font-extrabold text-white">Need something similar?</h2>
-            <p className="mb-4 mt-1 text-sm text-white/65">We'll look at your site and send a scope and price.</p>
+            <p className="mb-4 mt-1 text-sm text-white/75">We'll look at your site and send a scope and price.</p>
             <div className="rounded-lg bg-white p-4 text-fg">
               <LeadForm form="similar_project" extra={{ service: p.service, message: `Similar to: ${p.title}` }} compact fields={["company", "town"]} submitLabel="Ask for a quote" />
             </div>

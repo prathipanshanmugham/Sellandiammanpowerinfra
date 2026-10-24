@@ -62,7 +62,7 @@ export function ReportView() {
       {isLoading ? <Skeleton className="h-72" /> : error ? <Empty title="This report isn't available to you" /> : !rows.length ? <Empty title="No rows for these dates" /> : (
         <div className="overflow-hidden rounded-xl border border-edge bg-surface">
           <div className="max-h-[70vh] overflow-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-[14px]">
               <thead className="sticky top-0 border-b border-edge bg-canvas text-left text-xs text-muted"><tr>{data.columns.map((c, i) => <th key={c} className={cn("whitespace-nowrap px-3 py-2 font-medium", numeric[i] && "text-right")}>{c}</th>)}</tr></thead>
               <tbody className="divide-y divide-edge">
                 {rows.map((r, i) => <tr key={i}>{r.map((x, j) => <td key={j} className={cn("px-3 py-2", numeric[j] ? "whitespace-nowrap text-right tabular" : "max-w-[320px] truncate")}>{typeof x === "number" ? new Intl.NumberFormat("en-IN", { maximumFractionDigits: 2 }).format(x) : /^\d{4}-\d{2}-\d{2}$/.test(String(x)) ? fmtDate(x) : x ?? "—"}</td>)}</tr>)}

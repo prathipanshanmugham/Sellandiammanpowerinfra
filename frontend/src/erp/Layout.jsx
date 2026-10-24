@@ -36,7 +36,7 @@ function Sidebar({ sections, onNavigate, counts }) {
         const open = active || !closed[s.name];
         return (
           <div key={s.name} className="mt-3">
-            <button type="button" onClick={() => toggle(s.name)} aria-expanded={open} className="flex w-full items-center justify-between rounded px-2 py-1 text-[12px] font-semibold text-white/45 hover:text-white/80">
+            <button type="button" onClick={() => toggle(s.name)} aria-expanded={open} className="flex w-full items-center justify-between rounded px-2 py-1 text-[13px] font-semibold text-white/65 hover:text-white/85">
               {s.name}<ChevronDown className={cn("h-3.5 w-3.5 transition-transform", !open && "-rotate-90")} />
             </button>
             {open && (
@@ -44,10 +44,10 @@ function Sidebar({ sections, onNavigate, counts }) {
                 {s.items.map((i) => (
                   <li key={i.to}>
                     <NavLink to={i.to} end={i.end} onClick={onNavigate}
-                      className={({ isActive }) => cn("flex items-center gap-2.5 rounded-md px-2 py-1.5 text-[13.5px] text-white/75 hover:bg-white/[.06] hover:text-white", (isActive || (!i.end && loc.pathname.startsWith(`${i.to}/`))) && "bg-white/[.09] font-medium text-white")}>
-                      <Icon name={i.icon} className="h-4 w-4 shrink-0 text-white/45" />
+                      className={({ isActive }) => cn("flex items-center gap-2.5 rounded-md px-2 py-1.5 text-[14.5px] text-white/85 hover:bg-white/[.06] hover:text-white", (isActive || (!i.end && loc.pathname.startsWith(`${i.to}/`))) && "bg-white/[.09] font-medium text-white")}>
+                      <Icon name={i.icon} className="h-4 w-4 shrink-0 text-white/65" />
                       <span className="truncate">{i.label}</span>
-                      {i.badge && counts?.[i.badge] > 0 && <span className="ml-auto rounded-full bg-signal px-1.5 text-[11px] font-bold text-ink tabular">{counts[i.badge]}</span>}
+                      {i.badge && counts?.[i.badge] > 0 && <span className="ml-auto rounded-full bg-signal px-1.5 text-[12px] font-bold text-white tabular">{counts[i.badge]}</span>}
                     </NavLink>
                   </li>
                 ))}
@@ -96,9 +96,9 @@ function Notifications() {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button type="button" className="relative flex h-9 w-9 items-center justify-center rounded-md text-fg/70 hover:bg-fg/5 hover:text-fg" aria-label={`Notifications${unread ? `, ${unread} unread` : ""}`}>
+        <button type="button" className="relative flex h-9 w-9 items-center justify-center rounded-md text-fg/80 hover:bg-fg/5 hover:text-fg" aria-label={`Notifications${unread ? `, ${unread} unread` : ""}`}>
           <Bell className="h-[18px] w-[18px]" />
-          {unread > 0 && <span className="absolute right-1 top-1 min-w-[16px] rounded-full bg-bad px-1 text-center text-[10px] font-bold leading-4 text-white tabular">{unread > 99 ? "99+" : unread}</span>}
+          {unread > 0 && <span className="absolute right-1 top-1 min-w-[16px] rounded-full bg-bad px-1 text-center text-[11px] font-bold leading-4 text-white tabular">{unread > 99 ? "99+" : unread}</span>}
         </button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-[min(380px,calc(100vw-24px))] p-0">
@@ -111,7 +111,7 @@ function Notifications() {
                 className={cn("block w-full px-4 py-2.5 text-left hover:bg-canvas", !n.read && "bg-signal-soft/30")}>
                 <p className={cn("text-sm", !n.read && "font-semibold")}>{n.title}</p>
                 {n.body && <p className="line-clamp-2 text-xs text-muted">{n.body}</p>}
-                <p className="mt-0.5 text-[11px] text-muted">{ago(n.created_at)}</p>
+                <p className="mt-0.5 text-[12px] text-muted">{ago(n.created_at)}</p>
               </button>
             </li>
           ))}
@@ -139,7 +139,7 @@ function Palette({ open, setOpen, sections }) {
           <RDialog.Title className="sr-only">Search</RDialog.Title>
           <Command shouldFilter={false} loop>
             <div className="flex items-center gap-2 border-b border-edge px-4"><Search className="h-4 w-4 text-muted" />
-              <Command.Input value={q} onValueChange={setQ} placeholder="Search leads, projects, invoices, items… or jump to a screen" className="h-12 flex-1 bg-transparent text-[15px] outline-none" autoFocus /><Kbd>Esc</Kbd></div>
+              <Command.Input value={q} onValueChange={setQ} placeholder="Search leads, projects, invoices, items… or jump to a screen" className="h-12 flex-1 bg-transparent text-[16px] outline-none" autoFocus /><Kbd>Esc</Kbd></div>
             <Command.List className="max-h-[60vh] overflow-y-auto p-2">
               <Command.Empty className="px-3 py-6 text-center text-sm text-muted">{q.length < 2 ? "Type to search" : "Nothing found"}</Command.Empty>
               {pages.length > 0 && (
@@ -190,7 +190,7 @@ export default function ErpLayout() {
     <>
       <div className="flex h-14 shrink-0 items-center px-4"><Link to="/erp" aria-label="Dashboard"><Logo theme="dark" compact /></Link></div>
       <Sidebar sections={sections} counts={{ approvals: inbox?.count }} onNavigate={() => setDrawer(false)} />
-      <div className="border-t border-white/10 p-3 text-xs text-white/45">
+      <div className="border-t border-white/10 p-3 text-xs text-white/65">
         <Link to="/" className="inline-flex items-center gap-1 hover:text-white">Open the website<ExternalLink className="h-3 w-3" /></Link>
       </div>
     </>
@@ -202,7 +202,7 @@ export default function ErpLayout() {
       {drawer && (
         <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
           <div className="absolute inset-0 bg-ink/50" onClick={() => setDrawer(false)} />
-          <aside className="absolute inset-y-0 left-0 flex w-[280px] flex-col bg-ink">{side}<button type="button" onClick={() => setDrawer(false)} className="absolute right-2 top-3 rounded-md p-2 text-white/80" aria-label="Close menu"><X className="h-5 w-5" /></button></aside>
+          <aside className="absolute inset-y-0 left-0 flex w-[280px] flex-col bg-ink">{side}<button type="button" onClick={() => setDrawer(false)} className="absolute right-2 top-3 rounded-md p-2 text-white/85" aria-label="Close menu"><X className="h-5 w-5" /></button></aside>
         </div>
       )}
       <div className="lg:pl-[248px]">
@@ -217,8 +217,8 @@ export default function ErpLayout() {
             <Menu>
               <MenuTrigger asChild>
                 <button type="button" className="flex items-center gap-2 rounded-md p-1 pr-2 hover:bg-fg/5" aria-label="Your account">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-ink text-xs font-bold text-signal">{initials(user?.name)}</span>
-                  <span className="hidden text-left leading-tight md:block"><span className="block max-w-[140px] truncate text-sm font-medium">{user?.name}</span><span className="block max-w-[140px] truncate text-[11px] text-muted">{user?.role_label}</span></span>
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-ink text-xs font-bold text-signal-bright">{initials(user?.name)}</span>
+                  <span className="hidden text-left leading-tight md:block"><span className="block max-w-[140px] truncate text-sm font-medium">{user?.name}</span><span className="block max-w-[140px] truncate text-[12px] text-muted">{user?.role_label}</span></span>
                 </button>
               </MenuTrigger>
               <MenuContent>

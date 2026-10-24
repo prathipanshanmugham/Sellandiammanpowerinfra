@@ -1,12 +1,12 @@
 """Line illustrations used where real site photos are not uploaded yet (gallery placeholders, project covers, service
-headers). Engineering-drawing style on ink: steel line work, yellow for live parts. Replace with real photos in the
+headers). Engineering-drawing style on near-black: steel line work, electric blue for live parts. Replace with real photos in the
 staff app (Website -> Gallery / Projects).
     python scripts/brand/illustrations.py   -> frontend/public/illustrations/*.svg
 """
 from pathlib import Path
 
 OUT = Path(__file__).resolve().parents[2] / "frontend/public/illustrations"
-INK, GRID, STEEL, DIM, LIVE, WHITE = "#0A1626", "#13253B", "#A9ADB3", "#4C5E75", "#FFC400", "#E8ECF1"
+INK, GRID, STEEL, DIM, LIVE, WHITE = "#0E1013", "#1A1D22", "#A3A8AF", "#4E555F", "#4D8BFF", "#ECEEF1"
 
 
 def frame(body, title):
@@ -84,7 +84,7 @@ def substation():
 
 def cable():
     b = [s("M80 220H380L440 640H760L820 220H1120", 5)]
-    b.append(f'<path d="M455 600H745L760 640H440Z" fill="#1A2C42" stroke="none"/>')
+    b.append(f'<path d="M455 600H745L760 640H440Z" fill="#1F2328" stroke="none"/>')
     for i, x in enumerate((520, 600, 680)):
         b.append(f'<circle cx="{x}" cy="560" r="34" stroke="{STEEL}" stroke-width="5"/>')
         for a in range(3):
@@ -120,7 +120,7 @@ def solar():
 
 def earthing():
     b = [s("M80 300H1120", 4, DIM)]
-    for k, c in enumerate(("#16283F", "#13243A", "#102033")):
+    for k, c in enumerate(("#22262C", "#1D2025", "#181B1F")):
         b.append(f'<rect x="80" y="{300 + k * 140}" width="1040" height="140" fill="{c}" stroke="none"/>')
     b.append(f'<rect x="520" y="230" width="160" height="90" rx="6" stroke="{STEEL}" stroke-width="5"/>')
     b.append(s("M600 250V700", 10, STEEL) + s("M600 700l-12 30h24z", 4))

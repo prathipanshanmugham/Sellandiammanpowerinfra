@@ -65,7 +65,7 @@ export function EntityFormSheet({ open, onOpenChange, entityKey, record, initial
       <form id={`form-${entityKey}`} onSubmit={save} className="space-y-6" noValidate>
         {groups.map((g) => (
           <fieldset key={g.group || "main"} className="space-y-3">
-            {g.group && <legend className="mb-1 w-full border-b border-edge pb-1.5 text-[13px] font-semibold text-fg/80">{g.group}</legend>}
+            {g.group && <legend className="mb-1 w-full border-b border-edge pb-1.5 text-[14px] font-semibold text-fg/80">{g.group}</legend>}
             <div className="grid gap-3 sm:grid-cols-2">
               {g.fields.map((f) => (
                 <Field key={f.k} label={`${f.l}${f.unit && !["number", "money", "percent"].includes(f.t) ? ` (${f.unit})` : ""}`} required={f.req && !f.ro} hint={f.help} htmlFor={`f-${f.k}`}

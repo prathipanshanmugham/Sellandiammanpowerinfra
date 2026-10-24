@@ -63,7 +63,7 @@ export function Pipeline() {
                             {l.score >= 85 && <Flame className="h-4 w-4 shrink-0 text-bad" aria-label="Hot lead" />}
                           </div>
                           <p className="mt-1.5 truncate text-xs">{optLabel(meta, fService, l.service)}{l.load_kva ? `, ${num(l.load_kva)} kVA` : ""}{["LT", "HT"].includes(l.supply) ? ` ${l.supply}` : ""}</p>
-                          <div className="mt-2 flex items-center justify-between gap-2 text-[11px]">
+                          <div className="mt-2 flex items-center justify-between gap-2 text-[12px]">
                             <span className="truncate text-muted">{data.refs?.users?.[l.owner_id] || "Unassigned"}</span>
                             {late ? <span className="flex items-center gap-1 font-semibold text-bad"><AlertTriangle className="h-3 w-3" />Reply overdue</span>
                               : follow ? <span className="flex items-center gap-1 font-semibold text-warn"><Clock className="h-3 w-3" />Follow up</span>
@@ -121,8 +121,8 @@ export function Marketing() {
                 <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: "rgb(var(--muted))" }} tickLine={false} axisLine={false} />
                 <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} cursor={{ fill: "rgb(var(--fg) / .04)" }} />
                 <Legend wrapperStyle={{ fontSize: 12 }} />
-                <RBar dataKey="leads" name="Leads" fill="#1E4D7B" radius={[3, 3, 0, 0]} />
-                <RBar dataKey="won" name="Won" fill="#FFC400" radius={[3, 3, 0, 0]} />
+                <RBar dataKey="leads" name="Leads" fill="#7A8088" radius={[3, 3, 0, 0]} />
+                <RBar dataKey="won" name="Won" fill="#0B5CFF" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

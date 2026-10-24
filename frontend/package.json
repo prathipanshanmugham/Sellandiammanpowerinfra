@@ -10,8 +10,9 @@
     "test:calc": "node --experimental-strip-types scripts/calc-parity.mjs"
   },
   "dependencies": {
-    "@fontsource/inter": "5.1.0",
-    "@fontsource/montserrat": "5.1.0",
+    "@fontsource/archivo": "5.2.8",
+    "@fontsource/ibm-plex-sans": "5.2.8",
+    "@fontsource/noto-sans-devanagari": "5.2.8",
     "@fontsource/noto-sans-tamil": "5.1.0",
     "@radix-ui/react-dialog": "1.1.2",
     "@radix-ui/react-dropdown-menu": "2.1.2",

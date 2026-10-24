@@ -9,15 +9,15 @@ import { cn } from "@/lib/utils";
 
 // ------------------------------------------------------------------ buttons
 const BTN = {
-  primary: "bg-signal text-ink hover:bg-signal-deep active:bg-signal-deep font-semibold",
+  primary: "bg-signal text-white hover:bg-signal-deep active:bg-signal-deep font-semibold",
   dark: "bg-ink text-white hover:bg-ink-700 font-semibold",
   outline: "border border-edge bg-surface text-fg hover:bg-canvas",
   ghost: "text-fg hover:bg-fg/5",
   danger: "bg-bad text-white hover:bg-bad/90 font-semibold",
-  light: "border border-white/25 text-white hover:bg-white/10",
+  light: "border border-white/35 text-white hover:bg-white/10",
   link: "text-cable underline-offset-4 hover:underline px-0 h-auto",
 };
-const SIZE = { sm: "h-8 px-3 text-[13px] gap-1.5 rounded-md", md: "h-10 px-4 text-sm gap-2 rounded-md", lg: "h-12 px-6 text-[15px] gap-2 rounded-lg", icon: "h-9 w-9 rounded-md" };
+const SIZE = { sm: "h-8 px-3 text-[14px] gap-1.5 rounded-md", md: "h-10 px-4 text-sm gap-2 rounded-md", lg: "h-12 px-6 text-[16px] gap-2 rounded-lg", icon: "h-9 w-9 rounded-md" };
 
 export const Button = forwardRef(function Button({ variant = "primary", size = "md", loading, className, children, as: As = "button", ...p }, ref) {
   return (
@@ -31,7 +31,7 @@ export const Button = forwardRef(function Button({ variant = "primary", size = "
 
 export const IconButton = forwardRef(function IconButton({ label, className, children, ...p }, ref) {
   return (
-    <button ref={ref} aria-label={label} title={label} className={cn("inline-flex h-9 w-9 items-center justify-center rounded-md text-fg/70 hover:bg-fg/5 hover:text-fg disabled:opacity-40", className)} {...p}>
+    <button ref={ref} aria-label={label} title={label} className={cn("inline-flex h-9 w-9 items-center justify-center rounded-md text-fg/80 hover:bg-fg/5 hover:text-fg disabled:opacity-40", className)} {...p}>
       {children}
     </button>
   );
@@ -48,12 +48,12 @@ export const Textarea = forwardRef(function Textarea({ className, rows = 3, ...p
 export const Select = forwardRef(function Select({ className, options = [], placeholder, children, ...p }, ref) {
   return (
     <div className="relative">
-      <select ref={ref} className={cn(FIELD, "h-10 appearance-none pr-9", className)} {...p}>
+      <select ref={ref} className={cn(FIELD, "h-10 appearance-none pe-9", className)} {...p}>
         {placeholder !== undefined && <option value="">{placeholder}</option>}
         {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         {children}
       </select>
-      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden />
+      <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" aria-hidden />
     </div>
   );
 });
@@ -62,8 +62,8 @@ export function Checkbox({ checked, onChange, label, className, id, disabled }) 
     <label className={cn("inline-flex cursor-pointer items-start gap-2.5 text-sm", disabled && "cursor-not-allowed opacity-60", className)} htmlFor={id}>
       <span className="relative mt-0.5 inline-flex">
         <input id={id} type="checkbox" className="peer sr-only" checked={!!checked} onChange={(e) => onChange?.(e.target.checked)} disabled={disabled} />
-        <span className="flex h-[18px] w-[18px] items-center justify-center rounded border border-edge bg-surface peer-checked:border-ink peer-checked:bg-ink peer-focus-visible:ring-2 peer-focus-visible:ring-signal">
-          {checked && <Check className="h-3 w-3 text-signal" strokeWidth={3} />}
+        <span className="flex h-[18px] w-[18px] items-center justify-center rounded border border-edge bg-surface peer-checked:border-signal peer-checked:bg-signal peer-focus-visible:ring-2 peer-focus-visible:ring-signal/40">
+          {checked && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
         </span>
       </span>
       {label && <span className="leading-snug">{label}</span>}
@@ -74,8 +74,8 @@ export function Switch({ checked, onChange, label, disabled }) {
   return (
     <button type="button" role="switch" aria-checked={!!checked} disabled={disabled} onClick={() => onChange?.(!checked)}
       className="inline-flex items-center gap-2.5 text-sm disabled:opacity-50">
-      <span className={cn("relative h-5 w-9 shrink-0 rounded-full transition-colors", checked ? "bg-ink" : "bg-edge")}>
-        <span className={cn("absolute top-0.5 h-4 w-4 rounded-full transition-transform", checked ? "translate-x-[18px] bg-signal" : "translate-x-0.5 bg-white")} />
+      <span className={cn("relative h-5 w-9 shrink-0 rounded-full transition-colors", checked ? "bg-signal" : "bg-steel")}>
+        <span className={cn("absolute left-0 top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform", checked ? "translate-x-[18px]" : "translate-x-0.5")} />
       </span>
       {label}
     </button>
@@ -93,8 +93,8 @@ export function Field({ label, hint, error, required, children, className, htmlF
 
 // ------------------------------------------------------------------ display
 const TONE = {
-  gray: "bg-fg/[.06] text-fg/75", blue: "bg-cable-light text-cable", amber: "bg-signal-soft text-signal-ink", green: "bg-good/10 text-good",
-  red: "bg-bad/10 text-bad", violet: "bg-[#EEEAFB] text-[#5B3FB8]", teal: "bg-[#E2F4F2] text-[#0F6B63]", ink: "bg-ink text-white", signal: "bg-signal text-ink",
+  gray: "bg-fg/[.06] text-fg/85", blue: "bg-signal-soft text-signal-ink", amber: "bg-amber-soft text-amber-ink", green: "bg-good/10 text-good",
+  red: "bg-bad/10 text-bad", violet: "bg-[#EEEAFB] text-[#5B3FB8]", teal: "bg-[#E2F4F2] text-[#0F6B63]", ink: "bg-ink text-white", signal: "bg-signal text-white",
 };
 export function Badge({ tone = "gray", className, children, dot }) {
   return (
@@ -111,7 +111,7 @@ export function CardHead({ title, sub, actions, className }) {
   return (
     <div className={cn("flex items-start justify-between gap-3 border-b border-edge px-4 py-3", className)}>
       <div className="min-w-0">
-        <h3 className="truncate font-sans text-[15px] font-semibold tracking-normal">{title}</h3>
+        <h3 className="truncate font-sans text-[16px] font-semibold tracking-normal">{title}</h3>
         {sub && <p className="mt-0.5 text-xs text-muted">{sub}</p>}
       </div>
       {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
@@ -133,7 +133,7 @@ export function Empty({ icon: Icon = Inbox, title, text, action, className }) {
   );
 }
 export function Alert({ tone = "amber", title, children, className, icon: Icon }) {
-  const t = { amber: "border-signal/50 bg-signal-soft/60 text-signal-ink", red: "border-bad/30 bg-bad/5 text-bad", blue: "border-cable/25 bg-cable-light text-cable", green: "border-good/30 bg-good/5 text-good", gray: "border-edge bg-canvas text-fg/80" }[tone];
+  const t = { amber: "border-amber/50 bg-amber-soft/70 text-amber-ink", red: "border-bad/30 bg-bad/5 text-bad", blue: "border-signal/25 bg-signal-soft text-signal-ink", green: "border-good/30 bg-good/5 text-good", gray: "border-edge bg-canvas text-fg/80" }[tone];
   return (
     <div className={cn("flex gap-3 rounded-lg border px-4 py-3 text-sm", t, className)} role="status">
       {Icon && <Icon className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />}
@@ -144,11 +144,11 @@ export function Alert({ tone = "amber", title, children, className, icon: Icon }
 export function Progress({ value = 0, className, tone = "ink" }) {
   return (
     <div className={cn("h-1.5 w-full overflow-hidden rounded-full bg-fg/10", className)} role="progressbar" aria-valuenow={Math.round(value)} aria-valuemin={0} aria-valuemax={100}>
-      <div className={cn("h-full rounded-full", tone === "signal" ? "bg-signal" : tone === "good" ? "bg-good" : tone === "bad" ? "bg-bad" : "bg-ink")} style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
+      <div className={cn("h-full rounded-full", tone === "signal" ? "bg-signal" : tone === "amber" ? "bg-amber" : tone === "good" ? "bg-good" : tone === "bad" ? "bg-bad" : "bg-ink")} style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
     </div>
   );
 }
-export function Kbd({ children }) { return <kbd className="rounded border border-edge bg-canvas px-1.5 py-0.5 font-sans text-[11px] text-muted">{children}</kbd>; }
+export function Kbd({ children }) { return <kbd className="rounded border border-edge bg-canvas px-1.5 py-0.5 font-sans text-[12px] text-muted">{children}</kbd>; }
 
 // ------------------------------------------------------------------ overlays
 export function Dialog({ open, onOpenChange, title, description, children, footer, wide, className }) {
@@ -176,7 +176,7 @@ export function Sheet({ open, onOpenChange, title, description, children, footer
     <RDialog.Root open={open} onOpenChange={onOpenChange}>
       <RDialog.Portal>
         <RDialog.Overlay className="fixed inset-0 z-50 bg-ink/40" />
-        <RDialog.Content className={cn("fixed inset-y-0 z-50 flex w-full flex-col bg-surface shadow-pop focus:outline-none sm:max-w-2xl", side === "right" ? "right-0" : "left-0", className)}>
+        <RDialog.Content className={cn("fixed inset-y-0 z-50 flex w-full flex-col bg-surface shadow-pop focus:outline-none sm:max-w-2xl", side === "right" ? "end-0" : "start-0", className)}>
           <div className="flex items-start justify-between gap-4 border-b border-edge px-5 py-4" style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}>
             <div className="min-w-0">
               <RDialog.Title className="truncate font-display text-lg font-bold">{title}</RDialog.Title>
@@ -238,7 +238,7 @@ export function Tabs({ value, onValueChange, tabs, children, className, listClas
         {tabs.map((t) => (
           <RTabs.Trigger key={t.value} value={t.value}
             className="relative -mb-px flex shrink-0 items-center gap-1.5 whitespace-nowrap border-b-2 border-transparent px-3 py-2.5 text-sm text-muted hover:text-fg data-[state=active]:border-signal data-[state=active]:font-semibold data-[state=active]:text-fg">
-            {t.label}{t.count !== undefined && t.count !== null && <span className="rounded-full bg-fg/[.07] px-1.5 text-[11px] font-medium text-muted">{t.count}</span>}
+            {t.label}{t.count !== undefined && t.count !== null && <span className="rounded-full bg-fg/[.07] px-1.5 text-[12px] font-medium text-muted">{t.count}</span>}
           </RTabs.Trigger>
         ))}
       </RTabs.List>

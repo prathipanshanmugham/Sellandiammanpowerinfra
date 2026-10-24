@@ -5,9 +5,11 @@ The first complete version: public website, staff ERP, five portals and the 24 c
 ## Website
 
 - Home with a single-line-diagram hero, services, sectors, recent projects, clients, calculators, the seven-stage process and articles.
-- 14 service pages (scope, standards, FAQs, related calculators and projects), 11 product groups with spec tables, 7 sector pages, projects with filters and case studies, clients, gallery, about, safety and quality, AMC plans, careers, vendor registration, guides, insights, FAQs, town pages, privacy, terms and cookies. English and Tamil for menus, buttons and forms.
+- 14 service pages (scope, standards, FAQs, related calculators and projects), 11 product groups with spec tables, 7 sector pages, projects with filters and case studies, clients, gallery, about, safety and quality, AMC plans, careers, vendor registration, guides, insights, FAQs, town pages, privacy, terms and cookies.
 - Ways to enquire: 4-step quote wizard (draft kept if the visitor leaves), site-survey booking with free slots and a calendar invite, free bill review with bill upload, tender/BOQ invite, call-back, 24×7 breakdown page (creates an urgent service ticket), calculator PDF reports and "ask an engineer", gated guide downloads, product price requests, AMC enquiries, equipment QR pages, WhatsApp and phone buttons, and webhooks for IndiaMART, JustDial, Meta and Google lead forms.
 - Every enquiry carries its source, campaign tags and consent, is de-duplicated against the last 90 days, scored, routed to the right branch and person by town, and gets a 30-working-minute reply target.
+- 20 languages, picked from the globe button in the header: English, Arabic, Chinese, French, German, Japanese, Portuguese, Russian and Spanish, plus Hindi, Bengali, Marathi, Telugu, Tamil, Gujarati, Urdu, Kannada, Odia, Malayalam and Punjabi. Menus, buttons, forms, headings and the main page text switch; long articles, service and product detail, calculator inputs and the legal pages stay in English. Arabic and Urdu run right to left. The first visit follows the browser's language; the choice is remembered. The staff ERP and the portals stay in English.
+- Look: near-black and white with one electric-blue accent (amber only for warnings), larger and more open type (IBM Plex Sans for text, Archivo for headings, Noto for Devanagari and Tamil), and the header steps down to a menu button when a language needs more room.
 - Search engines get the page title, description, structured data and page text in the first HTML; sitemap, robots and llms.txt are generated.
 
 ## Calculators (24)
@@ -43,3 +45,4 @@ Connected load and maximum demand, LT vs HT cost, bill estimator, contract deman
 - SMTP and WhatsApp Business connections; lead webhook key for IndiaMART/JustDial/ads; Cloudflare Turnstile; Google Analytics and Search Console.
 - Check the tariff constants against the current TNERC order and your own substation cost figures.
 - Privacy, terms and cookie texts are starting templates; have them reviewed.
+- The translations are AI-written first drafts; have a native speaker check the languages you care about most (Tamil and Hindi first). They live in `frontend/src/lib/locales/<code>.json`, keyed by the English text.

@@ -93,7 +93,7 @@ export function EntityList({ entityKey, fixed = {}, embedded, title, onOpen }) {
         <div className="scrollbar-thin -mx-1 mb-3 flex gap-1 overflow-x-auto px-1">
           {[{ value: "", label: "All" }, ...states].map((s) => (
             <button key={s.value} type="button" onClick={() => setParam("status", s.value)} aria-pressed={(params.status || "") === s.value}
-              className={cn("shrink-0 rounded-full px-3 py-1 text-[13px]", (params.status || "") === s.value ? "bg-ink text-white" : "bg-surface text-fg/75 ring-1 ring-inset ring-edge hover:bg-canvas")}>{s.label}</button>
+              className={cn("shrink-0 rounded-full px-3 py-1 text-[14px]", (params.status || "") === s.value ? "bg-ink text-white" : "bg-surface text-fg/85 ring-1 ring-inset ring-edge hover:bg-canvas")}>{s.label}</button>
           ))}
         </div>
       )}
@@ -140,7 +140,7 @@ export function EntityList({ entityKey, fixed = {}, embedded, title, onOpen }) {
       ) : (
         <div className={cn("overflow-hidden rounded-xl border border-edge bg-surface", isFetching && "opacity-80")}>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-[14px]">
               <thead className="border-b border-edge bg-canvas text-left text-xs text-muted">
                 <tr>
                   {can(e, "d") && !embedded && <th className="w-10 px-3 py-2.5"><Checkbox checked={sel.length === data.items.length} onChange={(v) => setSel(v ? data.items.map((d) => d.id) : [])} /></th>}

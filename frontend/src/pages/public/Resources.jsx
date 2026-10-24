@@ -11,7 +11,8 @@ import { Consent, Honeypot, checkContact, useLeadForm, Done } from "@/components
 import { tracking } from "@/lib/tracking";
 import { useGet, PageLoading, NotFound, Faqs } from "./Content";
 
-const FAQ_CATS = { general: "General", ht: "HT supply & substations", lt: "LT supply", solar: "Solar", amc: "Maintenance & AMC", billing: "Bills & tariffs", safety: "Safety", process: "How we work" };
+const FAQ_CATS = { general: "General", ht: "HT supply & substations", lt: "LT supply", ht_connection: "HT connections", lt_connection: "LT connections", approvals: "Approvals", solar: "Solar", amc: "Maintenance & AMC", billing: "Bills & tariffs", safety: "Safety", process: "How we work" };
+const TAGS = { energy_audit: "Energy audits", ht_lt_panels: "Panels", liaison: "Approvals and liaison", testing: "Testing" };
 
 export function ResourcesPage() {
   const dl = useGet("/public/downloads");
@@ -86,7 +87,7 @@ export function InsightsPage() {
         {tags.length > 1 && (
           <div className="mb-6 flex flex-wrap gap-2">
             {["", ...tags].map((t) => (
-              <button key={t} type="button" onClick={() => setTag(t)} aria-pressed={tag === t} className={cn("rounded-full border px-3.5 py-1.5 text-sm capitalize", tag === t ? "border-ink bg-ink text-white" : "border-line hover:border-fg/30")}>{t || "All"}</button>
+              <button key={t} type="button" onClick={() => setTag(t)} aria-pressed={tag === t} className={cn("rounded-full border px-3.5 py-1.5 text-sm", tag === t ? "border-ink bg-ink text-white" : "border-line hover:border-fg/30")}>{t ? TAGS[t] || t.replace(/_/g, " ") : "All"}</button>
             ))}
           </div>
         )}
@@ -133,7 +134,7 @@ export function GuidePage() {
       {g.body && <article className="container py-12"><Markdown text={g.body} className="prose-site" /></article>}
       <div className="container pb-14">
         <div className="flex flex-col items-start justify-between gap-4 rounded-xl bg-ink p-6 text-white md:flex-row md:items-center">
-          <div><p className="font-display text-[19px] font-bold text-white">Want us to handle this for you?</p><p className="mt-1 text-sm text-white/65">Our liaison team prepares and files the paperwork and follows up until it's done.</p></div>
+          <div><p className="font-display text-[19px] font-bold text-white">Want us to handle this for you?</p><p className="mt-1 text-sm text-white/75">Our liaison team prepares and files the paperwork and follows up until it's done.</p></div>
           <Button as={Link} to="/get-quote?service=liaison">Talk to us</Button>
         </div>
       </div>
@@ -186,7 +187,7 @@ export function NewsletterForm({ dark }) {
   return (
     <form className="space-y-2" onSubmit={async (e) => { e.preventDefault(); setErr(""); try { await api.post("/public/newsletter", { email, consent }); setOk(true); } catch (ex) { setErr(errMsg(ex)); } }}>
       <div className="flex gap-2"><Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@company.com" aria-label="Email" /><Button type="submit">Subscribe</Button></div>
-      <Checkbox checked={consent} onChange={setConsent} label={<span className={cn("text-xs", dark ? "text-white/60" : "text-muted")}>Send me occasional articles and tariff updates</span>} />
+      <Checkbox checked={consent} onChange={setConsent} label={<span className={cn("text-xs", dark ? "text-white/75" : "text-muted")}>Send me occasional articles and tariff updates</span>} />
       {err && <p className="text-xs text-bad">{err}</p>}
     </form>
   );

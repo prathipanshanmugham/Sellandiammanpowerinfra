@@ -17,9 +17,9 @@ function Shell({ children, staff }) {
     <div className="grid min-h-screen bg-white lg:grid-cols-[1fr_minmax(0,560px)]">
       <div className="relative hidden overflow-hidden bg-ink lg:block">
         <div className="absolute inset-0 flex items-center justify-center p-16 opacity-90"><SLD className="h-full max-h-[620px] w-auto" /></div>
-        <div className="absolute bottom-10 left-10 right-10 text-white">
+        <div className="absolute bottom-10 start-10 end-10 text-white">
           <p className="font-display text-[26px] font-extrabold leading-tight text-white">{staff ? "Every project, store and bill in one place." : "Your project, drawings, bills and service in one place."}</p>
-          <p className="mt-2 text-white/60">{staff ? "Sign in with your company email." : "Approvals, progress photos, invoices and breakdown requests."}</p>
+          <p className="mt-2 text-white/75">{staff ? "Sign in with your company email." : "Approvals, progress photos, invoices and breakdown requests."}</p>
         </div>
       </div>
       <div className="flex flex-col px-5 py-8 sm:px-10">
@@ -65,8 +65,8 @@ export function LoginPage({ staff = false }) {
             <Field label="Email" htmlFor="email"><Input id="email" type="email" autoComplete="username" value={email} onChange={(e) => setEmail(e.target.value)} required autoFocus={!Picker} /></Field>
             <Field label="Password" htmlFor="pw">
               <div className="relative">
-                <Input id="pw" type={show ? "text" : "password"} autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required className="pr-10" />
-                <button type="button" onClick={() => setShow((x) => !x)} className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1.5 text-muted hover:text-fg" aria-label={show ? "Hide password" : "Show password"}>{show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button>
+                <Input id="pw" type={show ? "text" : "password"} autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required className="pe-10" />
+                <button type="button" onClick={() => setShow((x) => !x)} className="absolute end-2 top-1/2 -translate-y-1/2 rounded p-1.5 text-muted hover:text-fg" aria-label={show ? "Hide password" : "Show password"}>{show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button>
               </div>
             </Field>
           </>
@@ -77,7 +77,7 @@ export function LoginPage({ staff = false }) {
         )}
         {err && <Alert tone="red">{err}</Alert>}
         <Button type="submit" size="lg" className="w-full" loading={busy}>{mfa ? "Verify and sign in" : "Sign in"}</Button>
-        {mfa && <Button type="button" variant="ghost" className="w-full" onClick={() => { setMfa(false); setCode(""); }}><ArrowLeft className="h-4 w-4" />Use a different account</Button>}
+        {mfa && <Button type="button" variant="ghost" className="w-full" onClick={() => { setMfa(false); setCode(""); }}><ArrowLeft className="rtl:-scale-x-100 h-4 w-4" />Use a different account</Button>}
       </form>
       <div className="mt-6 flex flex-wrap justify-between gap-2 text-sm">
         <Link to={`/forgot-password${staff ? "?staff=1" : ""}`} className="text-cable hover:underline">Forgot password?</Link>
@@ -106,7 +106,7 @@ export function ForgotPage() {
           <Button type="submit" size="lg" className="w-full" loading={busy}>Send the link</Button>
         </form>
       )}
-      <Link to={sp.get("staff") === "1" ? "/erp/login" : "/login"} className="mt-6 inline-flex items-center gap-1 text-sm text-cable hover:underline"><ArrowLeft className="h-3.5 w-3.5" />Back to sign in</Link>
+      <Link to={sp.get("staff") === "1" ? "/erp/login" : "/login"} className="mt-6 inline-flex items-center gap-1 text-sm text-cable hover:underline"><ArrowLeft className="rtl:-scale-x-100 h-3.5 w-3.5" />Back to sign in</Link>
     </Shell>
   );
 }
@@ -137,7 +137,7 @@ export function SetPasswordPage() {
           <Field label="New password" hint="At least 10 characters, with a capital letter and a number">
             <Input type="password" autoComplete="new-password" value={pw} onChange={(e) => setPw(e.target.value)} required autoFocus />
           </Field>
-          <div className={cn("h-1.5 rounded-full bg-fg/10")}><div className={cn("h-full rounded-full transition-all", strong ? "w-full bg-good" : pw.length >= 6 ? "w-2/3 bg-signal" : pw ? "w-1/3 bg-bad" : "w-0")} /></div>
+          <div className={cn("h-1.5 rounded-full bg-fg/10")}><div className={cn("h-full rounded-full transition-all", strong ? "w-full bg-good" : pw.length >= 6 ? "w-2/3 bg-amber" : pw ? "w-1/3 bg-bad" : "w-0")} /></div>
           <Field label="Type it again"><Input type="password" autoComplete="new-password" value={pw2} onChange={(e) => setPw2(e.target.value)} required /></Field>
           {err && <Alert tone="red">{err}</Alert>}
           <Button type="submit" size="lg" className="w-full" loading={busy} disabled={!strong}><KeyRound className="h-4 w-4" />Save password</Button>

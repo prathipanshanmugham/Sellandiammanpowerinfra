@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import { Check, ChevronDown, MapPin, Phone, Clock, Mail, ArrowUpRight, ShieldCheck, ClipboardCheck, Quote, X } from "lucide-react";
 import { api, fileUrl } from "@/lib/api";
 import { useMeta, cn } from "@/lib/utils";
-import { useT } from "@/lib/i18n";
+import { useT, translateIn } from "@/lib/i18n";
 import { telLink, fmtDate } from "@/lib/format";
 import { Markdown } from "@/lib/markdown";
 import { Button, Dialog, Skeleton } from "@/components/ui/kit";
@@ -40,11 +40,11 @@ function Faqs({ items }) {
     <div className="divide-y divide-line border-y border-line">
       {items.map((f, n) => (
         <details key={n} className="group py-4">
-          <summary className="flex cursor-pointer list-none items-start justify-between gap-4 font-display text-[16px] font-bold">
+          <summary className="flex cursor-pointer list-none items-start justify-between gap-4 font-display text-[17px] font-bold">
             {f.q || f.question}
             <ChevronDown className="mt-1 h-4 w-4 shrink-0 transition-transform group-open:rotate-180" aria-hidden />
           </summary>
-          <p className="mt-2 max-w-3xl text-[15px] leading-relaxed text-muted">{f.a || f.answer}</p>
+          <p className="mt-2 max-w-3xl text-[16px] leading-relaxed text-muted">{f.a || f.answer}</p>
         </details>
       ))}
     </div>
@@ -59,7 +59,7 @@ function EnquiryAside({ title = "Talk to an engineer", text, form, extra, files 
       <h2 className="text-[19px] font-extrabold">{title}</h2>
       <p className="mb-4 mt-1 text-sm text-muted">{text || "Tell us about your site. We reply within working hours, usually the same day."}</p>
       <LeadForm form={form} extra={extra} compact files={files} fields={["company", "town", "message"]} />
-      {site.settings?.phone && <p className="mt-4 border-t border-line pt-3 text-sm text-muted">Or call <a className="font-semibold text-fg" href={telLink(site.settings.phone)}>{site.settings.phone}</a></p>}
+      {site.settings?.phone && <p className="mt-4 border-t border-line pt-3 text-sm text-muted">Or call <a className="font-semibold text-fg" href={telLink(site.settings.phone)} dir="ltr">{site.settings.phone}</a></p>}
     </aside>
   );
 }
@@ -118,7 +118,7 @@ export function ServiceDetail() {
             <div className="mt-10">
               <h2 className="text-[22px] font-extrabold">What's included</h2>
               <ul className="mt-4 grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
-                {s.scope.map((x, n) => <li key={n} className="flex gap-2.5 text-[15px]"><Check className="mt-0.5 h-4 w-4 shrink-0 text-good" />{x.item || x}</li>)}
+                {s.scope.map((x, n) => <li key={n} className="flex gap-2.5 text-[16px]"><Check className="mt-0.5 h-4 w-4 shrink-0 text-good" />{x.item || x}</li>)}
               </ul>
             </div>
           )}
@@ -127,7 +127,7 @@ export function ServiceDetail() {
               <h2 className="text-[22px] font-extrabold">Standards we work to</h2>
               <dl className="mt-4 divide-y divide-line border-y border-line">
                 {s.standards.map((x, n) => (
-                  <div key={n} className="grid grid-cols-[140px_1fr] gap-4 py-2.5 text-[15px]"><dt className="font-semibold tabular">{x.code}</dt><dd className="text-muted">{x.title}</dd></div>
+                  <div key={n} className="grid grid-cols-[140px_1fr] gap-4 py-2.5 text-[16px]"><dt className="font-semibold tabular">{x.code}</dt><dd className="text-muted">{x.title}</dd></div>
                 ))}
               </dl>
             </div>
@@ -136,7 +136,7 @@ export function ServiceDetail() {
             <div className="mt-10 rounded-xl bg-ink p-6 text-white">
               <h2 className="text-[19px] font-extrabold text-white">Check the numbers first</h2>
               <ul className="mt-3 space-y-2">
-                {tools.map((t) => <li key={t.slug}><Link to={`/tools/${t.slug}`} className="inline-flex items-center gap-2 text-[15px] text-white hover:text-signal"><Icon name={t.icon} className="h-4 w-4 text-signal" />{t.title}</Link></li>)}
+                {tools.map((t) => <li key={t.slug}><Link to={`/tools/${t.slug}`} className="inline-flex items-center gap-2 text-[16px] text-white hover:text-signal-bright"><Icon name={t.icon} className="h-4 w-4 text-signal-bright" />{t.title}</Link></li>)}
               </ul>
             </div>
           )}
@@ -174,7 +174,7 @@ export function IndustriesPage() {
             {(data || []).map((x) => (
               <Link key={x.slug} to={`/industries/${x.slug}`} className="group bg-white p-6 hover:bg-paper">
                 <h2 className="font-display text-[19px] font-extrabold">{x.name}</h2>
-                <p className="mt-2 text-[15px] leading-relaxed text-muted">{x.summary}</p>
+                <p className="mt-2 text-[16px] leading-relaxed text-muted">{x.summary}</p>
                 {x.needs?.length > 0 && <ul className="mt-4 space-y-1.5">{x.needs.slice(0, 4).map((n, i) => <li key={i} className="flex gap-2 text-sm"><Check className="mt-0.5 h-4 w-4 shrink-0 text-good" />{n.item || n}</li>)}</ul>}
               </Link>
             ))}
@@ -201,7 +201,7 @@ export function IndustryDetail() {
           {s.needs?.length > 0 && (
             <>
               <h2 className="text-[22px] font-extrabold">What matters on these sites</h2>
-              <ul className="mt-4 space-y-3">{s.needs.map((n, i) => <li key={i} className="flex gap-3 text-[16px]"><span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-signal" />{n.item || n}</li>)}</ul>
+              <ul className="mt-4 space-y-3">{s.needs.map((n, i) => <li key={i} className="flex gap-3 text-[17px]"><span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-signal" />{n.item || n}</li>)}</ul>
             </>
           )}
           {data.projects?.length > 0 && (
@@ -247,7 +247,7 @@ export function ProductsPage() {
                   <p className="mt-1.5 text-sm leading-relaxed text-muted">{p.summary}</p>
                   {p.specs?.length > 0 && (
                     <dl className="mt-4 divide-y divide-line border-y border-line text-sm">
-                      {p.specs.map((x, i) => <div key={i} className="flex justify-between gap-4 py-1.5"><dt className="text-muted">{x.label}</dt><dd className="text-right font-medium">{x.value}</dd></div>)}
+                      {p.specs.map((x, i) => <div key={i} className="flex justify-between gap-4 py-1.5"><dt className="text-muted">{x.label}</dt><dd className="text-end font-medium">{x.value}</dd></div>)}
                     </dl>
                   )}
                   <div className="mt-auto pt-4"><Button variant="outline" size="sm" onClick={() => setAsk(p)}>Ask for a price</Button></div>
@@ -287,7 +287,7 @@ export function ClientsPage() {
                 <ul className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
                   {list.map((c) => (
                     <li key={c.id} className="bg-white px-4 py-3.5">
-                      {fileUrl(c.logo) ? <img src={fileUrl(c.logo)} alt={c.name} className="h-8 w-auto" /> : <span className="font-display text-[15px] font-bold">{c.name}</span>}
+                      {fileUrl(c.logo) ? <img src={fileUrl(c.logo)} alt={c.name} className="h-8 w-auto" /> : <span className="font-display text-[16px] font-bold">{c.name}</span>}
                       {c.town && <span className="mt-0.5 block text-xs text-muted">{c.town}</span>}
                     </li>
                   ))}
@@ -303,7 +303,7 @@ export function ClientsPage() {
             {data.testimonials.map((t) => (
               <figure key={t.id} className="flex flex-col rounded-xl bg-white p-6 ring-1 ring-line">
                 <Quote className="h-6 w-6 text-signal-deep" aria-hidden />
-                <blockquote className="mt-3 flex-1 text-[16px] leading-relaxed">{t.quote}</blockquote>
+                <blockquote className="mt-3 flex-1 text-[17px] leading-relaxed">{t.quote}</blockquote>
                 <figcaption className="mt-4 text-sm"><span className="font-semibold">{t.person}</span>{t.designation ? `, ${t.designation}` : ""}<span className="block text-muted">{t.company}{t.sample ? " (sample)" : ""}</span></figcaption>
               </figure>
             ))}
@@ -334,10 +334,10 @@ export function GalleryPage() {
         {loading ? <Skeleton className="h-64" /> : !data?.length ? <p className="text-muted">No photos in this category yet.</p> : (
           <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
             {data.map((g) => (
-              <button key={g.id} type="button" onClick={() => setOpen(g)} className="group relative overflow-hidden rounded-lg text-left">
+              <button key={g.id} type="button" onClick={() => setOpen(g)} className="group relative overflow-hidden rounded-lg text-start">
                 <img src={fileUrl(g.image) || illustrationFor()} alt={g.title} loading="lazy" className="aspect-square w-full bg-ink object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
                 <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/85 to-transparent p-3 pt-8 text-sm font-medium text-white">{g.title}</span>
-                {g.sample && <span className="absolute left-2 top-2 rounded bg-ink/80 px-1.5 py-0.5 text-[10px] text-white/75">Illustration</span>}
+                {g.sample && <span className="absolute start-2 top-2 rounded bg-ink/80 px-1.5 py-0.5 text-[11px] text-white/85">Illustration</span>}
               </button>
             ))}
           </div>
@@ -345,10 +345,10 @@ export function GalleryPage() {
       </Section>
       {open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/95 p-4" role="dialog" aria-modal="true" aria-label={open.title} onClick={() => setOpen(null)}>
-          <button type="button" className="absolute right-4 top-4 rounded-md p-2 text-white" aria-label="Close" onClick={() => setOpen(null)}><X className="h-6 w-6" /></button>
+          <button type="button" className="absolute end-4 top-4 rounded-md p-2 text-white" aria-label="Close" onClick={() => setOpen(null)}><X className="h-6 w-6" /></button>
           <figure className="max-h-full max-w-5xl" onClick={(e) => e.stopPropagation()}>
             <img src={fileUrl(open.image) || illustrationFor()} alt={open.title} className="max-h-[80vh] w-auto rounded-lg" />
-            <figcaption className="mt-3 text-center text-white">{open.title}{open.taken_on ? <span className="text-white/60">, {fmtDate(open.taken_on)}</span> : null}</figcaption>
+            <figcaption className="mt-3 text-center text-white">{open.title}{open.taken_on ? <span className="text-white/75">, {fmtDate(open.taken_on)}</span> : null}</figcaption>
           </figure>
         </div>
       )}
@@ -399,8 +399,8 @@ export function AboutPage() {
             {s.group_companies.map((g) => (
               <div key={g.name} className="bg-ink p-6">
                 <p className="font-display text-[17px] font-bold text-white">{g.name}</p>
-                <p className="mt-1 text-sm text-white/60">{g.text}</p>
-                {g.url && <a href={g.url} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-signal hover:underline">Visit website<ArrowUpRight className="h-3.5 w-3.5" /></a>}
+                <p className="mt-1 text-sm text-white/75">{g.text}</p>
+                {g.url && <a href={g.url} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-signal-bright hover:underline">Visit website<ArrowUpRight className="rtl:-scale-x-100 h-3.5 w-3.5" /></a>}
               </div>
             ))}
           </div>
@@ -423,12 +423,12 @@ export function Branches() {
           {b.is_head_office && <p className="text-xs font-medium text-signal-ink">Head office</p>}
           <ul className="mt-3 space-y-2 text-sm">
             {b.address && <li className="flex gap-2"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted" />{b.address}</li>}
-            {b.phone && <li className="flex gap-2"><Phone className="mt-0.5 h-4 w-4 shrink-0 text-muted" /><a href={telLink(b.phone)} className="hover:underline">{b.phone}</a></li>}
+            {b.phone && <li className="flex gap-2"><Phone className="mt-0.5 h-4 w-4 shrink-0 text-muted" /><a href={telLink(b.phone)} dir="ltr" className="hover:underline">{b.phone}</a></li>}
             {b.email && <li className="flex gap-2"><Mail className="mt-0.5 h-4 w-4 shrink-0 text-muted" /><a href={`mailto:${b.email}`} className="hover:underline">{b.email}</a></li>}
             {b.hours && <li className="flex gap-2"><Clock className="mt-0.5 h-4 w-4 shrink-0 text-muted" />{b.hours}</li>}
           </ul>
           {(b.map_url || (b.lat && b.lng)) && (
-            <a href={b.map_url || `https://www.google.com/maps/search/?api=1&query=${b.lat},${b.lng}`} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-cable hover:underline">Directions<ArrowUpRight className="h-3.5 w-3.5" /></a>
+            <a href={b.map_url || `https://www.google.com/maps/search/?api=1&query=${b.lat},${b.lng}`} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-cable hover:underline">Directions<ArrowUpRight className="rtl:-scale-x-100 h-3.5 w-3.5" /></a>
           )}
         </div>
       ))}
@@ -452,12 +452,12 @@ export function SafetyQualityPage() {
         <div className="grid gap-10 md:grid-cols-2">
           <div>
             <h2 className="flex items-center gap-2 text-[22px] font-extrabold"><ShieldCheck className="h-6 w-6 text-good" />On every site</h2>
-            <ul className="mt-5 space-y-3">{SAFE.map((x) => <li key={x} className="flex gap-3 text-[15.5px]"><Check className="mt-0.5 h-4 w-4 shrink-0 text-good" />{x}</li>)}</ul>
+            <ul className="mt-5 space-y-3">{SAFE.map((x) => <li key={x} className="flex gap-3 text-[16.5px]"><Check className="mt-0.5 h-4 w-4 shrink-0 text-good" />{x}</li>)}</ul>
           </div>
           <div>
             <h2 className="flex items-center gap-2 text-[22px] font-extrabold"><ClipboardCheck className="h-6 w-6 text-cable" />Quality you can check</h2>
-            <p className="mt-3 text-[15.5px] leading-relaxed text-muted">{s.quality}</p>
-            <ul className="mt-5 space-y-3">{QUAL.map((x) => <li key={x} className="flex gap-3 text-[15.5px]"><Check className="mt-0.5 h-4 w-4 shrink-0 text-good" />{x}</li>)}</ul>
+            <p className="mt-3 text-[16.5px] leading-relaxed text-muted">{s.quality}</p>
+            <ul className="mt-5 space-y-3">{QUAL.map((x) => <li key={x} className="flex gap-3 text-[16.5px]"><Check className="mt-0.5 h-4 w-4 shrink-0 text-good" />{x}</li>)}</ul>
           </div>
         </div>
       </Section>
@@ -474,6 +474,7 @@ export function SafetyQualityPage() {
 export function AmcPage() {
   const site = useSite();
   const plans = site.settings?.amc_plans || [];
+  useT(); // re-render plan names when the language changes
   useMeta({ title: "AMC & maintenance", description: "Annual maintenance contracts for substations, transformers and panels: planned visits, oil tests, thermography and fast breakdown response." });
   return (
     <>
@@ -484,13 +485,13 @@ export function AmcPage() {
         <div className="grid gap-6 md:grid-cols-3">
           {plans.map((p, n) => (
             <div key={p.name} className={cn("flex flex-col rounded-xl p-6", n === 1 ? "bg-ink text-white" : "border border-line bg-white")}>
-              <h2 className={cn("text-[22px] font-extrabold", n === 1 && "text-white")}>{p.name}</h2>
-              <p className={cn("mt-1 text-sm", n === 1 ? "text-white/65" : "text-muted")}>{p.for}</p>
+              <h2 data-no-translate className={cn("text-[22px] font-extrabold", n === 1 && "text-white")}>{translateIn("plan", p.name)}</h2>
+              <p className={cn("mt-1 text-sm", n === 1 ? "text-white/75" : "text-muted")}>{p.for}</p>
               <dl className={cn("mt-5 space-y-2 border-y py-4 text-sm", n === 1 ? "border-white/15" : "border-line")}>
-                <div className="flex justify-between gap-3"><dt className={n === 1 ? "text-white/65" : "text-muted"}>Visits</dt><dd className="text-right font-semibold">{p.visits}</dd></div>
-                <div className="flex justify-between gap-3"><dt className={n === 1 ? "text-white/65" : "text-muted"}>Breakdown response</dt><dd className="text-right font-semibold">{p.response}</dd></div>
+                <div className="flex justify-between gap-3"><dt className={n === 1 ? "text-white/75" : "text-muted"}>Visits</dt><dd className="text-end font-semibold">{p.visits}</dd></div>
+                <div className="flex justify-between gap-3"><dt className={n === 1 ? "text-white/75" : "text-muted"}>Breakdown response</dt><dd className="text-end font-semibold">{p.response}</dd></div>
               </dl>
-              <ul className="mt-5 flex-1 space-y-2.5">{(p.items || []).map((x) => <li key={x} className="flex gap-2.5 text-sm"><Check className={cn("mt-0.5 h-4 w-4 shrink-0", n === 1 ? "text-signal" : "text-good")} />{x}</li>)}</ul>
+              <ul className="mt-5 flex-1 space-y-2.5">{(p.items || []).map((x) => <li key={x} className="flex gap-2.5 text-sm"><Check className={cn("mt-0.5 h-4 w-4 shrink-0", n === 1 ? "text-signal-bright" : "text-good")} />{x}</li>)}</ul>
             </div>
           ))}
         </div>
@@ -499,7 +500,7 @@ export function AmcPage() {
         <div className="grid gap-10 lg:grid-cols-[1fr_440px]">
           <div>
             <h2 className="text-[26px] font-extrabold">Get an AMC quote</h2>
-            <p className="mt-3 max-w-xl text-[16px] leading-relaxed text-muted">List the equipment you want covered (transformers, HT panels, LT panels, DG, APFC) and the town. We'll visit, check the condition and send a fixed yearly price.</p>
+            <p className="mt-3 max-w-xl text-[17px] leading-relaxed text-muted">List the equipment you want covered (transformers, HT panels, LT panels, DG, APFC) and the town. We'll visit, check the condition and send a fixed yearly price.</p>
           </div>
           <div className="rounded-xl bg-white p-5 ring-1 ring-line"><LeadForm form="amc_enquiry" extra={{ service: "amc" }} fields={["company", "town", "message"]} messageLabel="Equipment to cover" submitLabel="Ask for an AMC quote" compact /></div>
         </div>

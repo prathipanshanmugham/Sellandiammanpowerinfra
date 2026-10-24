@@ -70,7 +70,7 @@ function ListPanel({ l }) {
                     <span className="block truncate text-xs text-muted">{[it.code !== it.title ? it.code : null, it.sub].filter(Boolean).join(", ")}</span></span>
                   <span className="shrink-0 text-right">
                     {st && <Badge tone={st.tone}>{st.label}</Badge>}
-                    {it.date && <span className={cn("block text-[11px] tabular", overdue ? "font-semibold text-bad" : "text-muted")}>{String(it.date).length > 10 ? fmtDateTime(it.date) : fmtDate(it.date)}</span>}
+                    {it.date && <span className={cn("block text-[12px] tabular", overdue ? "font-semibold text-bad" : "text-muted")}>{String(it.date).length > 10 ? fmtDateTime(it.date) : fmtDate(it.date)}</span>}
                   </span>
                 </Link>
               </li>

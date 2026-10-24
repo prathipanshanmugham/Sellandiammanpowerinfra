@@ -69,7 +69,7 @@ export function SettingsPage() {
             <Panel title="Security and payroll">
               <div className="space-y-3">
                 <Field label="Roles that must use 2-step sign-in">
-                  <div className="flex flex-wrap gap-1.5">{roles.map((r) => { const on = (v.mfa_required_roles || []).includes(r.value); return <button key={r.value} type="button" onClick={() => setV((s) => ({ ...s, mfa_required_roles: on ? s.mfa_required_roles.filter((x) => x !== r.value) : [...(s.mfa_required_roles || []), r.value] }))} aria-pressed={on} className={cn("rounded px-2 py-1 text-xs", on ? "bg-ink text-white" : "bg-canvas text-fg/75")}>{r.label}</button>; })}</div>
+                  <div className="flex flex-wrap gap-1.5">{roles.map((r) => { const on = (v.mfa_required_roles || []).includes(r.value); return <button key={r.value} type="button" onClick={() => setV((s) => ({ ...s, mfa_required_roles: on ? s.mfa_required_roles.filter((x) => x !== r.value) : [...(s.mfa_required_roles || []), r.value] }))} aria-pressed={on} className={cn("rounded px-2 py-1 text-xs", on ? "bg-ink text-white" : "bg-canvas text-fg/85")}>{r.label}</button>; })}</div>
                 </Field>
                 <Field label="Payroll deductions">
                   <div className="flex flex-wrap gap-4">{["pf", "esi", "pt", "tds"].map((k) => <Switch key={k} checked={!!v.payroll_statutory?.[k]} onChange={(x) => setV((s) => ({ ...s, payroll_statutory: { ...s.payroll_statutory, [k]: x } }))} label={k.toUpperCase()} />)}</div>
@@ -82,7 +82,7 @@ export function SettingsPage() {
         <TabPanel value="approvals">
           <Panel title="Who approves what" sub="Rules are checked top to bottom; the first one that matches the document and amount applies. No rule means it's approved automatically. Nobody can approve their own request." bodyClass="p-0">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-[14px]">
                 <thead className="border-b border-edge text-left text-xs text-muted"><tr><th className="px-3 py-2 font-medium">Document</th><th className="px-3 py-2 font-medium">Up to (₹)</th><th className="px-3 py-2 font-medium">Condition</th><th className="px-3 py-2 font-medium">Any of these roles</th><th /></tr></thead>
                 <tbody className="divide-y divide-edge">
                   {(v.approval_rules || []).map((r, i) => (
@@ -90,7 +90,7 @@ export function SettingsPage() {
                       <td className="px-3 py-2"><Select value={r.doc} onChange={(e) => setV((s) => ({ ...s, approval_rules: s.approval_rules.map((x, j) => (j === i ? { ...x, doc: e.target.value } : x)) }))} options={docs} className="h-9 w-48" /></td>
                       <td className="px-3 py-2"><Input value={r.up_to ?? ""} placeholder="No limit" inputMode="numeric" onChange={(e) => setV((s) => ({ ...s, approval_rules: s.approval_rules.map((x, j) => (j === i ? { ...x, up_to: e.target.value === "" ? null : Number(e.target.value.replace(/\D/g, "")) } : x)) }))} className="h-9 w-32 tabular" /></td>
                       <td className="px-3 py-2"><Input value={r.when || ""} placeholder="e.g. discount_pct > 5" onChange={(e) => setV((s) => ({ ...s, approval_rules: s.approval_rules.map((x, j) => (j === i ? { ...x, when: e.target.value } : x)) }))} className="h-9 w-52 font-mono text-xs" /></td>
-                      <td className="px-3 py-2"><div className="flex max-w-md flex-wrap gap-1">{roles.filter((x) => !["employee", "auditor"].includes(x.value)).map((ro) => { const on = r.roles.includes(ro.value); return <button key={ro.value} type="button" onClick={() => setV((s) => ({ ...s, approval_rules: s.approval_rules.map((x, j) => (j === i ? { ...x, roles: on ? x.roles.filter((y) => y !== ro.value) : [...x.roles, ro.value] } : x)) }))} className={cn("rounded px-1.5 py-0.5 text-[11px]", on ? "bg-ink text-white" : "bg-canvas text-muted")}>{ro.label.split(" (")[0]}</button>; })}</div></td>
+                      <td className="px-3 py-2"><div className="flex max-w-md flex-wrap gap-1">{roles.filter((x) => !["employee", "auditor"].includes(x.value)).map((ro) => { const on = r.roles.includes(ro.value); return <button key={ro.value} type="button" onClick={() => setV((s) => ({ ...s, approval_rules: s.approval_rules.map((x, j) => (j === i ? { ...x, roles: on ? x.roles.filter((y) => y !== ro.value) : [...x.roles, ro.value] } : x)) }))} className={cn("rounded px-1.5 py-0.5 text-[12px]", on ? "bg-ink text-white" : "bg-canvas text-muted")}>{ro.label.split(" (")[0]}</button>; })}</div></td>
                       <td className="px-3 py-2"><button type="button" onClick={() => setV((s) => ({ ...s, approval_rules: s.approval_rules.filter((_, j) => j !== i) }))} className="rounded p-1.5 text-muted hover:bg-bad/10 hover:text-bad" aria-label="Remove rule"><Trash2 className="h-4 w-4" /></button></td>
                     </tr>
                   ))}

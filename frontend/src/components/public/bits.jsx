@@ -14,7 +14,7 @@ export function Cover({ file, service, alt, className, label = true }) {
   return (
     <div className={cn("relative overflow-hidden bg-ink", className)}>
       <img src={url || illustrationFor(service)} alt={alt || ""} loading="lazy" decoding="async" className="h-full w-full object-cover" />
-      {!url && label && <span className="absolute bottom-2 left-2 rounded bg-ink/80 px-1.5 py-0.5 text-[10px] text-white/70">Illustration</span>}
+      {!url && label && <span className="absolute bottom-2 start-2 rounded bg-ink/80 px-1.5 py-0.5 text-[11px] text-white/80">Illustration</span>}
     </div>
   );
 }
@@ -47,7 +47,7 @@ export function Stat({ value, label, dark }) {
   return (
     <div>
       <p className={cn("font-display text-[28px] font-extrabold leading-none md:text-[34px]", dark ? "text-white" : "text-fg")} style={{ letterSpacing: "-0.03em" }}>{value}</p>
-      <p className={cn("mt-2 text-sm leading-snug", dark ? "text-white/60" : "text-muted")}>{label}</p>
+      <p className={cn("mt-2 text-sm leading-snug", dark ? "text-white/75" : "text-muted")}>{label}</p>
     </div>
   );
 }

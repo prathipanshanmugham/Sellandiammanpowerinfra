@@ -78,7 +78,7 @@ function LeadExtra({ doc, refresh }) {
         </Panel>
         {doc.score != null && (
           <Panel title="Lead score">
-            <div className="flex items-center gap-3"><span className="font-display text-[28px] font-extrabold tabular">{doc.score}</span><Bar value={doc.score} max={100} tone={doc.score >= 70 ? "good" : doc.score >= 40 ? "signal" : "bad"} /></div>
+            <div className="flex items-center gap-3"><span className="font-display text-[28px] font-extrabold tabular">{doc.score}</span><Bar value={doc.score} max={100} tone={doc.score >= 70 ? "good" : doc.score >= 40 ? "amber" : "bad"} /></div>
             <p className="mt-1 text-xs text-muted">From load, LT/HT, timeline, source and engagement.</p>
           </Panel>
         )}
@@ -161,8 +161,8 @@ function ProjectExtra({ doc, refresh }) {
                   <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: "rgb(var(--muted))" }} tickLine={false} axisLine={false} />
                   <Tooltip formatter={(v) => `${v}%`} contentStyle={{ fontSize: 12, borderRadius: 8 }} />
                   <Legend wrapperStyle={{ fontSize: 12 }} />
-                  <Line type="monotone" dataKey="planned" name="Planned" stroke="#A9ADB3" strokeWidth={2} dot={false} strokeDasharray="4 3" isAnimationActive={false} />
-                  <Line type="monotone" dataKey="actual" name="Actual" stroke="#0A1626" strokeWidth={2.5} dot={{ r: 2.5 }} connectNulls />
+                  <Line type="monotone" dataKey="planned" name="Planned" stroke="#A3A8AF" strokeWidth={2} dot={false} strokeDasharray="4 3" isAnimationActive={false} />
+                  <Line type="monotone" dataKey="actual" name="Actual" stroke="#0B5CFF" strokeWidth={2.5} dot={{ r: 2.5 }} connectNulls />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -253,7 +253,7 @@ function RfqExtra({ doc, refresh }) {
   return (
     <Panel title="Quote comparison" sub="Lowest rate per line is highlighted" bodyClass="p-0">
       <div className="overflow-x-auto">
-        <table className="w-full text-sm">
+        <table className="w-full text-[14px]">
           <thead className="border-b border-edge text-left text-xs text-muted">
             <tr><th className="px-3 py-2 font-medium">Item</th><th className="px-3 py-2 text-right font-medium">Qty</th>{data.totals.map((t) => <th key={t.vendor_id} className="px-3 py-2 text-right font-medium">{t.vendor}<Badge tone={t.rank === "L1" ? "green" : "gray"} className="ml-1.5">{t.rank}</Badge></th>)}</tr>
           </thead>
