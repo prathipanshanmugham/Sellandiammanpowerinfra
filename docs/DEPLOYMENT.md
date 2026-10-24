@@ -72,11 +72,26 @@ Until certbot adds the HTTPS block, nginx answers `https://` for this name with 
 
 ## Day to day
 
+Install the update command once:
+
+```bash
+install -m 755 /opt/sellandiammanpowerinfra/scripts/deploy.sh /usr/local/bin/powerinfra-deploy
+```
+
+Then every update is one command:
+
+```bash
+powerinfra-deploy                  # pull main, back up, rebuild, wait until the site answers
+FORCE=1 powerinfra-deploy          # rebuild without new code (e.g. after editing backend/.env)
+```
+
+It checks for new commits first and does nothing if there are none. Before changing anything it takes a backup (`backups/db-<date>.gz`, `backups/uploads-<date>.tgz`), then fast-forwards `main` (it stops if files on the server were edited by hand), rebuilds, and waits up to two minutes for `/api/health`. If the site doesn't come back it prints the backend log and the exact command to return to the previous version.
+
 ```bash
 cd /opt/sellandiammanpowerinfra
-git pull && docker compose up -d --build         # update
+docker compose ps                                # status
 docker compose logs --tail 200 backend           # logs
-./scripts/backup-now.sh                          # extra backup before a big change
+./scripts/backup-now.sh                          # extra backup
 ./scripts/restore.sh backups/db-<date>.gz backups/uploads-<date>.tgz
 ```
 
