@@ -1,0 +1,19 @@
+# secrets
+.env
+backend/.env
+# data
+backups/
+backend/uploads/
+backend/tests/.uploads/
+# build output
+frontend/dist/
+frontend/node_modules/
+demo/build/
+# python
+__pycache__/
+*.pyc
+.pytest_cache/
+# editors / OS
+.DS_Store
+.vscode/
+.idea/

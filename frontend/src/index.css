@@ -1,0 +1,50 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --surface: 255 255 255;
+  --canvas: 244 246 249;
+  --fg: 10 22 38;
+  --muted: 91 100 114;
+  --edge: 214 220 228;
+  color-scheme: light;
+}
+[data-theme="dark"] {
+  --surface: 14 29 49;
+  --canvas: 6 16 29;
+  --fg: 232 236 241;
+  --muted: 152 163 178;
+  --edge: 34 55 79;
+  color-scheme: dark;
+}
+
+@layer base {
+  html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body { @apply bg-canvas text-fg font-sans antialiased; font-feature-settings: "cv11", "ss01"; text-rendering: optimizeLegibility; }
+  h1, h2, h3, h4 { @apply font-display text-fg; letter-spacing: -0.015em; }
+  :focus-visible { outline: 2px solid #FFC400; outline-offset: 2px; border-radius: 4px; }
+  input, select, textarea { font-size: 16px; }
+  @media (min-width: 768px) { input, select, textarea { font-size: 14px; } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+  ::selection { background: #FFC400; color: #0A1626; }
+}
+
+@layer components {
+  .lead-text { @apply text-lg leading-relaxed text-muted; }
+  .prose-site { @apply text-[15.5px] leading-7 text-fg/90; max-width: 68ch; }
+  .prose-site p { @apply my-3; }
+  .prose-site h2 { @apply mt-8 mb-2 text-xl font-bold; }
+  .prose-site h3 { @apply mt-6 mb-2 text-lg font-bold; }
+  .prose-site ul { @apply my-3 list-disc pl-5 space-y-1; }
+  .prose-site a { @apply text-cable underline underline-offset-2; }
+  .tabular { font-variant-numeric: tabular-nums; }
+  .field-label { @apply mb-1 block text-[13px] font-medium text-fg/80; }
+  .scrollbar-thin { scrollbar-width: thin; }
+}
+
+/* the single-line diagram in the hero: drawn once on load */
+.sld-wire { stroke-dasharray: var(--len); stroke-dashoffset: var(--len); animation: energise 2.4s cubic-bezier(.6,.05,.3,1) forwards; animation-delay: var(--d, 0s); }
+.sld-node { opacity: 0; animation: nodeon .4s ease-out forwards; animation-delay: var(--d, 0s); }
+@keyframes nodeon { to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .sld-wire { stroke-dashoffset: 0; animation: none; } .sld-node { opacity: 1; animation: none; } }

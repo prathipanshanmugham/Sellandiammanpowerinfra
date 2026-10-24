@@ -1,0 +1,2484 @@
+{
+ "groups": [
+  {
+   "key": "supply",
+   "label": "Plan your power supply",
+   "blurb": "How much load you have, LT or HT, and what it will cost to run."
+  },
+  {
+   "key": "size",
+   "label": "Size the equipment",
+   "blurb": "Transformers, cables, breakers, DG sets, UPS and motors."
+  },
+  {
+   "key": "save",
+   "label": "Save energy and money",
+   "blurb": "Power factor, harmonics, efficient lighting, motors and solar."
+  },
+  {
+   "key": "safety",
+   "label": "Safety and protection",
+   "blurb": "Earthing, lightning protection and lighting levels."
+  },
+  {
+   "key": "quick",
+   "label": "Quick references",
+   "blurb": "Formulas, conversions and document checklists."
+  }
+ ],
+ "tools": [
+  {
+   "slug": "connected-load",
+   "group": "supply",
+   "icon": "list-plus",
+   "title": "Connected load & maximum demand",
+   "summary": "Add up your loads to find connected load, maximum demand, and whether you need LT or HT supply.",
+   "basis": "NBC 2016 Part 8; IS 732; LT up to 150 kW in Tamil Nadu (TNERC supply code)",
+   "inputs": [
+    {
+     "k": "method",
+     "l": "How do you want to estimate?",
+     "t": "select",
+     "def": "list",
+     "opts": [
+      {
+       "value": "list",
+       "label": "From a load list"
+      },
+      {
+       "value": "area",
+       "label": "From building area (rough)"
+      }
+     ]
+    },
+    {
+     "k": "building",
+     "l": "Building type",
+     "t": "select",
+     "def": "office_ac",
+     "show": {
+      "method": "area"
+     },
+     "opts": [
+      {
+       "value": "apartment",
+       "label": "Apartments"
+      },
+      {
+       "value": "office_ac",
+       "label": "Office (air-conditioned)"
+      },
+      {
+       "value": "retail",
+       "label": "Retail / mall"
+      },
+      {
+       "value": "hospital",
+       "label": "Hospital"
+      },
+      {
+       "value": "school",
+       "label": "School / college"
+      },
+      {
+       "value": "hotel",
+       "label": "Hotel"
+      },
+      {
+       "value": "factory_light",
+       "label": "Factory (light industry)"
+      },
+      {
+       "value": "warehouse",
+       "label": "Warehouse"
+      },
+      {
+       "value": "data_centre",
+       "label": "Data centre / IT"
+      }
+     ]
+    },
+    {
+     "k": "area",
+     "l": "Built-up area",
+     "t": "number",
+     "unit": "m²",
+     "def": 2000,
+     "min": 10,
+     "show": {
+      "method": "area"
+     }
+    },
+    {
+     "k": "loads",
+     "l": "Loads",
+     "t": "lines",
+     "show": {
+      "method": "list"
+     },
+     "def": [
+      {
+       "name": "Motors / machines",
+       "qty": 10,
+       "kw": 7.5,
+       "df": 0.7
+      },
+      {
+       "name": "Air-conditioning",
+       "qty": 8,
+       "kw": 3.5,
+       "df": 0.8
+      },
+      {
+       "name": "Lighting & sockets",
+       "qty": 1,
+       "kw": 20,
+       "df": 0.6
+      },
+      {
+       "name": "Compressor",
+       "qty": 1,
+       "kw": 22,
+       "df": 0.9
+      }
+     ],
+     "fields": [
+      {
+       "k": "name",
+       "l": "Load",
+       "t": "text"
+      },
+      {
+       "k": "qty",
+       "l": "Qty",
+       "t": "number",
+       "min": 0
+      },
+      {
+       "k": "kw",
+       "l": "kW each",
+       "t": "number",
+       "min": 0
+      },
+      {
+       "k": "df",
+       "l": "Demand factor",
+       "t": "number",
+       "min": 0,
+       "max": 1,
+       "step": 0.05
+      }
+     ]
+    },
+    {
+     "k": "diversity",
+     "l": "Simultaneity factor",
+     "t": "number",
+     "def": 0.85,
+     "min": 0.3,
+     "max": 1,
+     "step": 0.05,
+     "help": "Share of the individual maximum demands that occur at the same time (0.7–0.9 is common)."
+    },
+    {
+     "k": "pf",
+     "l": "Power factor",
+     "t": "number",
+     "def": 0.9,
+     "min": 0.5,
+     "max": 1,
+     "step": 0.01
+    },
+    {
+     "k": "growth",
+     "l": "Future growth",
+     "t": "number",
+     "unit": "%",
+     "def": 20,
+     "min": 0,
+     "max": 200
+    }
+   ]
+  },
+  {
+   "slug": "lt-vs-ht",
+   "group": "supply",
+   "icon": "git-compare",
+   "title": "LT or HT? Cost comparison",
+   "summary": "Compare a year of bills on LT and HT tariffs, add the substation cost, and see the payback.",
+   "basis": "TNERC tariff order (energy, demand / fixed, ToD, PF rules) — rates as of the date shown",
+   "inputs": [
+    {
+     "k": "category",
+     "l": "Consumer type",
+     "t": "select",
+     "def": "industrial",
+     "opts": [
+      {
+       "value": "industrial",
+       "label": "Industry / factory"
+      },
+      {
+       "value": "commercial",
+       "label": "Commercial"
+      }
+     ]
+    },
+    {
+     "k": "md_kva",
+     "l": "Maximum demand",
+     "t": "number",
+     "unit": "kVA",
+     "def": 150,
+     "min": 1
+    },
+    {
+     "k": "units",
+     "l": "Monthly consumption",
+     "t": "number",
+     "unit": "kWh",
+     "def": 40000,
+     "min": 0
+    },
+    {
+     "k": "peak_share",
+     "l": "Share of units used in peak hours",
+     "t": "number",
+     "unit": "%",
+     "def": 30,
+     "min": 0,
+     "max": 100
+    },
+    {
+     "k": "night_share",
+     "l": "Share of units used at night (10 pm–5 am)",
+     "t": "number",
+     "unit": "%",
+     "def": 10,
+     "min": 0,
+     "max": 100
+    },
+    {
+     "k": "pf",
+     "l": "Power factor",
+     "t": "number",
+     "def": 0.95,
+     "min": 0.5,
+     "max": 1,
+     "step": 0.01
+    },
+    {
+     "k": "substation_cost",
+     "l": "Substation cost (blank = typical)",
+     "t": "number",
+     "unit": "₹",
+     "def": null,
+     "min": 0
+    }
+   ]
+  },
+  {
+   "slug": "bill-estimator",
+   "group": "supply",
+   "icon": "receipt-indian-rupee",
+   "title": "Electricity bill estimator",
+   "summary": "Estimate a monthly bill for HT or LT industrial and commercial connections, with ToD and PF effects.",
+   "basis": "TNERC tariff order — energy, demand / fixed charges, ToD, PF penalty, electricity tax",
+   "inputs": [
+    {
+     "k": "tariff",
+     "l": "Tariff",
+     "t": "select",
+     "def": "HT_I",
+     "opts_from": "tariffs"
+    },
+    {
+     "k": "units",
+     "l": "Units this month",
+     "t": "number",
+     "unit": "kWh",
+     "def": 60000,
+     "min": 0
+    },
+    {
+     "k": "md_kva",
+     "l": "Recorded maximum demand (HT)",
+     "t": "number",
+     "unit": "kVA",
+     "def": 300,
+     "min": 0
+    },
+    {
+     "k": "cd_kva",
+     "l": "Contract demand (HT)",
+     "t": "number",
+     "unit": "kVA",
+     "def": 350,
+     "min": 0
+    },
+    {
+     "k": "load_kw",
+     "l": "Sanctioned load (LT)",
+     "t": "number",
+     "unit": "kW",
+     "def": 100,
+     "min": 0
+    },
+    {
+     "k": "peak_share",
+     "l": "Peak-hour share",
+     "t": "number",
+     "unit": "%",
+     "def": 30,
+     "min": 0,
+     "max": 100
+    },
+    {
+     "k": "night_share",
+     "l": "Night share",
+     "t": "number",
+     "unit": "%",
+     "def": 10,
+     "min": 0,
+     "max": 100
+    },
+    {
+     "k": "pf",
+     "l": "Average power factor",
+     "t": "number",
+     "def": 0.92,
+     "min": 0.3,
+     "max": 1,
+     "step": 0.01
+    }
+   ]
+  },
+  {
+   "slug": "contract-demand",
+   "group": "supply",
+   "icon": "sliders-horizontal",
+   "title": "Contract demand optimiser",
+   "summary": "Enter 12 months of recorded demand to find the contract demand with the lowest yearly demand charges.",
+   "basis": "TNERC tariff order — billing demand = higher of recorded MD or 90% of CD; excess demand charged extra",
+   "inputs": [
+    {
+     "k": "cd_kva",
+     "l": "Present contract demand",
+     "t": "number",
+     "unit": "kVA",
+     "def": 500,
+     "min": 1
+    },
+    {
+     "k": "md",
+     "l": "Recorded maximum demand, last 12 months",
+     "t": "series",
+     "unit": "kVA",
+     "def": [
+      380,
+      395,
+      410,
+      402,
+      420,
+      455,
+      470,
+      440,
+      415,
+      398,
+      405,
+      430
+     ]
+    },
+    {
+     "k": "tariff",
+     "l": "Tariff",
+     "t": "select",
+     "def": "HT_I",
+     "opts_from": "tariffs_ht"
+    }
+   ]
+  },
+  {
+   "slug": "ht-connection-roadmap",
+   "group": "supply",
+   "icon": "route",
+   "title": "HT connection roadmap",
+   "summary": "The steps, documents, typical time and indicative cost for a new HT service in Tamil Nadu.",
+   "basis": "TNPDCL / CEIG process (typical times entered by our liaison team)",
+   "inputs": [
+    {
+     "k": "kva",
+     "l": "Load to be sanctioned",
+     "t": "number",
+     "unit": "kVA",
+     "def": 500,
+     "min": 1
+    },
+    {
+     "k": "voltage",
+     "l": "Supply voltage",
+     "t": "select",
+     "def": "11kV",
+     "opts": [
+      {
+       "value": "11kV",
+       "label": "11 kV"
+      },
+      {
+       "value": "22kV",
+       "label": "22 kV"
+      },
+      {
+       "value": "33kV",
+       "label": "33 kV"
+      }
+     ]
+    },
+    {
+     "k": "kind",
+     "l": "Application",
+     "t": "select",
+     "def": "new",
+     "opts": [
+      {
+       "value": "new",
+       "label": "New HT service"
+      },
+      {
+       "value": "lt_to_ht",
+       "label": "Convert LT to HT"
+      },
+      {
+       "value": "load_increase",
+       "label": "Increase HT demand"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "transformer-sizing",
+   "group": "size",
+   "icon": "box",
+   "title": "Transformer sizing",
+   "summary": "From your load, diversity and growth to the next standard transformer rating and its loading.",
+   "basis": "IS 2026; standard ratings per IS 1180",
+   "inputs": [
+    {
+     "k": "load_kw",
+     "l": "Connected load",
+     "t": "number",
+     "unit": "kW",
+     "def": 600,
+     "min": 1
+    },
+    {
+     "k": "demand_factor",
+     "l": "Demand factor",
+     "t": "number",
+     "def": 0.75,
+     "min": 0.1,
+     "max": 1,
+     "step": 0.05
+    },
+    {
+     "k": "pf",
+     "l": "Power factor",
+     "t": "number",
+     "def": 0.9,
+     "min": 0.5,
+     "max": 1,
+     "step": 0.01
+    },
+    {
+     "k": "growth",
+     "l": "Future growth",
+     "t": "number",
+     "unit": "%",
+     "def": 20,
+     "min": 0,
+     "max": 200
+    },
+    {
+     "k": "max_loading",
+     "l": "Keep loading under",
+     "t": "number",
+     "unit": "%",
+     "def": 80,
+     "min": 50,
+     "max": 100
+    },
+    {
+     "k": "location",
+     "l": "Installed",
+     "t": "select",
+     "def": "outdoor",
+     "opts": [
+      {
+       "value": "outdoor",
+       "label": "Outdoor"
+      },
+      {
+       "value": "indoor",
+       "label": "Indoor / inside building"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "transformer-losses",
+   "group": "size",
+   "icon": "flame",
+   "title": "Transformer losses & total owning cost",
+   "summary": "Compare transformer offers on price plus the cost of their losses over the years.",
+   "basis": "Total owning cost = price + capitalised no-load and load losses (losses per IS 1180 / maker's guarantee)",
+   "inputs": [
+    {
+     "k": "kva",
+     "l": "Rating",
+     "t": "select",
+     "def": "1000",
+     "opts_from": "transformer_ratings"
+    },
+    {
+     "k": "avg_load",
+     "l": "Average loading",
+     "t": "number",
+     "unit": "%",
+     "def": 60,
+     "min": 1,
+     "max": 120
+    },
+    {
+     "k": "hours",
+     "l": "Hours energised per year",
+     "t": "number",
+     "def": 8760,
+     "min": 1,
+     "max": 8760
+    },
+    {
+     "k": "tariff",
+     "l": "Energy cost",
+     "t": "number",
+     "unit": "₹/kWh",
+     "def": 7.5,
+     "min": 0
+    },
+    {
+     "k": "years",
+     "l": "Years to compare",
+     "t": "number",
+     "def": 15,
+     "min": 1,
+     "max": 40
+    },
+    {
+     "k": "options",
+     "l": "Offers",
+     "t": "lines",
+     "def": [
+      {
+       "name": "Offer A",
+       "price": 1150000,
+       "nll": 1100,
+       "ll": 8000
+      },
+      {
+       "name": "Offer B (lower loss)",
+       "price": 1290000,
+       "nll": 900,
+       "ll": 6800
+      }
+     ],
+     "fields": [
+      {
+       "k": "name",
+       "l": "Offer",
+       "t": "text"
+      },
+      {
+       "k": "price",
+       "l": "Price ₹",
+       "t": "number"
+      },
+      {
+       "k": "nll",
+       "l": "No-load loss W",
+       "t": "number"
+      },
+      {
+       "k": "ll",
+       "l": "Load loss W",
+       "t": "number"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "dg-sizing",
+   "group": "size",
+   "icon": "fuel",
+   "title": "DG set sizing",
+   "summary": "Running load plus the starting of your largest motor gives the DG rating and fuel use.",
+   "basis": "Running kVA at ≤80% loading and motor-starting step load (ISO 8528 practice)",
+   "inputs": [
+    {
+     "k": "running_kw",
+     "l": "Total running load",
+     "t": "number",
+     "unit": "kW",
+     "def": 120,
+     "min": 1
+    },
+    {
+     "k": "pf",
+     "l": "Load power factor",
+     "t": "number",
+     "def": 0.8,
+     "min": 0.5,
+     "max": 1,
+     "step": 0.01
+    },
+    {
+     "k": "motor_kw",
+     "l": "Largest motor",
+     "t": "number",
+     "unit": "kW",
+     "def": 30,
+     "min": 0
+    },
+    {
+     "k": "starter",
+     "l": "Its starter",
+     "t": "select",
+     "def": "star_delta",
+     "opts": [
+      {
+       "value": "dol",
+       "label": "Direct on line"
+      },
+      {
+       "value": "star_delta",
+       "label": "Star-delta"
+      },
+      {
+       "value": "soft_starter",
+       "label": "Soft starter"
+      },
+      {
+       "value": "vfd",
+       "label": "VFD"
+      }
+     ]
+    },
+    {
+     "k": "transient",
+     "l": "Step-load capability",
+     "t": "number",
+     "def": 2.0,
+     "min": 1,
+     "max": 4,
+     "step": 0.1,
+     "help": "Multiple of rating the DG accepts as a sudden load within ~15–20% voltage dip. Check the maker's data."
+    },
+    {
+     "k": "hours",
+     "l": "Running hours per month",
+     "t": "number",
+     "def": 60,
+     "min": 0
+    }
+   ]
+  },
+  {
+   "slug": "ups-battery",
+   "group": "size",
+   "icon": "battery-charging",
+   "title": "UPS & battery backup",
+   "summary": "UPS rating and battery capacity for the load and backup time you need.",
+   "basis": "Battery Ah = load × time ÷ (bank voltage × inverter efficiency × depth of discharge) × ageing factor",
+   "inputs": [
+    {
+     "k": "load_kw",
+     "l": "Critical load",
+     "t": "number",
+     "unit": "kW",
+     "def": 8,
+     "min": 0.1
+    },
+    {
+     "k": "pf",
+     "l": "UPS output power factor",
+     "t": "number",
+     "def": 0.9,
+     "min": 0.6,
+     "max": 1,
+     "step": 0.01
+    },
+    {
+     "k": "growth",
+     "l": "Spare capacity",
+     "t": "number",
+     "unit": "%",
+     "def": 25,
+     "min": 0,
+     "max": 200
+    },
+    {
+     "k": "backup_min",
+     "l": "Backup time",
+     "t": "number",
+     "unit": "minutes",
+     "def": 60,
+     "min": 1
+    },
+    {
+     "k": "bank_v",
+     "l": "Battery bank voltage",
+     "t": "select",
+     "def": "192",
+     "opts": [
+      {
+       "value": "48",
+       "label": "48 V"
+      },
+      {
+       "value": "96",
+       "label": "96 V"
+      },
+      {
+       "value": "192",
+       "label": "192 V"
+      },
+      {
+       "value": "240",
+       "label": "240 V"
+      },
+      {
+       "value": "360",
+       "label": "360 V"
+      },
+      {
+       "value": "384",
+       "label": "384 V"
+      }
+     ]
+    },
+    {
+     "k": "eff",
+     "l": "Inverter efficiency",
+     "t": "number",
+     "def": 0.92,
+     "min": 0.7,
+     "max": 0.99,
+     "step": 0.01
+    },
+    {
+     "k": "dod",
+     "l": "Usable depth of discharge",
+     "t": "number",
+     "def": 0.8,
+     "min": 0.3,
+     "max": 1,
+     "step": 0.05
+    },
+    {
+     "k": "ageing",
+     "l": "Ageing factor",
+     "t": "number",
+     "def": 1.25,
+     "min": 1,
+     "max": 1.5,
+     "step": 0.05
+    }
+   ]
+  },
+  {
+   "slug": "solar-rooftop",
+   "group": "save",
+   "icon": "sun",
+   "title": "Solar rooftop sizing & savings",
+   "summary": "System size from your consumption and roof, yearly generation, savings and payback.",
+   "basis": "Typical Tamil Nadu yields; TN solar metering rules (verify current order)",
+   "inputs": [
+    {
+     "k": "monthly_units",
+     "l": "Average monthly consumption",
+     "t": "number",
+     "unit": "kWh",
+     "def": 12000,
+     "min": 0
+    },
+    {
+     "k": "roof_area",
+     "l": "Shadow-free roof area",
+     "t": "number",
+     "unit": "m²",
+     "def": 800,
+     "min": 0
+    },
+    {
+     "k": "sanctioned_kw",
+     "l": "Sanctioned load / contract demand",
+     "t": "number",
+     "unit": "kW",
+     "def": 150,
+     "min": 0
+    },
+    {
+     "k": "town",
+     "l": "Town",
+     "t": "select",
+     "def": "Erode",
+     "opts_from": "solar_towns"
+    },
+    {
+     "k": "tariff",
+     "l": "Your energy rate",
+     "t": "number",
+     "unit": "₹/kWh",
+     "def": 8.25,
+     "min": 0
+    },
+    {
+     "k": "metering",
+     "l": "Metering",
+     "t": "select",
+     "def": "net",
+     "opts": [
+      {
+       "value": "net",
+       "label": "Net metering / self use"
+      },
+      {
+       "value": "gross",
+       "label": "Gross metering (export)"
+      }
+     ]
+    },
+    {
+     "k": "export_rate",
+     "l": "Export rate (gross metering)",
+     "t": "number",
+     "unit": "₹/kWh",
+     "def": 3.1,
+     "min": 0,
+     "show": {
+      "metering": "gross"
+     }
+    },
+    {
+     "k": "cost_per_kwp",
+     "l": "System cost",
+     "t": "number",
+     "unit": "₹/kWp",
+     "def": 48000,
+     "min": 0
+    }
+   ]
+  },
+  {
+   "slug": "ev-charger-load",
+   "group": "supply",
+   "icon": "plug-zap",
+   "title": "EV charger load planner",
+   "summary": "How much demand your chargers add, and whether your connection needs an upgrade.",
+   "basis": "CEA EV charging guidelines; diversity from typical use",
+   "inputs": [
+    {
+     "k": "chargers",
+     "l": "Chargers",
+     "t": "lines",
+     "def": [
+      {
+       "type": "ac_7_4",
+       "qty": 6
+      },
+      {
+       "type": "dc_60",
+       "qty": 1
+      }
+     ],
+     "fields": [
+      {
+       "k": "type",
+       "l": "Charger",
+       "t": "select",
+       "opts": [
+        {
+         "value": "ac_3_3",
+         "label": "AC 3.3 kW"
+        },
+        {
+         "value": "ac_7_4",
+         "label": "AC 7.4 kW"
+        },
+        {
+         "value": "ac_11",
+         "label": "AC 11 kW"
+        },
+        {
+         "value": "ac_22",
+         "label": "AC 22 kW"
+        },
+        {
+         "value": "dc_30",
+         "label": "DC 30 kW"
+        },
+        {
+         "value": "dc_60",
+         "label": "DC 60 kW"
+        },
+        {
+         "value": "dc_120",
+         "label": "DC 120 kW"
+        }
+       ]
+      },
+      {
+       "k": "qty",
+       "l": "Qty",
+       "t": "number",
+       "min": 0
+      }
+     ]
+    },
+    {
+     "k": "diversity",
+     "l": "Diversity (share charging at once)",
+     "t": "number",
+     "def": 0.8,
+     "min": 0.1,
+     "max": 1,
+     "step": 0.05
+    },
+    {
+     "k": "sanctioned_kva",
+     "l": "Present sanctioned load / CD",
+     "t": "number",
+     "unit": "kVA",
+     "def": 250,
+     "min": 0
+    },
+    {
+     "k": "existing_md",
+     "l": "Present maximum demand",
+     "t": "number",
+     "unit": "kVA",
+     "def": 170,
+     "min": 0
+    }
+   ]
+  },
+  {
+   "slug": "cable-size",
+   "group": "size",
+   "icon": "cable",
+   "title": "Cable size selector (LT & HT)",
+   "summary": "Pick a cable size with derating, then check voltage drop and short-circuit withstand.",
+   "basis": "IS 3961 (Part 2), IS 7098, IS 1554, IEC 60364-5-52",
+   "inputs": [
+    {
+     "k": "voltage",
+     "l": "System voltage",
+     "t": "select",
+     "def": "415",
+     "opts": [
+      {
+       "value": "230",
+       "label": "230 V single phase"
+      },
+      {
+       "value": "415",
+       "label": "415 V three phase"
+      },
+      {
+       "value": "11000",
+       "label": "11 kV"
+      },
+      {
+       "value": "22000",
+       "label": "22 kV"
+      },
+      {
+       "value": "33000",
+       "label": "33 kV"
+      }
+     ]
+    },
+    {
+     "k": "load_kw",
+     "l": "Load",
+     "t": "number",
+     "unit": "kW",
+     "def": 75,
+     "min": 0.1
+    },
+    {
+     "k": "pf",
+     "l": "Power factor",
+     "t": "number",
+     "def": 0.85,
+     "min": 0.5,
+     "max": 1,
+     "step": 0.01
+    },
+    {
+     "k": "length",
+     "l": "Route length",
+     "t": "number",
+     "unit": "m",
+     "def": 120,
+     "min": 1
+    },
+    {
+     "k": "conductor",
+     "l": "Conductor",
+     "t": "select",
+     "def": "al",
+     "opts": [
+      {
+       "value": "al",
+       "label": "Aluminium"
+      },
+      {
+       "value": "cu",
+       "label": "Copper"
+      }
+     ]
+    },
+    {
+     "k": "laying",
+     "l": "Laid",
+     "t": "select",
+     "def": "ground",
+     "opts": [
+      {
+       "value": "ground",
+       "label": "Direct in ground"
+      },
+      {
+       "value": "air",
+       "label": "In air / on tray"
+      }
+     ]
+    },
+    {
+     "k": "ambient",
+     "l": "Ground / air temperature",
+     "t": "number",
+     "unit": "°C",
+     "def": 30,
+     "min": 10,
+     "max": 60
+    },
+    {
+     "k": "group",
+     "l": "Cables laid together",
+     "t": "number",
+     "def": 1,
+     "min": 1,
+     "max": 10
+    },
+    {
+     "k": "spacing",
+     "l": "Grouped cables",
+     "t": "select",
+     "def": "touching",
+     "opts": [
+      {
+       "value": "touching",
+       "label": "Touching"
+      },
+      {
+       "value": "spaced",
+       "label": "Spaced (~15 cm)"
+      }
+     ],
+     "show_if_gt": {
+      "group": 1
+     }
+    },
+    {
+     "k": "soil",
+     "l": "Soil thermal resistivity",
+     "t": "select",
+     "def": "150",
+     "show": {
+      "laying": "ground"
+     },
+     "opts": [
+      {
+       "value": "100",
+       "label": "100 °C·cm/W (moist)"
+      },
+      {
+       "value": "120",
+       "label": "120"
+      },
+      {
+       "value": "150",
+       "label": "150 (standard)"
+      },
+      {
+       "value": "200",
+       "label": "200"
+      },
+      {
+       "value": "250",
+       "label": "250 (dry)"
+      },
+      {
+       "value": "300",
+       "label": "300 (very dry)"
+      }
+     ]
+    },
+    {
+     "k": "depth",
+     "l": "Laying depth",
+     "t": "select",
+     "def": "75",
+     "show": {
+      "laying": "ground"
+     },
+     "opts": [
+      {
+       "value": "75",
+       "label": "75 cm"
+      },
+      {
+       "value": "90",
+       "label": "90 cm"
+      },
+      {
+       "value": "105",
+       "label": "105 cm"
+      },
+      {
+       "value": "120",
+       "label": "120 cm"
+      },
+      {
+       "value": "150",
+       "label": "150 cm"
+      }
+     ]
+    },
+    {
+     "k": "vd_limit",
+     "l": "Voltage-drop limit",
+     "t": "number",
+     "unit": "%",
+     "def": 5,
+     "min": 0.5,
+     "max": 10,
+     "step": 0.5
+    },
+    {
+     "k": "fault_ka",
+     "l": "Fault level at the source",
+     "t": "number",
+     "unit": "kA",
+     "def": 25,
+     "min": 0
+    },
+    {
+     "k": "clear_s",
+     "l": "Fault clearing time",
+     "t": "number",
+     "unit": "s",
+     "def": 0.2,
+     "min": 0.01,
+     "max": 3,
+     "step": 0.01
+    }
+   ]
+  },
+  {
+   "slug": "voltage-drop",
+   "group": "size",
+   "icon": "trending-down",
+   "title": "Voltage drop",
+   "summary": "Voltage drop for a cable, current, length and power factor, against the allowed limit.",
+   "basis": "IS 732; Vd = √3·I·L·(R cos φ + X sin φ)",
+   "inputs": [
+    {
+     "k": "phase",
+     "l": "Supply",
+     "t": "select",
+     "def": "3",
+     "opts": [
+      {
+       "value": "1",
+       "label": "Single phase 230 V"
+      },
+      {
+       "value": "3",
+       "label": "Three phase 415 V"
+      }
+     ]
+    },
+    {
+     "k": "current",
+     "l": "Current",
+     "t": "number",
+     "unit": "A",
+     "def": 100,
+     "min": 0.1
+    },
+    {
+     "k": "length",
+     "l": "Length",
+     "t": "number",
+     "unit": "m",
+     "def": 100,
+     "min": 1
+    },
+    {
+     "k": "conductor",
+     "l": "Conductor",
+     "t": "select",
+     "def": "al",
+     "opts": [
+      {
+       "value": "al",
+       "label": "Aluminium"
+      },
+      {
+       "value": "cu",
+       "label": "Copper"
+      }
+     ]
+    },
+    {
+     "k": "size",
+     "l": "Cable size",
+     "t": "select",
+     "def": "70",
+     "opts_from": "cable_sizes"
+    },
+    {
+     "k": "runs",
+     "l": "Runs in parallel",
+     "t": "number",
+     "def": 1,
+     "min": 1,
+     "max": 8
+    },
+    {
+     "k": "pf",
+     "l": "Power factor",
+     "t": "number",
+     "def": 0.85,
+     "min": 0.3,
+     "max": 1,
+     "step": 0.01
+    },
+    {
+     "k": "purpose",
+     "l": "Circuit",
+     "t": "select",
+     "def": "power",
+     "opts": [
+      {
+       "value": "power",
+       "label": "Power (5% limit)"
+      },
+      {
+       "value": "lighting",
+       "label": "Lighting (3% limit)"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "fault-level",
+   "group": "size",
+   "icon": "zap",
+   "title": "Fault level",
+   "summary": "Short-circuit current at the transformer and at your panel, and the breaker breaking capacity you need.",
+   "basis": "IEC 60909 (simplified, c = 1.05 for LV)",
+   "inputs": [
+    {
+     "k": "source_mva",
+     "l": "Grid fault level at HT",
+     "t": "number",
+     "unit": "MVA",
+     "def": 250,
+     "min": 1
+    },
+    {
+     "k": "kva",
+     "l": "Transformer rating",
+     "t": "number",
+     "unit": "kVA",
+     "def": 1000,
+     "min": 10
+    },
+    {
+     "k": "z_pct",
+     "l": "Transformer impedance",
+     "t": "number",
+     "unit": "%",
+     "def": 5,
+     "min": 1,
+     "max": 15,
+     "step": 0.25
+    },
+    {
+     "k": "xr",
+     "l": "Transformer X/R",
+     "t": "number",
+     "def": 6,
+     "min": 1,
+     "max": 20
+    },
+    {
+     "k": "lv",
+     "l": "LV voltage",
+     "t": "number",
+     "unit": "V",
+     "def": 415
+    },
+    {
+     "k": "cable_m",
+     "l": "Cable to panel",
+     "t": "number",
+     "unit": "m",
+     "def": 30,
+     "min": 0
+    },
+    {
+     "k": "cable_size",
+     "l": "Cable size",
+     "t": "select",
+     "def": "300",
+     "opts_from": "cable_sizes"
+    },
+    {
+     "k": "conductor",
+     "l": "Conductor",
+     "t": "select",
+     "def": "al",
+     "opts": [
+      {
+       "value": "al",
+       "label": "Aluminium"
+      },
+      {
+       "value": "cu",
+       "label": "Copper"
+      }
+     ]
+    },
+    {
+     "k": "runs",
+     "l": "Runs per phase",
+     "t": "number",
+     "def": 4,
+     "min": 1,
+     "max": 12
+    }
+   ]
+  },
+  {
+   "slug": "breaker-selector",
+   "group": "size",
+   "icon": "toggle-right",
+   "title": "Breaker & fuse selector",
+   "summary": "MCB, MCCB, ACB or VCB rating and breaking capacity for a load or feeder.",
+   "basis": "IS/IEC 60947-2, IS/IEC 60898-1",
+   "inputs": [
+    {
+     "k": "voltage",
+     "l": "Voltage",
+     "t": "select",
+     "def": "415",
+     "opts": [
+      {
+       "value": "230",
+       "label": "230 V single phase"
+      },
+      {
+       "value": "415",
+       "label": "415 V three phase"
+      },
+      {
+       "value": "11000",
+       "label": "11 kV"
+      },
+      {
+       "value": "22000",
+       "label": "22 kV"
+      },
+      {
+       "value": "33000",
+       "label": "33 kV"
+      }
+     ]
+    },
+    {
+     "k": "input",
+     "l": "I know the",
+     "t": "select",
+     "def": "kw",
+     "opts": [
+      {
+       "value": "kw",
+       "label": "Load in kW"
+      },
+      {
+       "value": "kva",
+       "label": "Load in kVA"
+      },
+      {
+       "value": "amps",
+       "label": "Current in amps"
+      }
+     ]
+    },
+    {
+     "k": "value",
+     "l": "Value",
+     "t": "number",
+     "def": 90,
+     "min": 0.01
+    },
+    {
+     "k": "pf",
+     "l": "Power factor",
+     "t": "number",
+     "def": 0.85,
+     "min": 0.3,
+     "max": 1,
+     "step": 0.01
+    },
+    {
+     "k": "load_type",
+     "l": "Load type",
+     "t": "select",
+     "def": "mixed",
+     "opts": [
+      {
+       "value": "lighting",
+       "label": "Lighting / heaters"
+      },
+      {
+       "value": "mixed",
+       "label": "Mixed / distribution feeder"
+      },
+      {
+       "value": "motor",
+       "label": "Motor"
+      },
+      {
+       "value": "capacitor",
+       "label": "Capacitor bank"
+      },
+      {
+       "value": "transformer",
+       "label": "Transformer incomer"
+      }
+     ]
+    },
+    {
+     "k": "fault_ka",
+     "l": "Prospective fault current",
+     "t": "number",
+     "unit": "kA",
+     "def": 25,
+     "min": 0
+    }
+   ]
+  },
+  {
+   "slug": "motor",
+   "group": "size",
+   "icon": "cog",
+   "title": "Motor current, starter & cable",
+   "summary": "Full-load current, suitable starter, starting current and cable for a three-phase motor.",
+   "basis": "IS 12615 (IE efficiency classes); I = P / (√3·V·η·cos φ)",
+   "inputs": [
+    {
+     "k": "rating",
+     "l": "Motor rating",
+     "t": "number",
+     "def": 15,
+     "min": 0.1
+    },
+    {
+     "k": "unit",
+     "l": "Unit",
+     "t": "select",
+     "def": "kw",
+     "opts": [
+      {
+       "value": "kw",
+       "label": "kW"
+      },
+      {
+       "value": "hp",
+       "label": "HP"
+      }
+     ]
+    },
+    {
+     "k": "voltage",
+     "l": "Voltage",
+     "t": "number",
+     "unit": "V",
+     "def": 415
+    },
+    {
+     "k": "eff",
+     "l": "Efficiency (blank = typical IE3)",
+     "t": "number",
+     "def": null,
+     "min": 0.5,
+     "max": 0.99,
+     "step": 0.005
+    },
+    {
+     "k": "pf",
+     "l": "Power factor (blank = typical)",
+     "t": "number",
+     "def": null,
+     "min": 0.5,
+     "max": 1,
+     "step": 0.01
+    },
+    {
+     "k": "duty",
+     "l": "Application",
+     "t": "select",
+     "def": "pump",
+     "opts": [
+      {
+       "value": "pump",
+       "label": "Pump / fan"
+      },
+      {
+       "value": "compressor",
+       "label": "Compressor"
+      },
+      {
+       "value": "conveyor",
+       "label": "Conveyor / crusher (heavy start)"
+      },
+      {
+       "value": "variable",
+       "label": "Needs speed control"
+      }
+     ]
+    },
+    {
+     "k": "length",
+     "l": "Cable length",
+     "t": "number",
+     "unit": "m",
+     "def": 50,
+     "min": 1
+    }
+   ]
+  },
+  {
+   "slug": "pf-correction",
+   "group": "save",
+   "icon": "gauge",
+   "title": "Power factor correction",
+   "summary": "kVAR needed to reach your target power factor, APFC steps, and what you save.",
+   "basis": "Q = P·(tan φ1 − tan φ2); TNERC PF penalty below 0.90",
+   "inputs": [
+    {
+     "k": "kw",
+     "l": "Average load",
+     "t": "number",
+     "unit": "kW",
+     "def": 400,
+     "min": 1
+    },
+    {
+     "k": "pf_now",
+     "l": "Present power factor",
+     "t": "number",
+     "def": 0.82,
+     "min": 0.3,
+     "max": 0.99,
+     "step": 0.01
+    },
+    {
+     "k": "pf_target",
+     "l": "Target power factor",
+     "t": "number",
+     "def": 0.98,
+     "min": 0.8,
+     "max": 1,
+     "step": 0.01
+    },
+    {
+     "k": "energy_bill",
+     "l": "Monthly energy charges",
+     "t": "number",
+     "unit": "₹",
+     "def": 1200000,
+     "min": 0
+    },
+    {
+     "k": "nonlinear",
+     "l": "Share of VFD / UPS / LED load",
+     "t": "number",
+     "unit": "%",
+     "def": 25,
+     "min": 0,
+     "max": 100
+    },
+    {
+     "k": "ht",
+     "l": "HT consumer (demand in kVA)",
+     "t": "bool",
+     "def": true
+    }
+   ]
+  },
+  {
+   "slug": "harmonics",
+   "group": "save",
+   "icon": "audio-waveform",
+   "title": "Harmonics quick check",
+   "summary": "Risk of harmonic problems from VFDs, UPS, LED and EV chargers, and what to do next.",
+   "basis": "IEEE 519-2022 limits (voltage THD and current TDD by Isc/IL)",
+   "inputs": [
+    {
+     "k": "kva",
+     "l": "Transformer rating",
+     "t": "number",
+     "unit": "kVA",
+     "def": 1000,
+     "min": 10
+    },
+    {
+     "k": "z_pct",
+     "l": "Transformer impedance",
+     "t": "number",
+     "unit": "%",
+     "def": 5,
+     "min": 1,
+     "max": 15
+    },
+    {
+     "k": "load_kva",
+     "l": "Present maximum demand",
+     "t": "number",
+     "unit": "kVA",
+     "def": 650,
+     "min": 1
+    },
+    {
+     "k": "nonlinear",
+     "l": "Non-linear share of load (VFD, UPS, LED, EV)",
+     "t": "number",
+     "unit": "%",
+     "def": 35,
+     "min": 0,
+     "max": 100
+    },
+    {
+     "k": "capacitors",
+     "l": "Plain (non-detuned) capacitors installed",
+     "t": "bool",
+     "def": true
+    }
+   ]
+  },
+  {
+   "slug": "energy-savings",
+   "group": "save",
+   "icon": "leaf",
+   "title": "Energy savings",
+   "summary": "LED retrofit, VFDs on pumps and fans, and efficient motors: kWh, rupees, payback and CO₂.",
+   "basis": "Affinity laws for pumps and fans; IS 12615 efficiency classes; CEA emission factor",
+   "inputs": [
+    {
+     "k": "measure",
+     "l": "Measure",
+     "t": "select",
+     "def": "led",
+     "opts": [
+      {
+       "value": "led",
+       "label": "LED retrofit"
+      },
+      {
+       "value": "vfd",
+       "label": "VFD on a pump / fan"
+      },
+      {
+       "value": "motor",
+       "label": "IE3 / IE4 motor"
+      }
+     ]
+    },
+    {
+     "k": "fixtures",
+     "l": "Fixtures",
+     "t": "number",
+     "def": 200,
+     "min": 1,
+     "show": {
+      "measure": "led"
+     }
+    },
+    {
+     "k": "old_w",
+     "l": "Present watts per fixture",
+     "t": "number",
+     "unit": "W",
+     "def": 72,
+     "min": 1,
+     "show": {
+      "measure": "led"
+     }
+    },
+    {
+     "k": "new_w",
+     "l": "LED watts per fixture",
+     "t": "number",
+     "unit": "W",
+     "def": 36,
+     "min": 1,
+     "show": {
+      "measure": "led"
+     }
+    },
+    {
+     "k": "motor_kw",
+     "l": "Motor rating",
+     "t": "number",
+     "unit": "kW",
+     "def": 37,
+     "min": 0.5,
+     "show_in": {
+      "measure": [
+       "vfd",
+       "motor"
+      ]
+     }
+    },
+    {
+     "k": "flow",
+     "l": "Average flow needed",
+     "t": "number",
+     "unit": "%",
+     "def": 70,
+     "min": 20,
+     "max": 100,
+     "show": {
+      "measure": "vfd"
+     }
+    },
+    {
+     "k": "load_pct",
+     "l": "Average motor loading",
+     "t": "number",
+     "unit": "%",
+     "def": 75,
+     "min": 20,
+     "max": 110,
+     "show": {
+      "measure": "motor"
+     }
+    },
+    {
+     "k": "eff_old",
+     "l": "Old motor efficiency",
+     "t": "number",
+     "def": 0.88,
+     "min": 0.5,
+     "max": 0.99,
+     "step": 0.005,
+     "show": {
+      "measure": "motor"
+     }
+    },
+    {
+     "k": "eff_new",
+     "l": "New motor efficiency",
+     "t": "number",
+     "def": 0.94,
+     "min": 0.5,
+     "max": 0.99,
+     "step": 0.005,
+     "show": {
+      "measure": "motor"
+     }
+    },
+    {
+     "k": "hours",
+     "l": "Running hours per year",
+     "t": "number",
+     "def": 4000,
+     "min": 1,
+     "max": 8760
+    },
+    {
+     "k": "tariff",
+     "l": "Energy rate",
+     "t": "number",
+     "unit": "₹/kWh",
+     "def": 8.25,
+     "min": 0
+    },
+    {
+     "k": "cost",
+     "l": "Cost of the measure",
+     "t": "number",
+     "unit": "₹",
+     "def": 160000,
+     "min": 0
+    }
+   ]
+  },
+  {
+   "slug": "earthing",
+   "group": "safety",
+   "icon": "anchor",
+   "title": "Earthing design",
+   "summary": "Resistance of one earth electrode, how many pits you need, and the conductor size.",
+   "basis": "IS 3043:2018 electrode formulae and conductor sizing",
+   "inputs": [
+    {
+     "k": "rho",
+     "l": "Soil resistivity",
+     "t": "number",
+     "unit": "Ω·m",
+     "def": 40,
+     "min": 1
+    },
+    {
+     "k": "electrode",
+     "l": "Electrode",
+     "t": "select",
+     "def": "pipe",
+     "opts": [
+      {
+       "value": "pipe",
+       "label": "Pipe / rod"
+      },
+      {
+       "value": "plate",
+       "label": "Plate"
+      },
+      {
+       "value": "strip",
+       "label": "Buried strip"
+      }
+     ]
+    },
+    {
+     "k": "length",
+     "l": "Pipe / rod / strip length",
+     "t": "number",
+     "unit": "m",
+     "def": 3,
+     "min": 0.5,
+     "show_in": {
+      "electrode": [
+       "pipe",
+       "strip"
+      ]
+     }
+    },
+    {
+     "k": "diameter",
+     "l": "Pipe / rod diameter",
+     "t": "number",
+     "unit": "mm",
+     "def": 40,
+     "min": 10,
+     "show": {
+      "electrode": "pipe"
+     }
+    },
+    {
+     "k": "plate_w",
+     "l": "Plate width",
+     "t": "number",
+     "unit": "m",
+     "def": 0.6,
+     "show": {
+      "electrode": "plate"
+     }
+    },
+    {
+     "k": "plate_h",
+     "l": "Plate height",
+     "t": "number",
+     "unit": "m",
+     "def": 0.6,
+     "show": {
+      "electrode": "plate"
+     }
+    },
+    {
+     "k": "strip_w",
+     "l": "Strip width",
+     "t": "number",
+     "unit": "mm",
+     "def": 40,
+     "show": {
+      "electrode": "strip"
+     }
+    },
+    {
+     "k": "strip_depth",
+     "l": "Burial depth",
+     "t": "number",
+     "unit": "m",
+     "def": 0.6,
+     "show": {
+      "electrode": "strip"
+     }
+    },
+    {
+     "k": "target",
+     "l": "Target resistance",
+     "t": "number",
+     "unit": "Ω",
+     "def": 2,
+     "min": 0.1
+    },
+    {
+     "k": "fault_ka",
+     "l": "Earth fault current",
+     "t": "number",
+     "unit": "kA",
+     "def": 25,
+     "min": 0.1
+    },
+    {
+     "k": "duration",
+     "l": "Fault duration",
+     "t": "number",
+     "unit": "s",
+     "def": 1,
+     "min": 0.1,
+     "max": 3,
+     "step": 0.1
+    },
+    {
+     "k": "material",
+     "l": "Earthing conductor",
+     "t": "select",
+     "def": "gi",
+     "opts": [
+      {
+       "value": "gi",
+       "label": "GI strip"
+      },
+      {
+       "value": "copper",
+       "label": "Copper"
+      },
+      {
+       "value": "aluminium",
+       "label": "Aluminium"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "lightning-risk",
+   "group": "safety",
+   "icon": "cloud-lightning",
+   "title": "Lightning protection risk",
+   "summary": "Does your building need a lightning protection system? A quick risk score and a starting class.",
+   "basis": "IS 2309 weighted-risk method; collection area per IS/IEC 62305-2 (simplified)",
+   "inputs": [
+    {
+     "k": "l",
+     "l": "Length",
+     "t": "number",
+     "unit": "m",
+     "def": 60,
+     "min": 1
+    },
+    {
+     "k": "w",
+     "l": "Width",
+     "t": "number",
+     "unit": "m",
+     "def": 30,
+     "min": 1
+    },
+    {
+     "k": "h",
+     "l": "Height",
+     "t": "number",
+     "unit": "m",
+     "def": 12,
+     "min": 1
+    },
+    {
+     "k": "ng",
+     "l": "Lightning flash density",
+     "t": "number",
+     "unit": "flashes/km²/yr",
+     "def": 4,
+     "min": 0.1,
+     "max": 30,
+     "step": 0.1
+    },
+    {
+     "k": "use",
+     "l": "Use of building",
+     "t": "select",
+     "def": "factory",
+     "opts": [
+      {
+       "value": "house",
+       "label": "House"
+      },
+      {
+       "value": "house_aerial",
+       "label": "House with outside aerial"
+      },
+      {
+       "value": "factory",
+       "label": "Factory / workshop / lab"
+      },
+      {
+       "value": "office",
+       "label": "Office / hotel / flats"
+      },
+      {
+       "value": "assembly",
+       "label": "Assembly / store / station / stadium"
+      },
+      {
+       "value": "school_hospital",
+       "label": "School / hospital / children's home"
+      }
+     ]
+    },
+    {
+     "k": "construction",
+     "l": "Construction",
+     "t": "select",
+     "def": "rcc_nonmetal",
+     "opts": [
+      {
+       "value": "steel_rcc_nonmetal",
+       "label": "Steel frame, non-metal roof"
+      },
+      {
+       "value": "rcc_nonmetal",
+       "label": "RCC, non-metal roof"
+      },
+      {
+       "value": "steel_rcc_metal",
+       "label": "Steel / RCC, metal roof"
+      },
+      {
+       "value": "brick_nonmetal",
+       "label": "Brick / masonry, non-metal roof"
+      },
+      {
+       "value": "timber_nonmetal",
+       "label": "Timber, non-metal roof"
+      },
+      {
+       "value": "brick_timber_metal",
+       "label": "Brick / timber, metal roof"
+      },
+      {
+       "value": "thatched",
+       "label": "Thatched roof"
+      }
+     ]
+    },
+    {
+     "k": "contents",
+     "l": "Contents",
+     "t": "select",
+     "def": "susceptible",
+     "opts": [
+      {
+       "value": "ordinary",
+       "label": "Ordinary (homes, offices, factories)"
+      },
+      {
+       "value": "susceptible",
+       "label": "Valuable / susceptible to damage"
+      },
+      {
+       "value": "utility",
+       "label": "Power / gas / telecom installations"
+      },
+      {
+       "value": "key_plant",
+       "label": "Key plants, museums, monuments"
+      },
+      {
+       "value": "assembly",
+       "label": "Schools, hospitals, assembly"
+      }
+     ]
+    },
+    {
+     "k": "isolation",
+     "l": "Surroundings",
+     "t": "select",
+     "def": "few",
+     "opts": [
+      {
+       "value": "surrounded",
+       "label": "Among buildings / trees of similar height"
+      },
+      {
+       "value": "few",
+       "label": "Few structures nearby"
+      },
+      {
+       "value": "isolated",
+       "label": "Isolated or twice as tall as surroundings"
+      }
+     ]
+    },
+    {
+     "k": "terrain",
+     "l": "Terrain",
+     "t": "select",
+     "def": "flat",
+     "opts": [
+      {
+       "value": "flat",
+       "label": "Flat"
+      },
+      {
+       "value": "hill",
+       "label": "Hill country"
+      },
+      {
+       "value": "mountain",
+       "label": "Mountains 300–900 m"
+      },
+      {
+       "value": "high_mountain",
+       "label": "Mountains above 900 m"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "slug": "lighting-lux",
+   "group": "safety",
+   "icon": "lamp-ceiling",
+   "title": "Lighting / lux design",
+   "summary": "How many fixtures a room needs for the right light level, and the lighting power density.",
+   "basis": "Lumen method; IS 3646 / NBC 2016 illuminance levels",
+   "inputs": [
+    {
+     "k": "space",
+     "l": "Space",
+     "t": "select",
+     "def": "office",
+     "opts": [
+      {
+       "value": "office",
+       "label": "Office (500 lux)"
+      },
+      {
+       "value": "classroom",
+       "label": "Classroom (300)"
+      },
+      {
+       "value": "hospital_ward",
+       "label": "Hospital ward (150)"
+      },
+      {
+       "value": "operation_theatre",
+       "label": "Operation theatre (1000)"
+      },
+      {
+       "value": "retail",
+       "label": "Retail (500)"
+      },
+      {
+       "value": "industrial_assembly",
+       "label": "Industrial assembly (300)"
+      },
+      {
+       "value": "fine_assembly",
+       "label": "Fine assembly (750)"
+      },
+      {
+       "value": "warehouse",
+       "label": "Warehouse (150)"
+      },
+      {
+       "value": "corridor",
+       "label": "Corridor (100)"
+      },
+      {
+       "value": "car_park",
+       "label": "Car park (50)"
+      },
+      {
+       "value": "kitchen",
+       "label": "Commercial kitchen (500)"
+      },
+      {
+       "value": "substation_room",
+       "label": "Substation / panel room (200)"
+      }
+     ]
+    },
+    {
+     "k": "lux",
+     "l": "Target lux (blank = standard)",
+     "t": "number",
+     "def": null,
+     "min": 1
+    },
+    {
+     "k": "length",
+     "l": "Room length",
+     "t": "number",
+     "unit": "m",
+     "def": 12,
+     "min": 1
+    },
+    {
+     "k": "width",
+     "l": "Room width",
+     "t": "number",
+     "unit": "m",
+     "def": 8,
+     "min": 1
+    },
+    {
+     "k": "height",
+     "l": "Mounting height above work plane",
+     "t": "number",
+     "unit": "m",
+     "def": 2.2,
+     "min": 0.5
+    },
+    {
+     "k": "lumens",
+     "l": "Fixture output",
+     "t": "number",
+     "unit": "lm",
+     "def": 4000,
+     "min": 100
+    },
+    {
+     "k": "watts",
+     "l": "Fixture wattage",
+     "t": "number",
+     "unit": "W",
+     "def": 36,
+     "min": 1
+    },
+    {
+     "k": "mf",
+     "l": "Maintenance factor",
+     "t": "number",
+     "def": 0.8,
+     "min": 0.5,
+     "max": 1,
+     "step": 0.05
+    }
+   ]
+  },
+  {
+   "slug": "units-formulas",
+   "group": "quick",
+   "icon": "sigma",
+   "title": "Units & power formulas",
+   "summary": "Convert between kW, kVA, HP and amps for single and three phase supplies.",
+   "basis": "P = √3·V·I·cos φ (three phase); P = V·I·cos φ (single phase); 1 HP = 0.746 kW",
+   "inputs": [
+    {
+     "k": "from",
+     "l": "I know",
+     "t": "select",
+     "def": "kw",
+     "opts": [
+      {
+       "value": "kw",
+       "label": "kW"
+      },
+      {
+       "value": "kva",
+       "label": "kVA"
+      },
+      {
+       "value": "hp",
+       "label": "HP"
+      },
+      {
+       "value": "amps",
+       "label": "Amps"
+      }
+     ]
+    },
+    {
+     "k": "value",
+     "l": "Value",
+     "t": "number",
+     "def": 100,
+     "min": 0
+    },
+    {
+     "k": "phase",
+     "l": "Supply",
+     "t": "select",
+     "def": "3",
+     "opts": [
+      {
+       "value": "1",
+       "label": "Single phase"
+      },
+      {
+       "value": "3",
+       "label": "Three phase"
+      }
+     ]
+    },
+    {
+     "k": "voltage",
+     "l": "Voltage",
+     "t": "number",
+     "unit": "V",
+     "def": 415,
+     "min": 1
+    },
+    {
+     "k": "pf",
+     "l": "Power factor",
+     "t": "number",
+     "def": 0.85,
+     "min": 0.1,
+     "max": 1,
+     "step": 0.01
+    },
+    {
+     "k": "eff",
+     "l": "Efficiency (for HP)",
+     "t": "number",
+     "def": 1,
+     "min": 0.3,
+     "max": 1,
+     "step": 0.01
+    }
+   ]
+  },
+  {
+   "slug": "document-checklists",
+   "group": "quick",
+   "icon": "clipboard-list",
+   "title": "Document checklists",
+   "summary": "What to keep ready for a new LT or HT service, load change, CEIG approval or name transfer.",
+   "basis": "TNPDCL and CEIG application requirements (kept up to date by our liaison team)",
+   "inputs": [
+    {
+     "k": "kind",
+     "l": "Application",
+     "t": "select",
+     "def": "new_ht",
+     "opts": [
+      {
+       "value": "new_lt",
+       "label": "New LT service"
+      },
+      {
+       "value": "load_change",
+       "label": "Load change (LT / HT)"
+      },
+      {
+       "value": "new_ht",
+       "label": "New HT service"
+      },
+      {
+       "value": "ceig",
+       "label": "CEIG drawing approval & inspection"
+      },
+      {
+       "value": "name_transfer",
+       "label": "Name transfer"
+      },
+      {
+       "value": "solar",
+       "label": "Solar net metering"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "checklists": {
+  "new_lt": [
+   "Application form (TNPDCL online)",
+   "Proof of ownership or occupancy (sale deed / patta / rental agreement with owner's consent)",
+   "Identity proof of applicant",
+   "Building approval / planning permission (where applicable)",
+   "Load details (connected load list)",
+   "Wiring completion and test report from a licensed electrical contractor",
+   "Industries: Udyam / factory licence; commercial: trade licence",
+   "Passport-size photo"
+  ],
+  "load_change": [
+   "Application for additional load / reduction",
+   "Copy of latest bill and service number",
+   "Revised load list",
+   "Test report for the added wiring by a licensed contractor",
+   "For HT: revised single-line diagram and CEIG approval for new equipment",
+   "Development charges as per estimate"
+  ],
+  "new_ht": [
+   "Application with required contract demand (kVA) and voltage",
+   "Proof of ownership / lease of premises",
+   "Company documents (incorporation, GST, PAN, board resolution / authorisation)",
+   "Site plan with substation location and route of the HT line",
+   "Single-line diagram and substation layout (for CEIG approval)",
+   "Feasibility / estimate payment",
+   "CEIG drawing approval, then CEIG inspection report after works",
+   "Test reports for transformer, HT panel, cables, earthing and protection relays",
+   "Security deposit and meter / CT-PT as directed"
+  ],
+  "ceig": [
+   "Covering letter and application in the CEIG format",
+   "Single-line diagram, layout, earthing layout, cable schedule (signed by licensed contractor)",
+   "Equipment test certificates (transformer, HT breaker, relays, cables)",
+   "Electrical contractor licence copy",
+   "Fee remittance challan",
+   "After works: test reports for IR, earth resistance, relay settings, HV tests on cables",
+   "Safety: fencing, danger boards, fire buckets / extinguishers, rubber mats, first-aid chart"
+  ],
+  "name_transfer": [
+   "Application for name transfer",
+   "Proof of ownership in new name (sale deed / legal heir certificate / partition deed)",
+   "No-objection from the existing consumer (where applicable)",
+   "Latest paid bill",
+   "Identity proof of new consumer",
+   "Security deposit transfer or fresh deposit"
+  ],
+  "solar": [
+   "Application on the TNPDCL rooftop solar portal",
+   "Latest electricity bill",
+   "Plant capacity within sanctioned load",
+   "Equipment details (ALMM-listed modules, inverter certificates)",
+   "Single-line diagram of the solar system",
+   "Installation and test report by the installer",
+   "Net / gross meter installation and synchronisation"
+  ]
+ }
+}

@@ -1,0 +1,53 @@
+{
+	admin off
+	servers {
+		trusted_proxies static private_ranges
+	}
+}
+
+{$SITE_ADDRESS::80} {
+	encode zstd gzip
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		-Server
+	}
+
+	# API, files, sitemap and robots go to FastAPI
+	@api path /api/* /sitemap.xml /robots.txt /llms.txt
+	handle @api {
+		rewrite /sitemap.xml /api/sitemap.xml
+		rewrite /robots.txt /api/robots.txt
+		rewrite /llms.txt /api/llms.txt
+		reverse_proxy backend:8001 {
+			header_up X-Forwarded-Host {host}
+		}
+	}
+
+	# built files (hashed, cache for a year)
+	@assets path /assets/*
+	handle @assets {
+		header Cache-Control "public, max-age=31536000, immutable"
+		root * /srv
+		file_server
+	}
+
+	# other static files that exist (logo, icons, illustrations)
+	@static file {
+		root /srv
+		try_files {path}
+	}
+	handle @static {
+		root * /srv
+		file_server
+	}
+
+	# every page: the backend adds the title, description and structured data for that address
+	handle {
+		rewrite * /api/seo/page
+		reverse_proxy backend:8001 {
+			header_up X-Original-Uri {http.request.orig_uri}
+			header_up X-Forwarded-Host {host}
+		}
+	}
+}

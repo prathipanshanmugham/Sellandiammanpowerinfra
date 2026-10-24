@@ -1,0 +1,64 @@
+# Sellandiamman Power Infra: MongoDB, the API, the website (Caddy) and nightly backups.
+# Behind nginx on the shared VPS: SITE_ADDRESS=:80 and HTTP_BIND=127.0.0.1:8090 in .env (see docs/DEPLOYMENT.md).
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 20s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    env_file: ./backend/.env
+    environment:
+      MONGO_URL: mongodb://mongo:27017
+      DB_NAME: ${DB_NAME:-sellandiammanpowerinfra}
+      UPLOAD_DIR: /app/uploads
+      SITE_SHELL: /shell/index.html
+    volumes:
+      - uploads:/app/uploads
+      - shell:/shell:ro
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.web
+    restart: unless-stopped
+    environment:
+      SITE_ADDRESS: ${SITE_ADDRESS:-:80}
+    ports:
+      - "${HTTP_BIND:-127.0.0.1:8090}:80"
+    volumes:
+      - shell:/shell
+      - caddy-data:/data
+    depends_on:
+      - backend
+
+  backup:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - ./backups:/backups
+      - uploads:/uploads:ro
+      - ./scripts/backup-loop.sh:/backup-loop.sh:ro
+    entrypoint: ["/bin/sh", "/backup-loop.sh"]
+    environment:
+      DB_NAME: ${DB_NAME:-sellandiammanpowerinfra}
+      KEEP_DAYS: ${BACKUP_KEEP_DAYS:-30}
+    depends_on:
+      - mongo
+
+volumes:
+  mongo-data:
+  uploads:
+  shell:
+  caddy-data:
