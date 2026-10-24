@@ -19,28 +19,28 @@ At the domain registrar, point `sellandiammanpowerinfra.com` (A record) to the s
 
 ```bash
 sudo mkdir -p /opt/sellandiammanpowerinfra && cd /opt/sellandiammanpowerinfra
-# read-only deploy key: ssh-keygen -t ed25519 -f /root/.ssh/powerinfra_deploy, add the .pub under GitHub repo -> Settings -> Deploy keys
-git clone git@github.com:prathipanshanmugham/Sellandiammanpowerinfra.git .
-git config core.sshCommand "ssh -i /root/.ssh/powerinfra_deploy"
+# read-only deploy key: ssh-keygen -t ed25519 -N "" -f /root/.ssh/powerinfra_deploy, add the .pub under GitHub repo -> Settings -> Deploy keys
+git -c core.sshCommand="ssh -i /root/.ssh/powerinfra_deploy -o IdentitiesOnly=yes" clone git@github.com:prathipanshanmugham/Sellandiammanpowerinfra.git .
+git config core.sshCommand "ssh -i /root/.ssh/powerinfra_deploy -o IdentitiesOnly=yes"
+# (no GitHub yet? upload a git bundle instead: git clone -b main /root/Sellandiammanpowerinfra.bundle .)
 
 cp .env.example .env                       # SITE_ADDRESS=:80, HTTP_BIND=127.0.0.1:8090
 cp backend/.env.example backend/.env
 chmod 600 .env backend/.env
-nano backend/.env
 ```
 
-In `backend/.env` set at least:
+Fill in `backend/.env` (the secrets are generated; change the e-mail to one you read):
 
 ```bash
-JWT_SECRET=$(openssl rand -hex 32)
-VAULT_KEY=$(openssl rand -base64 32)       # keep a copy somewhere safe off the server; never change it later
-ADMIN_EMAIL=you@sellandiammanpowerinfra.com
-ADMIN_PASSWORD=a-long-temporary-password
-SITE_URL=https://www.sellandiammanpowerinfra.com
-CORS_ORIGINS=https://www.sellandiammanpowerinfra.com,https://sellandiammanpowerinfra.com
-COOKIE_SECURE=true
-SEED_DEMO=false
+sed -i "s|^JWT_SECRET=.*|JWT_SECRET=$(openssl rand -hex 32)|" backend/.env
+sed -i "s|^VAULT_KEY=.*|VAULT_KEY=$(openssl rand -base64 32)|" backend/.env
+sed -i "s|^LEAD_WEBHOOK_KEY=.*|LEAD_WEBHOOK_KEY=$(openssl rand -hex 16)|" backend/.env
+sed -i "s|^ADMIN_EMAIL=.*|ADMIN_EMAIL=admin@sellandiammanpowerinfra.com|" backend/.env
+ADMIN_PW=$(openssl rand -base64 18 | tr -d '/+='); sed -i "s|^ADMIN_PASSWORD=.*|ADMIN_PASSWORD=$ADMIN_PW|" backend/.env; echo "First sign-in password: $ADMIN_PW"
+grep -E '^(JWT_SECRET|VAULT_KEY|ADMIN_EMAIL|SITE_URL|SEED_DEMO)=' backend/.env
 ```
+
+Keep a copy of the `VAULT_KEY` line somewhere safe off the server, and never change it once logins are saved. `SITE_URL`, `CORS_ORIGINS`, `COOKIE_SECURE=true` and `SEED_DEMO=false` are already right in the template.
 
 ## 3. Start
 
