@@ -32,6 +32,7 @@ const AuditPage = lazy(() => import("@/erp/pages/Admin").then((m) => ({ default:
 const WebsiteEditor = lazy(() => import("@/erp/pages/Admin").then((m) => ({ default: m.WebsiteEditor })));
 const Me = lazy(() => import("@/erp/pages/Me"));
 const Vault = lazy(() => import("@/erp/pages/Me").then((m) => ({ default: m.Vault })));
+const AiAgents = lazy(() => import("@/erp/pages/Ai"));
 const P = (name) => lazy(() => import("@/portal/Portal").then((m) => ({ default: m[name] })));
 const PortalLayout = P("PortalLayout");
 const ClientHome = P("ClientHome");
@@ -117,6 +118,7 @@ export default function App() {
           <Route path="users" element={<UsersPage />} />
           <Route path="audit" element={<AuditPage />} />
           <Route path="vault" element={<Vault />} />
+          <Route path="ai" element={<AiAgents />} />
           <Route path="me" element={<Me />} />
           <Route path="e/:key" element={<EntityListPage />} />
           <Route path="e/:key/:id" element={<EntityDetailPage />} />

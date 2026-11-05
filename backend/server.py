@@ -19,12 +19,13 @@ import routes_portal
 import routes_cms
 import routes_seo
 import routes_vault
+import routes_ai
 import scheduler
 from seed import seed
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(name)s %(levelname)s %(message)s")
 app = FastAPI(title="Sellandiamman Power Infra API", version=APP_VERSION, docs_url="/api/docs", openapi_url="/api/openapi.json")
-for r in (routes_auth, routes_entities, routes_public, routes_crm, routes_ops, routes_dash, routes_portal, routes_cms, routes_seo, routes_vault):
+for r in (routes_auth, routes_entities, routes_public, routes_crm, routes_ops, routes_dash, routes_portal, routes_cms, routes_seo, routes_vault, routes_ai):
     app.include_router(r.router, prefix="/api")
 
 ALLOWED_ORIGINS = [o.strip() for o in os.environ.get("CORS_ORIGINS", SITE_URL or "http://localhost:5173").split(",") if o.strip()]

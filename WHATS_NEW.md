@@ -1,3 +1,10 @@
+# Update, 5 Nov 2026: AI agents and MCP
+
+- **Settings → AI agents & MCP** (director and super admin): make agents that let Claude, or any MCP app, work in the ERP. Each one works as one staff login (that person's role, branches and hidden fields), is read only or read & write, can have an end date, and can be paused, given a new key or revoked. Six ready-made jobs: business analyst, sales assistant, project monitor, procurement, collections, service desk. Keys are shown once and stored as hashes.
+- **MCP endpoint** `https://www.sellandiammanpowerinfra.com/api/mcp` with 14 tools (who am I, today's position, record types and fields, search, list/open/add/change records, status actions, reports, the CEO, finance, stock, project and pipeline screens) and four ready-made prompts. Every call runs through the same permission checks and business rules as the app and shows in the activity log as "Person (AI agent: Name)".
+- Agents never delete, decide approvals, change logins, keys or settings, publish the website, open the vault, or check in, apply for leave or run payroll. 240 calls a minute per agent; every call is listed under Activity for 90 days.
+- Setup steps for Claude, Claude Code and other apps are on the screen and in `docs/AI_AGENTS.md`.
+
 # Update, 5 Nov 2026: cleaner phone layout and new icons
 
 - **Phones, staff ERP and portals**: no screen scrolls sideways any more (the dashboards and "My profile" did). Tables with three or more columns show one block per row (the first column as the title, then label and value), so codes, dates and names no longer break across three lines; this covers stock, service desk, finance, ageing, line items, reports' lists and every portal table. Approval cards and the CEO view's "Needs your attention" keep their text full width with the amount and buttons underneath. The dashboard's quick-add buttons sit in an even two-column grid; report dates are a From/To pair with the filter below.

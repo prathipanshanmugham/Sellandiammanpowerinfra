@@ -816,9 +816,48 @@ async def seed_demo():
                                              "has_notes": True, "property_ids": [], "share_roles": ["director", "accounts", "liaison", "tender_exec"], "share_users": [],
                                              "rotate_days": p_.get("rotate_days"), "tags": ["sample"], "password_changed_at": (datetime.now(IST) - timedelta(days=R.randint(20, 120))).isoformat(),
                                              "created_by": boss["id"], "created_by_name": boss["name"], "created_at": now_iso(), "updated_at": now_iso(), "deleted": False})
+    await seed_ai_agents(U, boss)
     await seed_history(DONE, V, U, boss)
     await settle_created_at()
     clear_settings_cache()
+
+
+async def seed_ai_agents(U, boss):
+    """Sample AI agents and their call log for the preview. Their keys are random and never shown, so they can't connect."""
+    import hashlib
+    import secrets
+    from routes_ai import TEMPLATES
+    t = {x["key"]: x for x in TEMPLATES}
+    now_ = datetime.now(IST)
+    rows = [("Sales assistant", t["sales"], U["sales"], "write", True, False, 2, 146, "Claude 1.0"),
+            ("CEO analyst", t["analyst"], boss, "read", True, False, 26, 58, "Claude Desktop"),
+            ("Collections assistant", t["collections"], U["accounts"], "read", False, False, 240, 21, "Claude Code 2.1"),
+            ("Old trial", None, U["purchase"], "write", False, True, 900, 9, None)]
+    agents = []
+    for name, tpl, u, access, active, revoked, hours_ago, calls, client in rows:
+        key = "spi_" + secrets.token_urlsafe(30)
+        a = {"id": new_id(), "name": name, "purpose": (tpl or {}).get("purpose", "Trying out the connection."), "template": (tpl or {}).get("key"),
+             "user_id": u["id"], "access": access, "active": active, "revoked": revoked, "expires_on": None, "key_hash": hashlib.sha256(key.encode()).hexdigest(),
+             "key_prefix": key[:10], "key_version": 2 if revoked else 1, "created_by": boss["id"], "created_by_name": boss["name"],
+             "created_at": (now_ - timedelta(days=20 + hours_ago // 24)).isoformat(), "updated_at": now_iso(),
+             "last_used_at": (now_ - timedelta(hours=hours_ago)).isoformat(), "last_ip": "203.0.113.24", "last_client": client, "calls_total": calls}
+        if revoked:
+            a.update({"revoked_at": (now_ - timedelta(days=30)).isoformat(), "revoked_by": boss["name"]})
+        await db.ai_agents.insert_one(dict(a))
+        agents.append((a, u))
+    sample = [("overview", "{}", True, None), ("list_records", '{"type":"leads","filters":{"stage":"new"},"page_size":20}', True, None),
+              ("get_record", '{"type":"leads","id":"LEAD-2026-0004"}', True, None),
+              ("create_record", '{"type":"activities","data":{"kind":"call","subject":"Follow-up call","outcome":"interested"}}', True, None),
+              ("update_record", '{"type":"leads","id":"LEAD-2026-0004","changes":{"next_follow_up":"…"}}', True, None),
+              ("call_api", '{"method":"DELETE","path":"/api/e/leads/…"}', False, "AI agents can't delete anything. Ask a person to do it in the app."),
+              ("whoami", "{}", True, None), ("call_api", '{"path":"/api/ceo"}', True, None), ("run_report", '{"report":"project_status"}', True, None),
+              ("call_api", '{"path":"/api/finance/receivables"}', True, None), ("search", '{"query":"Kaveri"}', True, None)]
+    for i in range(36):
+        a, u = agents[i % 3]
+        tool, args, ok, err = sample[(i * 7 + (i % 3)) % len(sample)] if a["access"] == "write" else sample[[0, 1, 6, 7, 8, 9, 10][i % 7]]
+        await db.ai_agent_calls.insert_one({"id": new_id(), "agent_id": a["id"], "agent_name": a["name"], "user_id": u["id"], "user_name": u["name"], "method": "tools/call",
+                                            "tool": tool, "args": args, "ok": ok, "error": err, "ms": 40 + (i * 37) % 400, "ip": "203.0.113.24",
+                                            "at": (now_ - timedelta(hours=i * 3 + 1, minutes=i * 11)).isoformat()})
 
 
 async def seed_history(DONE, V, U, boss):

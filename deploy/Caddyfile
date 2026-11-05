@@ -13,6 +13,12 @@
 		-Server
 	}
 
+	# The MCP endpoint (/api/mcp) uses agent keys, not OAuth: say so plainly when an AI client looks for OAuth settings
+	@oauth_discovery path /.well-known/oauth-*
+	handle @oauth_discovery {
+		respond 404
+	}
+
 	# API, files, sitemap and robots go to FastAPI
 	@api path /api/* /sitemap.xml /robots.txt /llms.txt
 	handle @api {

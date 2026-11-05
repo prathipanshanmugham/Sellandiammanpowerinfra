@@ -328,6 +328,9 @@ async function route(method, path, params, b, cfg) {
   if (path === "/public/insights" && params.tag) return (recorded("/public/insights") || []).filter((g) => (g.tags || []).includes(params.tag));
   if (path === "/public/assistant") return { answers: [], handover: true };
 
+  // ---- AI agents: kept in the browser for the preview (keys made here don't connect to anything)
+  if (path.startsWith("/ai/")) return aiRoute(method, path, params, b);
+
   // ---- recorded screens (CEO view, hub, finance, reports…) and the rest
   if (method === "get") {
     const own = screen(path);
@@ -361,6 +364,55 @@ function projectFallback(path) {
   if (path.endsWith("/gantt")) return coll("milestones").filter((x) => x.project_id === id);
   if (path.endsWith("/materials")) return [];
   return { project: p, numbers: { contract_value: p?.contract_value || 0, percent_complete: p?.percent_complete || 0, earned_value: 0, billed: 0, received: 0, retention_held: 0, over_under_billed: 0 }, counts: {}, upcoming: coll("milestones").filter((x) => x.project_id === id), dprs: [], liaison: [], risks: [], s_curve: [] };
+}
+
+const LIVE_MCP = "https://www.sellandiammanpowerinfra.com/api/mcp";
+let AI = null;
+function aiRoute(method, path, params, b) {
+  const u = staff();
+  const perm = u.permissions?.ai || "";
+  if (!perm.includes("r") || (method !== "get" && !perm.includes("w"))) fail(403, "You do not have permission for this");
+  if (!AI) AI = { agents: JSON.parse(JSON.stringify(recorded("/ai/agents") || [])), calls: [...(recorded("/ai/calls")?.items || [])] };
+  const people = recorded("/users/lookup") || [];
+  const pub = (a) => {
+    const w = people.find((x) => x.id === a.user_id);
+    const status = a.revoked ? "revoked" : a.expires_on && a.expires_on < today() ? "expired" : a.active ? "active" : "paused";
+    return { ...a, status, user_name: w?.name || a.user_name, user_role: w?.role || a.user_role, user_role_label: w?.role_label || a.user_role_label, user_active: true };
+  };
+  const issue = (a) => { const key = `spi_preview_${uid().replace(/-/g, "").slice(0, 28)}`; Object.assign(a, { key_prefix: key.slice(0, 10) }); return { agent: pub(a), key, mcp_url: LIVE_MCP, url_with_key: `${LIVE_MCP}?key=${key}` }; };
+  const find = (id) => AI.agents.find((a) => a.id === id) || fail(404, "Agent not found");
+  let x;
+  if (path === "/ai/info") return { ...recorded("/ai/info"), mcp_url: LIVE_MCP };
+  if (path === "/ai/agents" && method === "get") return AI.agents.map(pub);
+  if (path === "/ai/calls") {
+    let rows = AI.calls.filter((c) => (!params.agent_id || c.agent_id === params.agent_id) && (!params.errors || params.errors === "false" || !c.ok));
+    const page = Number(params.page) || 1;
+    return { items: rows.slice((page - 1) * 50, page * 50), total: rows.length, page, size: 50 };
+  }
+  const clean = () => {
+    if ("name" in b && !String(b.name || "").trim()) fail(422, "Give the agent a name");
+    if (b.access && !["read", "write"].includes(b.access)) fail(422, "Access is read or write");
+    if (b.user_id) { const w = people.find((y) => y.id === b.user_id); if (!w) fail(422, "Choose an active staff login for the agent to work as"); if (w.role === "super_admin" && u.role !== "super_admin") fail(403, "Only a super admin can let an agent work as a super admin"); }
+  };
+  if (path === "/ai/agents" && method === "post") {
+    if (!String(b.name || "").trim()) fail(422, "Give the agent a name");
+    clean();
+    const a = { id: uid(), name: b.name.trim(), purpose: b.purpose || "", template: b.template || null, user_id: b.user_id || u.id, access: b.access || "read", active: true, revoked: false,
+      expires_on: b.expires_on || null, key_version: 1, created_by: u.id, created_by_name: u.name, created_at: nowIso(), updated_at: nowIso(), last_used_at: null, last_client: null, calls_total: 0 };
+    AI.agents.unshift(a);
+    return issue(a);
+  }
+  if ((x = path.match(/^\/ai\/agents\/([^/]+)$/)) && method === "patch") {
+    const a = find(x[1]);
+    if (a.revoked) fail(409, "This agent's key was revoked. Make a new agent instead.");
+    clean();
+    for (const k of ["name", "purpose", "access", "user_id", "expires_on", "active"]) if (k in b) a[k] = k === "expires_on" ? b[k] || null : b[k];
+    a.updated_at = nowIso();
+    return pub(a);
+  }
+  if ((x = path.match(/^\/ai\/agents\/([^/]+)\/rotate$/))) { const a = find(x[1]); if (a.revoked) fail(409, "This agent's key was revoked. Make a new agent instead."); a.key_version += 1; return issue(a); }
+  if ((x = path.match(/^\/ai\/agents\/([^/]+)\/revoke$/))) { const a = find(x[1]); Object.assign(a, { revoked: true, active: false, revoked_at: nowIso(), revoked_by: u.name }); return pub(a); }
+  fail(404, "Not found");
 }
 
 function portalSummary() {

@@ -44,7 +44,7 @@ MODULES = {
     "hse": "Safety (HSE)", "service": "Service & AMC", "finance": "Finance", "hr": "HR & payroll",
     "documents": "Documents", "compliance": "Compliance", "cms": "Website", "reports": "Reports",
     "approvals": "Approvals", "tasks": "Tasks", "users": "Users & roles", "settings": "Settings", "audit": "Activity log",
-    "vault": "Password vault", "calculators": "Calculators",
+    "vault": "Password vault", "calculators": "Calculators", "ai": "AI agents & MCP",
 }
 ALL = "rwaedp"
 
@@ -59,7 +59,7 @@ BASE = {"dashboard": "r", "tasks": "rw", "calculators": "r", "approvals": "r"}
 
 PERMS = {
     "super_admin": _all(ALL),
-    "director": _all("rwaedp", users="rw", settings="rw", audit="re"),
+    "director": _all("rwaedp", users="rw", settings="rw", audit="re", ai="rw"),
     "branch_manager": {**BASE, "crm": "rwae", "marketing": "r", "estimation": "rw", "proposals": "rwa", "tenders": "rw",
                        "projects": "rwae", "site": "rwa", "liaison": "rw", "quality": "rw", "testing": "r",
                        "procurement": "rwa", "stores": "rw", "plant": "rw", "subcon": "rwa", "hse": "rw",

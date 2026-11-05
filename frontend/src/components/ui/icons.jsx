@@ -1,6 +1,6 @@
 // Icons named in the registry, site content and calculator specs (explicit, so the bundle only carries these).
 import {
-  Activity, Anchor, ArrowLeftRight, ArrowRightLeft, AudioWaveform, BadgeAlert, BadgeCheck, BadgeIndianRupee, Banknote, BatteryCharging, BookOpen, Box, Boxes, Briefcase, BriefcaseBusiness, Building2, Cable, Calculator, CalendarCheck, CalendarCheck2, CalendarClock, CalendarRange, CalendarX, Circle, CircleHelp, ClipboardCheck, ClipboardList, ClipboardPen, CloudLightning, Cog, Construction, Contact, Cpu, Cylinder, Download, Factory, File, FileBadge, FileCheck2, FileCog, FileLock2, FilePenLine, FileSpreadsheet, FileText, FileUser, Flame, FolderCheck, Fuel, Gauge, GitCompare, GitPullRequestArrow, GraduationCap, HandCoins, Handshake, HardHat, IdCard, Images, Inbox, Lamp, LampCeiling, Landmark, Leaf, LifeBuoy, ListChecks, ListPlus, ListTodo, Mails, Map, MapPinCheck, Megaphone, MessageSquareReply, Newspaper, NotebookPen, OctagonAlert, Package, PackageCheck, PackageOpen, PencilRuler, PhoneCall, PiggyBank, Plug, PlugZap, QrCode, Quote, Receipt, ReceiptIndianRupee, Route, Ruler, Scale, ScanBarcode, Server, ShieldAlert, ShieldCheck, ShoppingCart, Sigma, Siren, SlidersHorizontal, SquareCheck, Stamp, Sun, Timer, ToggleRight, TrendingDown, Truck, Undo2, UserCheck, UserPlus, UsersRound, Wallet, Warehouse, Wrench, Zap,
+  Activity, Anchor, Bot, ArrowLeftRight, ArrowRightLeft, AudioWaveform, BadgeAlert, BadgeCheck, BadgeIndianRupee, Banknote, BatteryCharging, BookOpen, Box, Boxes, Briefcase, BriefcaseBusiness, Building2, Cable, Calculator, CalendarCheck, CalendarCheck2, CalendarClock, CalendarRange, CalendarX, Circle, CircleHelp, ClipboardCheck, ClipboardList, ClipboardPen, CloudLightning, Cog, Construction, Contact, Cpu, Cylinder, Download, Factory, File, FileBadge, FileCheck2, FileCog, FileLock2, FilePenLine, FileSpreadsheet, FileText, FileUser, Flame, FolderCheck, Fuel, Gauge, GitCompare, GitPullRequestArrow, GraduationCap, HandCoins, Handshake, HardHat, IdCard, Images, Inbox, Lamp, LampCeiling, Landmark, Leaf, LifeBuoy, ListChecks, ListPlus, ListTodo, Mails, Map, MapPinCheck, Megaphone, MessageSquareReply, Newspaper, NotebookPen, OctagonAlert, Package, PackageCheck, PackageOpen, PencilRuler, PhoneCall, PiggyBank, Plug, PlugZap, QrCode, Quote, Receipt, ReceiptIndianRupee, Route, Ruler, Scale, ScanBarcode, Server, ShieldAlert, ShieldCheck, ShoppingCart, Sigma, Siren, SlidersHorizontal, SquareCheck, Stamp, Sun, Timer, ToggleRight, TrendingDown, Truck, Undo2, UserCheck, UserPlus, UsersRound, Wallet, Warehouse, Wrench, Zap,
 } from "lucide-react";
 
 export const ICONS = {
@@ -15,6 +15,7 @@ export const ICONS = {
   "banknote": Banknote,
   "battery-charging": BatteryCharging,
   "book-open": BookOpen,
+  "bot": Bot,
   "box": Box,
   "boxes": Boxes,
   "briefcase": Briefcase,

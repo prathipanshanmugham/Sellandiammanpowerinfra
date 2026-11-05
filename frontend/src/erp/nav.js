@@ -21,6 +21,7 @@ export const SPECIAL = {
     { to: "/erp/settings", label: "Company settings", icon: "cog", need: ["settings", "r"] },
     { to: "/erp/users", label: "Users & roles", icon: "users-round", need: ["users", "r"] },
     { to: "/erp/audit", label: "Activity log", icon: "list-checks", need: ["audit", "r"] },
+    { to: "/erp/ai", label: "AI agents & MCP", icon: "bot", need: ["ai", "r"] },
   ],
 };
 // Lists that read better without their own menu entry (reached from their parent record)

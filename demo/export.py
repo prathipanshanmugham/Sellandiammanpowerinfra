@@ -172,11 +172,14 @@ async def record_shared(get, shared, store):
              "/service/renewals", "/finance/balances", "/finance/receivables", "/finance/payables", "/finance/gst", "/finance/tds",
              "/finance/pnl", "/finance/cashflow", "/calendar/expiries", "/reports", "/settings", "/cms/site", "/cms/versions",
              "/settings/calc-constants", "/branches/all", "/roles", "/users", "/users/lookup", "/audit", "/audit/verify",
-             "/vault/status", "/vault/meta", "/auth/sessions", "/finance/credit-report"]
+             "/vault/status", "/vault/meta", "/auth/sessions", "/finance/credit-report", "/ai/info", "/ai/agents"]
     for p in fixed:
         v = await get(p)
         if v is not None:
             shared[p] = v
+    calls = await get("/ai/calls")  # the preview filters and pages these in the browser
+    if calls is not None:
+        shared["/ai/calls"] = calls
     reps = shared.get("/reports") or []
     for rep in (reps if isinstance(reps, list) else reps.get("reports", [])):
         v = await get(f"/reports/{rep['key']}")

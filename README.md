@@ -6,6 +6,7 @@ One app, three faces:
 
 - **Public website** at `/`: services, products, industries, projects with case studies, clients, gallery, about, safety and quality, AMC plans, careers, vendor registration, guides, insights and FAQs, plus **24 LT/HT calculators** with worked results and PDF reports. Twelve ways in for enquiries: quote wizard, site-survey booking with time slots, free bill review, tender/BOQ invite, call-back, 24×7 breakdown line, calculator reports, gated guide downloads, product price requests, AMC enquiries, equipment QR codes and lead webhooks (IndiaMART, JustDial, Meta and Google lead forms, WhatsApp).
 - **Staff ERP** at `/erp`: 94 record types across sales, estimation, tenders, projects, liaison (TNPDCL/CEIG), quality and testing, procurement, stores, tools and vehicles, subcontractors and labour, safety, service and AMC, finance, HR and payroll, documents and the website itself. 20 staff roles with branch, project and field-level permissions; approvals by amount; a CEO view with a health score and alerts; 24 reports; a hash-chained activity log; a password vault.
+- **AI agents** at `/api/mcp`: Claude or any MCP app can work in the ERP as one staff login (read only or read & write, never delete), set up in Settings → AI agents & MCP. See [docs/AI_AGENTS.md](docs/AI_AGENTS.md).
 - **Portals** at `/client`, `/consultant`, `/vendor`, `/subcontractor`, `/partner`: each sees only their own projects, drawings, bills, RFQs, work orders or referrals, with OTP-confirmed approvals.
 
 ## How it's built

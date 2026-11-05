@@ -226,6 +226,10 @@ async def current_user(request: Request):
         raise HTTPException(401, "Session expired")
     except jwt.InvalidTokenError:
         raise HTTPException(401, "Invalid session")
+    if payload.get("typ") == "agent":
+        return await agent_user(request, payload)
+    if payload.get("typ") != "access":
+        raise HTTPException(401, "Invalid session")
     sess = await db.sessions.find_one({"sid": payload.get("sid"), "revoked": False})
     if not sess or sess["expires_at"] < now():
         raise HTTPException(401, "Session expired or signed out")
@@ -239,6 +243,75 @@ async def current_user(request: Request):
     if not user.get("mfa_enabled") and not request.url.path.startswith(MFA_EXEMPT):
         if mfa_required_for(user, await get_settings()):
             raise HTTPException(403, "mfa_setup_required")
+    return user
+
+
+# ------------------------------------------------------------------ AI agents (MCP)
+# An AI agent works as one staff login: that person's role, branches and hidden fields apply to everything it does.
+# Its key is checked at /api/mcp; each call there gets a token that lives two minutes and is never handed out.
+# Whatever the role allows, an agent never deletes, never decides approvals and never changes logins, settings or keys.
+AGENT_TOKEN_MINUTES = 2
+AGENT_BLOCKED = (
+    ("*", re.compile(r"^/api/(auth|vault|ai|mcp|portal)(/|$)")),
+    ("*", re.compile(r"^/api/users(/|$)")),
+    ("*", re.compile(r"^/api/approvals/[^/]+/decide$")),
+    ("*", re.compile(r"^/api/e/[^/]+/bulk$")),
+    ("*", re.compile(r"^/api/hr/(check-in|check-out|my-leave|payroll/generate)$")),
+    ("*", re.compile(r"^/api/(cms/publish|cms/versions/[^/]+/restore|cms/draft)$")),
+    ("WRITE", re.compile(r"^/api/(settings|settings/calc-constants|crm/routing|cms/site)$")),
+)
+AGENT_WRITE = ("POST", "PUT", "PATCH")
+
+
+def agent_blocked(access, method, path):
+    """Why an agent may not make this call, or None if it may."""
+    method = method.upper()
+    if method == "DELETE":
+        return "AI agents can't delete anything. Ask a person to do it in the app."
+    if method in AGENT_WRITE and access != "write":
+        return "This agent has read-only access."
+    if method not in ("GET", "HEAD") + AGENT_WRITE:
+        return "Not allowed"
+    for when, rx in AGENT_BLOCKED:
+        if rx.search(path) and (when == "*" or method in AGENT_WRITE):
+            return "AI agents can't use this part of the app (logins, keys, settings, approvals, deletes and attendance stay with people)."
+    return None
+
+
+def make_agent_token(agent):
+    return jwt.encode({"sub": agent["user_id"], "aid": agent["id"], "kv": agent.get("key_version", 1), "typ": "agent",
+                       "exp": now() + timedelta(minutes=AGENT_TOKEN_MINUTES)}, JWT_SECRET, algorithm=JWT_ALG)
+
+
+def agent_is_live(agent):
+    if not agent or not agent.get("active") or agent.get("revoked"):
+        return False
+    exp = agent.get("expires_on")
+    return not exp or exp >= today_ist().isoformat()
+
+
+async def agent_identity(agent):
+    """The staff login an agent works as, marked with the agent so the activity log shows both."""
+    user = await db.users.find_one({"id": agent["user_id"], "active": True},
+                                   {"_id": 0, "password_hash": 0, "mfa_secret": 0, "mfa_pending_secret": 0, "mfa_recovery": 0})
+    if not user or user["role"] in PORTAL_ROLES:
+        return None
+    user["sid"] = f"agent:{agent['id']}"
+    user["_agent"] = {"id": agent["id"], "name": agent["name"], "access": agent.get("access", "read")}
+    return user
+
+
+async def agent_user(request: Request, payload):
+    agent = await db.ai_agents.find_one({"id": payload.get("aid")}, {"_id": 0, "key_hash": 0})
+    if not agent_is_live(agent) or agent.get("key_version", 1) != payload.get("kv") or agent["user_id"] != payload.get("sub"):
+        raise HTTPException(401, "This AI agent is paused, revoked or its key was changed")
+    why = agent_blocked(agent.get("access"), request.method, request.url.path)
+    if why:
+        raise HTTPException(403, why)
+    user = await agent_identity(agent)
+    if not user:
+        raise HTTPException(401, "The staff login this agent works as is not active")
+    REQ_BRANCH.set((request.headers.get("x-branch") or "").strip()[:40] or None)
     return user
 
 
@@ -377,6 +450,10 @@ async def audit(user, action, entity, entity_id, details=None, ip=None):
                  "user_id": user["id"] if user else None, "user_name": (user or {}).get("name") or "Website visitor",
                  "role": (user or {}).get("role"), "action": action, "entity": entity, "entity_id": entity_id,
                  "details": details or {}, "ip": ip, "at": now_iso()}
+        ag = (user or {}).get("_agent")
+        if ag:  # done by an AI agent working as this person
+            entry["agent_id"], entry["agent_name"] = ag["id"], ag["name"]
+            entry["user_name"] = f"{entry['user_name']} (AI agent: {ag['name']})"
         entry["hash"] = hashlib.sha256(_canon(entry).encode()).hexdigest()
         await db.audit_logs.insert_one(dict(entry))
         return entry
