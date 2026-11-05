@@ -20,10 +20,13 @@ export function Dashboard() {
   usePageTitle("Dashboard");
   const nav = useNavigate();
   const quick = QUICK.filter(([k]) => meta?.entities?.[k]?.perm?.includes("w"));
+  const quickButtons = quick.slice(0, 4).map(([k, l]) => <Button key={k} size="sm" variant="outline" as={Link} to={`/erp/e/${k}?new=1`}><Plus className="h-3.5 w-3.5" />{l}</Button>);
   return (
     <div className="space-y-5 pb-10">
       <PageHead title={`${greet()}, ${user?.name?.split(" ")[0] || ""}`} sub={`${user?.role_label}, ${new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long", timeZone: "Asia/Kolkata" })}`}
-        actions={quick.length > 0 && <div className="flex flex-wrap gap-2">{quick.slice(0, 4).map(([k, l]) => <Button key={k} size="sm" variant="outline" as={Link} to={`/erp/e/${k}?new=1`}><Plus className="h-3.5 w-3.5" />{l}</Button>)}</div>} />
+        className="mb-0" actions={quick.length > 0 && <div className="hidden flex-wrap gap-2 sm:flex">{quickButtons}</div>} />
+      {/* phones: the quick-add buttons as an even two-column grid under the greeting */}
+      {quick.length > 0 && <div className="grid grid-cols-2 gap-2 sm:hidden">{quickButtons}</div>}
       {isLoading ? <Skeleton className="h-28" /> : (
         <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
           {data.kpis.map((k) => <Kpi key={k.key} label={k.label} value={k.value} fmt={k.fmt} link={k.link} change={k.change_pct} good={k.good} />)}
@@ -122,13 +125,13 @@ export function Approvals() {
             <ul className="space-y-2">
               {data.to_decide.map((a) => (
                 <li key={a.id} className="flex flex-wrap items-center gap-3 rounded-xl border border-edge bg-surface p-4 shadow-card">
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 flex-[1_1_13rem]">
                     <p className="text-xs text-muted">{a.entity_label}</p>
                     <Link to={`/erp/e/${a.doc_entity}/${a.doc_id}`} className="font-medium hover:underline">{a.title}</Link>
                     <p className="mt-0.5 text-xs text-muted">Asked by {a.requested_by_name || "someone"} {ago(a.created_at)}</p>
                   </div>
                   {a.amount > 0 && <p className="font-display text-[20px] font-semibold tabular">{inr(a.amount)}</p>}
-                  <div className="flex gap-2">
+                  <div className="ms-auto flex gap-2">
                     <Button size="sm" variant="outline" onClick={() => setRej(a)}><X className="h-4 w-4" />Reject</Button>
                     <Button size="sm" onClick={() => decide(a, "approve", "")}><Check className="h-4 w-4" />Approve</Button>
                   </div>

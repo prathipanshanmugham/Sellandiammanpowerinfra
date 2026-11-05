@@ -292,7 +292,7 @@ function InvoiceExtra({ doc }) {
   if (!["issued", "part_paid"].includes(doc.status)) return null;
   return (
     <div className="flex flex-wrap items-center gap-3 rounded-xl border border-edge bg-surface p-4">
-      <div className="min-w-0 flex-1"><p className="text-sm text-muted">Balance due</p><p className="font-display text-[24px] font-semibold tabular">{inr(doc.balance)}</p>{doc.due_date && <p className={cn("text-xs", doc.due_date < todayIST() ? "font-semibold text-bad" : "text-muted")}>Due {fmtDate(doc.due_date)}</p>}</div>
+      <div className="min-w-0 flex-[1_1_100%] sm:flex-1"><p className="text-sm text-muted">Balance due</p><p className="font-display text-[24px] font-semibold tabular">{inr(doc.balance)}</p>{doc.due_date && <p className={cn("text-xs", doc.due_date < todayIST() ? "font-semibold text-bad" : "text-muted")}>Due {fmtDate(doc.due_date)}</p>}</div>
       <Button size="sm" variant="outline" onClick={async () => { try { setQr((await api.get(`/finance/upi/${doc.id}`)).data); } catch (ex) { toast.error(errMsg(ex)); } }}>Show UPI QR</Button>
       <Button size="sm" as={Link} to={`/erp/e/receipts?new=1&account_id=${doc.account_id}`} variant="dark">Record a receipt</Button>
       <Dialog open={!!qr} onOpenChange={(x) => !x && setQr(null)} title={`Pay ${inr(qr?.amount)}`} description="Scan with any UPI app">

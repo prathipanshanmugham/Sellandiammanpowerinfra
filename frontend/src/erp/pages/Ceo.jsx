@@ -68,12 +68,12 @@ export default function Ceo() {
               {open.map((a) => (
                 <li key={a.id} className="flex flex-wrap items-start gap-3 px-4 py-3">
                   <AlertTriangle className={cn("mt-0.5 h-4 w-4 shrink-0", a.money > 1e6 ? "text-bad" : "text-warn")} />
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 flex-[1_1_14rem]">
                     {a.link ? <Link to={a.link.replace("/erp/projects/", "/erp/e/projects/")} className="text-sm font-medium hover:underline">{a.title}</Link> : <p className="text-sm font-medium">{a.title}</p>}
                     <p className="text-xs text-muted">{a.evidence}{a.owner ? `. Owner: ${a.owner}` : ""}{a.due ? `. Act by ${fmtDate(a.due)}` : ""}</p>
                   </div>
-                  {a.money ? <span className="text-sm font-semibold tabular">{inr(a.money, { compact: true })}</span> : null}
-                  <div className="w-[150px]"><Select value={a.status || "new"} onChange={(e) => setAlert(a, e.target.value)} options={ALERT_STATUS} className="h-8 text-xs" aria-label="Alert status" /></div>
+                  {a.money ? <span className="ms-7 text-sm font-semibold tabular sm:ms-0">{inr(a.money, { compact: true })}</span> : null}
+                  <div className="ms-auto w-[150px]"><Select value={a.status || "new"} onChange={(e) => setAlert(a, e.target.value)} options={ALERT_STATUS} className="h-8 text-xs" aria-label="Alert status" /></div>
                 </li>
               ))}
             </ul>

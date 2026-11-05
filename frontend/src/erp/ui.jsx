@@ -74,23 +74,25 @@ export function Panel({ title, sub, actions, children, className, bodyClass, id 
   );
 }
 
-// A simple table for computed screens (finance, stock, reports)
-export function Table({ columns, rows, empty = "Nothing here", onRow, foot, dense, className }) {
+// A simple table for computed screens (finance, stock, reports). On phones a table with three or more columns
+// shows one block per row (first column as the title, the rest as label and value); stack={false} keeps the grid.
+export function Table({ columns, rows, empty = "Nothing here", onRow, foot, dense, className, stack = columns.length >= 3 }) {
   if (!rows?.length) return <p className="px-1 py-6 text-center text-sm text-muted">{empty}</p>;
+  const label = (c) => (typeof c.label === "string" ? c.label : "");
   return (
     <div className={cn("overflow-x-auto", className)}>
-      <table className="w-full text-[14px]">
+      <table className={cn("w-full text-[14px]", stack && "spi-stack")}>
         <thead className="border-b border-edge text-left text-xs text-muted">
           <tr>{columns.map((c) => <th key={c.key || c.label} scope="col" className={cn("whitespace-nowrap px-3 font-medium", dense ? "py-1.5" : "py-2", c.right && "text-right")}>{c.label}</th>)}</tr>
         </thead>
         <tbody className="divide-y divide-edge">
           {rows.map((r, i) => (
             <tr key={r.id || i} onClick={onRow ? () => onRow(r) : undefined} className={cn(onRow && "cursor-pointer hover:bg-canvas/70", r._tone === "bad" && "bg-bad/[.04]")}>
-              {columns.map((c) => <td key={c.key || c.label} className={cn("px-3", dense ? "py-1.5" : "py-2.5", c.right && "whitespace-nowrap text-right tabular", c.className)}>{c.render ? c.render(r, i) : r[c.key] ?? "—"}</td>)}
+              {columns.map((c, j) => <td key={c.key || c.label} data-label={label(c)} className={cn("px-3", dense ? "py-1.5" : "py-2.5", c.right && "whitespace-nowrap text-right tabular", j === 0 && "spi-title", c.className)}>{c.render ? c.render(r, i) : r[c.key] ?? "—"}</td>)}
             </tr>
           ))}
         </tbody>
-        {foot && <tfoot className="border-t border-edge font-semibold"><tr>{columns.map((c, i) => <td key={c.key || c.label} className={cn("px-3 py-2", c.right && "text-right tabular")}>{foot[i] ?? ""}</td>)}</tr></tfoot>}
+        {foot && <tfoot className="border-t border-edge font-semibold"><tr>{columns.map((c, i) => <td key={c.key || c.label} data-label={label(c)} className={cn("px-3 py-2", c.right && "text-right tabular", i === 0 && "spi-title")}>{foot[i] ?? ""}</td>)}</tr></tfoot>}
       </table>
     </div>
   );

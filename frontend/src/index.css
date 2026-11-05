@@ -41,6 +41,25 @@ html:lang(ur) { --font-scripts: "Noto Naskh Arabic", "Noto Sans Arabic", "Segoe 
   @media (min-width: 768px) { input, select, textarea { font-size: 15px; } }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
   ::selection { background: #FFC400; color: #0F172A; }
+  /* grid items may shrink below their content, so a long name truncates instead of pushing the page sideways on phones */
+  .grid > * { min-width: 0; }
+}
+
+/* Phones: tables with three or more columns turn into one block per row, the first cell as its title and every
+   other cell as "label ... value". Used by the ERP and portal Table and the line-item and ageing tables. */
+@media (max-width: 639.98px) {
+  table.spi-stack, table.spi-stack tbody, table.spi-stack tfoot, table.spi-stack tr { display: block; width: 100%; }
+  table.spi-stack thead { display: none; }
+  table.spi-stack tr { padding: .7rem .75rem; }
+  table.spi-stack td { display: flex; align-items: baseline; justify-content: space-between; gap: .75rem; min-width: 0 !important; max-width: none !important; padding: .2rem 0 !important; text-align: end !important; white-space: normal; }
+  table.spi-stack td::before { content: attr(data-label); flex: none; max-width: 48%; text-align: start; font-size: 12.5px; font-weight: 400; color: rgb(var(--muted)); }
+  table.spi-stack td[data-label=""]::before { content: none; }
+  table.spi-stack td[data-label=""] { justify-content: flex-end; }
+  table.spi-stack td.spi-title { display: block; padding-bottom: .35rem !important; text-align: start !important; font-weight: 600; }
+  table.spi-stack td.spi-title::before { content: none; }
+  table.spi-stack td.spi-hide { display: none; }
+  table.spi-stack td:empty { display: none; }
+  table.spi-stack tfoot tr { border-top: 1px solid rgb(var(--edge)); }
 }
 
 @layer components {

@@ -24,7 +24,7 @@ import re, pathlib
 site = pathlib.Path("demo/build/site")
 html = (site / "index.html").read_text()
 head = re.search(r"<head>(.*)</head>", html, re.S).group(1)
-keep = [l.strip() for l in head.splitlines() if l.strip() and "charset" not in l and 'name="viewport"' not in l and "apple-touch-icon" not in l]
+keep = [l.strip() for l in head.splitlines() if l.strip() and "charset" not in l and 'name="viewport"' not in l and "apple-touch-icon" not in l and 'rel="manifest"' not in l]
 keep = [re.sub(r"<title>.*</title>", "<title>Sellandiamman Power Infra</title>", l) for l in keep]
 keep = [l.replace('rel="stylesheet" crossorigin', 'rel="stylesheet"') for l in keep]
 (site / "artifact.html").write_text("\n".join(keep) + '\n<div id="root"></div>\n')

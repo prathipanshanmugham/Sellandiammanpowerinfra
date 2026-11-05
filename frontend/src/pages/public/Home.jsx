@@ -19,7 +19,7 @@ function Hero() {
   const phone = site.settings?.phone;
   return (
     <section className="relative overflow-hidden bg-ink text-white">
-      <div className="container grid items-center gap-10 py-14 md:py-20 lg:grid-cols-[1.05fr_1fr] lg:gap-14">
+      <div className="container grid items-center gap-8 py-10 sm:gap-10 sm:py-14 md:py-20 lg:grid-cols-[1.05fr_1fr] lg:gap-14">
         <div>
           {h.eyebrow && <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-white/15 px-3 py-1 text-[14px] text-white/85"><span className="h-1.5 w-1.5 rounded-full bg-signal" />{h.eyebrow}</p>}
           <h1 className="hero-title font-display text-[40px] font-semibold leading-[1.06] text-white sm:text-[52px] lg:text-[60px]" style={{ letterSpacing: "-0.02em" }}>
@@ -46,9 +46,9 @@ function Trust() {
   if (!items.length) return null;
   return (
     <div className="border-b border-line bg-white">
-      <div className="container grid grid-cols-2 divide-line md:grid-cols-4 md:divide-x md:rtl:divide-x-reverse">
+      <div className="container grid grid-cols-2 gap-x-6 divide-line md:grid-cols-4 md:gap-x-0 md:divide-x md:rtl:divide-x-reverse">
         {items.map((x) => (
-          <div key={x.label} className="py-6 md:px-6 md:first:ps-0">
+          <div key={x.label} className="py-5 md:px-6 md:py-6 md:first:ps-0">
             <p dir="ltr" className="font-display text-[26px] font-semibold leading-none tracking-tight rtl:text-right">{x.value}</p>
             <p className="mt-2 text-sm text-muted">{x.label}</p>
           </div>

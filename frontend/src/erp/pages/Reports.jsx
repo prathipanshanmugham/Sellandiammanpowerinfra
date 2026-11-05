@@ -54,10 +54,10 @@ export function ReportView() {
           <Button size="sm" variant="outline" onClick={() => dl("csv")}>CSV</Button>
           <Button size="sm" variant="outline" onClick={() => dl("pdf")}><FileText className="h-4 w-4" />PDF</Button>
         </>} />
-      <div className="mb-3 flex flex-wrap items-center gap-2">
-        <label className="flex items-center gap-2 text-sm text-muted">From<Input type="date" value={frm} onChange={(e) => setFrm(e.target.value)} className="h-9 w-40" /></label>
-        <label className="flex items-center gap-2 text-sm text-muted">to<Input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="h-9 w-40" /></label>
-        <label className="relative ml-auto"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" /><Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filter rows" className="h-9 w-56 pl-9" /></label>
+      <div className="mb-3 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
+        <label className="flex flex-col gap-1 text-xs text-muted sm:flex-row sm:items-center sm:gap-2 sm:text-sm">From<Input type="date" value={frm} onChange={(e) => setFrm(e.target.value)} className="h-9 w-full sm:w-40" /></label>
+        <label className="flex flex-col gap-1 text-xs text-muted sm:flex-row sm:items-center sm:gap-2 sm:text-sm">To<Input type="date" value={to} onChange={(e) => setTo(e.target.value)} className="h-9 w-full sm:w-40" /></label>
+        <label className="relative col-span-2 sm:ml-auto"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" /><Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Filter rows" className="h-9 w-full pl-9 sm:w-56" /></label>
       </div>
       {isLoading ? <Skeleton className="h-72" /> : error ? <Empty title="This report isn't available to you" /> : !rows.length ? <Empty title="No rows for these dates" /> : (
         <div className="overflow-hidden rounded-xl border border-edge bg-surface">

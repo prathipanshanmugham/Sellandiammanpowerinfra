@@ -55,7 +55,7 @@ export default function Me() {
           )}
         </Panel>
         <Panel title="This month's attendance" className="lg:col-span-2" bodyClass="p-0">
-          <Table dense columns={[{ label: "Date", render: (a) => fmtDate(a.date) }, { label: "In", render: (a) => a.check_in?.slice(11, 16) }, { label: "Out", render: (a) => a.check_out?.slice(11, 16) || "—" },
+          <Table dense stack={false} columns={[{ label: "Date", render: (a) => fmtDate(a.date) }, { label: "In", render: (a) => a.check_in?.slice(11, 16) }, { label: "Out", render: (a) => a.check_out?.slice(11, 16) || "—" },
             { label: "Hours", right: true, render: (a) => (a.hours ? num(a.hours) : "—") }, { label: "", render: (a) => (a.flag ? <Badge tone="amber">{a.flag.replace(/_/g, " ")}</Badge> : null) }]} rows={data?.attendance || []} empty="No attendance this month" />
         </Panel>
       </div>
@@ -208,7 +208,7 @@ export function Vault() {
               <ul className="divide-y divide-edge">
                 {list.map((it) => (
                   <li key={it.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
-                    <div className="min-w-0 flex-1">
+                    <div className="min-w-0 flex-[1_1_13rem]">
                       <p className="flex items-center gap-2 text-sm font-medium">{it.title}{it.rotate_due && <Badge tone="amber">Change due</Badge>}</p>
                       <p className="flex items-center gap-1.5 text-xs text-muted">{it.username}{it.username && <button type="button" onClick={() => { navigator.clipboard?.writeText(it.username); toast.success("Username copied"); }} aria-label="Copy username"><Copy className="h-3 w-3" /></button>}
                         {it.url && <a href={it.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-0.5 hover:underline"><ExternalLink className="h-3 w-3" />Open site</a>}</p>

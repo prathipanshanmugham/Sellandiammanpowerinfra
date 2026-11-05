@@ -3,17 +3,20 @@
 The artwork is traced once into vector outlines (grey S, yellow A, white SELLANDIAMMAN wordmark), then written out:
   frontend/src/components/brand/paths.js       outlines used by <Mark/> and <Logo/>
   backend/brand.py                             the same outlines as polygons for the PDF letterhead
-  frontend/public/favicon.svg, icon-192.png, icon-512.png, apple-touch-icon.png, og-image.jpg
+  frontend/public/favicon.svg, favicon.ico    the mark on a transparent background (browser tabs, bookmarks)
+  frontend/public/apple-touch-icon.png, icon-192.png, icon-512.png, site.webmanifest
+                                               app icons: the mark on white (phone home screens)
+  frontend/public/og-image.jpg                 link preview
   frontend/public/brand/*.svg / *.png          mark and lockups for dark and light backgrounds
 
 Run from the repository root:  python scripts/brand/build_brand.py   (needs opencv-python-headless, numpy, pillow, playwright)
+Icons only, from the outlines already in paths.js (no tracing, no opencv):  python scripts/brand/build_brand.py --icons
 """
 import asyncio
 import json
+import re
+import sys
 from pathlib import Path
-
-import cv2
-import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
 SRC = ROOT / "scripts/brand/sellandiamman-logo-source.png"
@@ -25,6 +28,8 @@ INK = "#0F172A"
 
 
 def masks():
+    import cv2
+    import numpy as np
     im = cv2.imread(str(SRC)).astype(np.float32)
     im = cv2.resize(im, None, fx=UP, fy=UP, interpolation=cv2.INTER_CUBIC)
     b, g, r = im[:, :, 0], im[:, :, 1], im[:, :, 2]
@@ -47,6 +52,7 @@ def masks():
 
 
 def polys(mask, eps):
+    import cv2
     cs, hier = cv2.findContours(mask * 255, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_NONE)
     out = []
     for c in cs:
@@ -66,6 +72,7 @@ def path_d(ps, ox, oy):
 
 
 def main():
+    import numpy as np
     m = masks()
     P = {k: polys(v, 1.6 if k != "word" else 1.2) for k, v in m.items()}
     allm = np.vstack([np.vstack(P["s"]), np.vstack(P["a"])])
@@ -132,23 +139,85 @@ def main():
     (PUBLIC / "brand/mark-light.svg").write_text(mark_svg("light"))
     (PUBLIC / "brand/logo-dark.svg").write_text(lockup_svg("dark", INK))
     (PUBLIC / "brand/logo-light.svg").write_text(lockup_svg("light", "#FFFFFF"))
-    fav = mark_svg("dark", pad=mark["w"] * 0.12, bg=INK, radius=mark["w"] * 0.18)
-    (PUBLIC / "favicon.svg").write_text(fav)
-    asyncio.run(render_pngs(fav, lockup_svg("dark", INK), mark_svg("dark")))
+    asyncio.run(render_pngs(lockup_svg("dark", INK), mark_svg("dark")))
+    write_icons(mark)
     print("mark", mark["w"], "x", mark["h"], "word", word["w"], "x", word["h"])
 
 
-async def render_pngs(fav, lockup, mark_dark):
+def square_mark_svg(mark, colors, width_share, bg=None, dark_colors=None):
+    """The mark centred on a square: width_share is how much of the square's width the mark spans.
+    dark_colors switches the fill when the browser is in dark mode (SVG favicons honour prefers-color-scheme)."""
+    side = mark["w"] / width_share
+    x, y = (side - mark["w"]) / 2, (side - mark["h"]) / 2
+    style = f'.s{{fill:{colors["s"]}}}.a{{fill:{colors["a"]}}}'
+    if dark_colors:
+        style += f'@media (prefers-color-scheme:dark){{.s{{fill:{dark_colors["s"]}}}.a{{fill:{dark_colors["a"]}}}}}'
+    rect = f'<rect width="{side:.1f}" height="{side:.1f}" fill="{bg}"/>' if bg else ""
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {side:.1f} {side:.1f}" role="img" aria-label="Sellandiamman">'
+            f'<style>{style}</style>{rect}<g transform="translate({x:.1f} {y:.1f})">'
+            f'<path class="s" fill-rule="evenodd" d="{mark["s"]}"/><path class="a" fill-rule="evenodd" d="{mark["a"]}"/></g></svg>')
+
+
+def write_icons(mark):
+    """Favicon: the SA mark alone on a transparent background, grey and yellow on light tabs, lighter on dark tabs.
+    App icons: the SA mark on white, kept inside the central 80% so Android's round and squircle masks don't clip it."""
+    fav = square_mark_svg(mark, COLORS["light"], 0.96, dark_colors=COLORS["dark"])
+    app = square_mark_svg(mark, COLORS["light"], 0.72, bg="#FFFFFF")
+    (PUBLIC / "favicon.svg").write_text(fav)
+    asyncio.run(render_icons(fav, app))
+    manifest = {
+        "name": "Sellandiamman Power Infra",
+        "short_name": "Power Infra",
+        "icons": [
+            {"src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+            {"src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+            {"src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"},
+        ],
+        "theme_color": "#FFFFFF",
+        "background_color": "#FFFFFF",
+        "display": "browser",
+    }
+    (PUBLIC / "site.webmanifest").write_text(json.dumps(manifest, indent=2) + "\n")
+
+
+async def render_icons(fav, app):
+    import io
+    from PIL import Image
+    from playwright.async_api import async_playwright
+
+    def page_html(svg, size):
+        return f'<html><body style="margin:0;background:transparent">{svg.replace("<svg ", f"<svg width=\"{size}\" height=\"{size}\" ", 1)}</body></html>'
+    async with async_playwright() as p:
+        b = await p.chromium.launch()
+        page = await b.new_page(device_scale_factor=1, color_scheme="light")
+        for size, name in ((180, "apple-touch-icon.png"), (192, "icon-192.png"), (512, "icon-512.png")):
+            await page.set_viewport_size({"width": size, "height": size})
+            await page.set_content(page_html(app, size))
+            png = await page.screenshot(omit_background=False)
+            Image.open(io.BytesIO(png)).convert("RGB").save(PUBLIC / name, optimize=True)
+        frames = []
+        for size in (48, 32, 16):
+            await page.set_viewport_size({"width": size, "height": size})
+            await page.set_content(page_html(fav, size))
+            frames.append(Image.open(io.BytesIO(await page.screenshot(omit_background=True))).convert("RGBA"))
+        frames[0].save(PUBLIC / "favicon.ico", format="ICO", sizes=[(48, 48), (32, 32), (16, 16)], append_images=frames[1:])
+        await b.close()
+
+
+def icons_only():
+    js = (ROOT / "frontend/src/components/brand/paths.js").read_text()
+    mark = json.loads(re.search(r"export const MARK = (\{.*?\});", js).group(1))
+    write_icons(mark)
+    print("icons written from paths.js: favicon.svg, favicon.ico, apple-touch-icon.png, icon-192.png, icon-512.png, site.webmanifest")
+
+
+async def render_pngs(lockup, mark_dark):
     import base64
     from playwright.async_api import async_playwright
     OUTFIT = base64.b64encode((ROOT / 'frontend/node_modules/@fontsource/outfit/files/outfit-latin-700-normal.woff2').read_bytes()).decode()
     async with async_playwright() as p:
         b = await p.chromium.launch()
         page = await b.new_page(device_scale_factor=1)
-        for size, name in ((192, "icon-192.png"), (512, "icon-512.png"), (180, "apple-touch-icon.png")):
-            await page.set_viewport_size({"width": size, "height": size})
-            await page.set_content(f'<html><body style="margin:0">{fav.replace("<svg ", f"<svg width=\"{size}\" height=\"{size}\" ", 1)}</body></html>')
-            await page.screenshot(path=str(PUBLIC / name), omit_background=False)
         await page.set_viewport_size({"width": 600, "height": 420})
         await page.set_content(f'<html><body style="margin:0;background:{INK}">{lockup.replace("<svg ", "<svg width=\"600\" ", 1)}</body></html>')
         await page.screenshot(path=str(PUBLIC / "brand/logo-dark.png"))
@@ -165,4 +234,4 @@ async def render_pngs(fav, lockup, mark_dark):
 
 
 if __name__ == "__main__":
-    main()
+    icons_only() if "--icons" in sys.argv else main()

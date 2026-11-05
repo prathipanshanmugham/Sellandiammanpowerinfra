@@ -114,6 +114,7 @@ export function ServiceDesk() {
 
 // ------------------------------------------------------------------ finance
 const AGE = ["not_due", "0–30", "31–60", "61–90", "90+"];
+const AGE_LABELS = ["Not due", "1–30 days", "31–60 days", "61–90 days", "Over 90 days"];
 export function Finance() {
   const { can } = useAuth();
   const [tab, setTab] = useState("ar");
@@ -215,24 +216,24 @@ function Ageing({ rows, nameKey, link, expand }) {
   return (
     <div className="overflow-hidden rounded-xl border border-edge bg-surface">
       <div className="overflow-x-auto">
-        <table className="w-full text-[14px]">
-          <thead className="border-b border-edge text-left text-xs text-muted"><tr><th className="px-3 py-2 font-medium">{nameKey === "client" ? "Client" : "Vendor"}</th>{["Not due", "1–30 days", "31–60", "61–90", "Over 90"].map((h) => <th key={h} className="px-3 py-2 text-right font-medium">{h}</th>)}<th className="px-3 py-2 text-right font-medium">Total</th></tr></thead>
+        <table className="spi-stack w-full text-[14px]">
+          <thead className="border-b border-edge text-left text-xs text-muted"><tr><th className="px-3 py-2 font-medium">{nameKey === "client" ? "Client" : "Vendor"}</th>{AGE_LABELS.map((h) => <th key={h} className="whitespace-nowrap px-3 py-2 text-right font-medium">{h}</th>)}<th className="px-3 py-2 text-right font-medium">Total</th></tr></thead>
           <tbody className="divide-y divide-edge">
             {rows.map((r, i) => (
               <Fragment key={i}>
                 <tr className={cn(expand && "cursor-pointer hover:bg-canvas/60")} onClick={() => expand && setOpen(open === i ? null : i)}>
-                  <td className="px-3 py-2.5"><Link to={link(r)} onClick={(e) => e.stopPropagation()} className="font-medium hover:underline">{r[nameKey]}</Link></td>
-                  {AGE.map((k, j) => <td key={k} className={cn("px-3 py-2.5 text-right tabular", j >= 3 && r[k] > 0 && "font-semibold text-bad", j === 2 && r[k] > 0 && "text-warn")}>{r[k] ? inr(r[k]) : "—"}</td>)}
-                  <td className="px-3 py-2.5 text-right font-semibold tabular">{inr(r.total)}</td>
+                  <td className="spi-title px-3 py-2.5"><Link to={link(r)} onClick={(e) => e.stopPropagation()} className="font-medium hover:underline">{r[nameKey]}</Link></td>
+                  {AGE.map((k, j) => <td key={k} data-label={AGE_LABELS[j]} className={cn("px-3 py-2.5 text-right tabular", j >= 3 && r[k] > 0 && "font-semibold text-bad", j === 2 && r[k] > 0 && "text-warn")}>{r[k] ? inr(r[k]) : "—"}</td>)}
+                  <td data-label="Total" className="px-3 py-2.5 text-right font-semibold tabular">{inr(r.total)}</td>
                 </tr>
                 {expand && open === i && r.invoices?.map((inv) => (
-                  <tr key={inv.id} className="bg-canvas/50 text-xs"><td className="px-6 py-1.5" colSpan={2}><Link to={`/erp/e/invoices/${inv.id}`} className="hover:underline">{inv.code}</Link>, {fmtDate(inv.date)}</td>
-                    <td className="px-3 py-1.5 text-right" colSpan={3}>Due {fmtDate(inv.due_date)}{inv.overdue_days > 0 ? <span className="font-semibold text-bad">, {inv.overdue_days} days late</span> : ""}</td><td className="px-3 py-1.5 text-right tabular" colSpan={2}>{inr(inv.balance)}</td></tr>
+                  <tr key={inv.id} className="bg-canvas/50 text-xs"><td data-label="" className="px-6 py-1.5" colSpan={2}><Link to={`/erp/e/invoices/${inv.id}`} className="hover:underline">{inv.code}</Link>, {fmtDate(inv.date)}</td>
+                    <td data-label="" className="px-3 py-1.5 text-right" colSpan={3}>Due {fmtDate(inv.due_date)}{inv.overdue_days > 0 ? <span className="font-semibold text-bad">, {inv.overdue_days} days late</span> : ""}</td><td data-label="Balance" className="px-3 py-1.5 text-right tabular" colSpan={2}>{inr(inv.balance)}</td></tr>
                 ))}
               </Fragment>
             ))}
           </tbody>
-          <tfoot className="border-t border-edge font-semibold"><tr><td className="px-3 py-2">Total</td>{tot.map((v, j) => <td key={j} className="px-3 py-2 text-right tabular">{inr(v)}</td>)}<td className="px-3 py-2 text-right tabular">{inr(tot.reduce((a, b) => a + b, 0))}</td></tr></tfoot>
+          <tfoot className="border-t border-edge font-semibold"><tr><td className="spi-title px-3 py-2">Total</td>{tot.map((v, j) => <td key={j} data-label={AGE_LABELS[j]} className="px-3 py-2 text-right tabular">{inr(v)}</td>)}<td data-label="Total" className="px-3 py-2 text-right tabular">{inr(tot.reduce((a, b) => a + b, 0))}</td></tr></tfoot>
         </table>
       </div>
     </div>

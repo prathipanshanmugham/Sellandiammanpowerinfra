@@ -1,3 +1,9 @@
+# Update, 5 Nov 2026: cleaner phone layout and new icons
+
+- **Phones, staff ERP and portals**: no screen scrolls sideways any more (the dashboards and "My profile" did). Tables with three or more columns show one block per row (the first column as the title, then label and value), so codes, dates and names no longer break across three lines; this covers stock, service desk, finance, ageing, line items, reports' lists and every portal table. Approval cards and the CEO view's "Needs your attention" keep their text full width with the amount and buttons underneath. The dashboard's quick-add buttons sit in an even two-column grid; report dates are a From/To pair with the filter below.
+- **Phones, website**: the menu opens with the main pages first, the 14 services folded under "Services", a 24×7 breakdown row, the language picker, and the quote and login buttons fixed at the bottom; the page behind no longer scrolls. Calculator load rows put Qty, kW and demand factor side by side; the "See result" bar no longer wraps; the home page's figures have room between columns.
+- **Icons**: the browser-tab icon is the SA mark on a transparent background (grey and yellow, lighter in dark mode), with a favicon.ico fallback. Phone home-screen icons are the SA mark on white, kept clear of Android's round masks; a web manifest points to them. `python scripts/brand/build_brand.py --icons` rebuilds just the icons.
+
 # What's in release 2026.10.1
 
 The first complete version: public website, staff ERP, five portals and the 24 calculators, with sample data for the preview.

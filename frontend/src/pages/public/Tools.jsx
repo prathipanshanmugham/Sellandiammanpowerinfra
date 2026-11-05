@@ -132,9 +132,9 @@ export function ToolPage({ staff = false }) {
           </div>
           {res?.headline && (
             <button type="button" onClick={() => document.getElementById("calc-result")?.scrollIntoView({ behavior: "smooth", block: "start" })}
-              className="flex w-full items-center justify-between rounded-lg bg-ink px-4 py-3 text-start text-white lg:hidden">
-              <span className="text-sm text-white/80">{res.headline.label}</span>
-              <span className="font-display text-lg font-semibold tabular">{fmtItem(res.headline)}<span className="ms-2 text-sm font-medium text-signal-bright">See result</span></span>
+              className="flex w-full items-center justify-between gap-3 rounded-lg bg-ink px-4 py-3 text-start text-white lg:hidden">
+              <span className="min-w-0 text-sm leading-snug text-white/80">{res.headline.label}</span>
+              <span className="shrink-0 whitespace-nowrap font-display text-lg font-semibold tabular">{fmtItem(res.headline)}<span className="ms-2 text-sm font-medium text-signal-bright">See result</span></span>
             </button>
           )}
         </form>
@@ -201,15 +201,15 @@ function InputField({ f, value, onChange, C }) {
         <legend className="field-label">{f.l}</legend>
         <div className="space-y-2">
           {rows.map((r, n) => (
-            <div key={n} className="grid gap-2 rounded-lg border border-line p-2.5 sm:[grid-template-columns:var(--cols)]" style={{ "--cols": f.fields.map((x) => (x.t === "text" ? "minmax(0,1.9fr)" : x.t === "select" ? "minmax(0,1.6fr)" : "minmax(0,1fr)")).join(" ") + " 36px" }}>
+            <div key={n} className="relative grid grid-cols-3 gap-2 rounded-lg border border-line p-2.5 sm:[grid-template-columns:var(--cols)]" style={{ "--cols": f.fields.map((x) => (x.t === "text" ? "minmax(0,1.9fr)" : x.t === "select" ? "minmax(0,1.6fr)" : "minmax(0,1fr)")).join(" ") + " 36px" }}>
               {f.fields.map((x) => (
-                <label key={x.k} className={cn("block min-w-0", x.t === "text" && f.fields.length > 3 && "sm:col-span-1")}>
-                  <span className="mb-0.5 block text-[12px] text-muted">{x.l}</span>
+                <label key={x.k} className={cn("block min-w-0", x.t === "number" ? "col-span-1" : "col-span-3 sm:col-span-1")}>
+                  <span className={cn("mb-0.5 block truncate text-[12px] text-muted", x.t !== "number" && "pe-8 sm:pe-0")}>{x.l}</span>
                   {x.t === "select" ? <Select value={r[x.k] ?? ""} onChange={(e) => set(n, x.k, e.target.value)} options={x.opts} className="h-9" />
                     : <Input value={r[x.k] ?? ""} inputMode={x.t === "number" ? "decimal" : undefined} onChange={(e) => set(n, x.k, x.t === "number" ? e.target.value.replace(/[^\d.]/g, "") : e.target.value)} className="h-9" />}
                 </label>
               ))}
-              <button type="button" onClick={() => onChange(rows.filter((_, i) => i !== n))} className="self-end rounded-md p-2 text-muted hover:bg-bad/10 hover:text-bad" aria-label={`Remove row ${n + 1}`}><Trash2 className="h-4 w-4" /></button>
+              <button type="button" onClick={() => onChange(rows.filter((_, i) => i !== n))} className="absolute end-1.5 top-1.5 rounded-md p-1.5 text-muted hover:bg-bad/10 hover:text-bad sm:static sm:self-end sm:p-2" aria-label={`Remove row ${n + 1}`}><Trash2 className="h-4 w-4" /></button>
             </div>
           ))}
         </div>

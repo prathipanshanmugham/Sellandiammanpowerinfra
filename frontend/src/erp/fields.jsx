@@ -70,24 +70,25 @@ export function FileChip({ file, onRemove }) {
 
 export function LinesView({ f, rows, refs }) {
   const cols = f.fields.filter((x) => x.t !== "textarea" || x.k === "description");
-  const totals = cols.map((c) => (["money"].includes(c.t) || (c.t === "number" && /amount|qty|total/i.test(c.k)) ? rows.reduce((a, r) => a + (Number(r[c.k]) || 0), 0) : null));
+  // add up amounts and quantities; a column of unit rates or prices has no meaningful total
+  const totals = cols.map((c) => ((c.t === "money" && !/rate|price/i.test(c.k)) || (c.t === "number" && /amount|qty|total/i.test(c.k)) ? rows.reduce((a, r) => a + (Number(r[c.k]) || 0), 0) : null));
   return (
     <div className="overflow-x-auto rounded-lg border border-edge">
-      <table className="w-full text-[14px]">
+      <table className={cn("w-full text-[14px]", cols.length >= 2 && "spi-stack")}>
         <thead className="bg-canvas text-left text-xs text-muted">
           <tr><th className="w-8 px-2 py-2 font-medium">#</th>{cols.map((c) => <th key={c.k} className={cn("whitespace-nowrap px-2 py-2 font-medium", ["money", "number", "percent"].includes(c.t) && "text-right")}>{c.l}</th>)}</tr>
         </thead>
         <tbody className="divide-y divide-edge">
           {rows.map((r, i) => (
             <tr key={i} className="align-top">
-              <td className="px-2 py-2 text-muted tabular">{i + 1}</td>
-              {cols.map((c) => <td key={c.k} className={cn("px-2 py-2", ["money", "number", "percent"].includes(c.t) && "text-right", c.k === "description" && "min-w-[220px]")}><FieldValue f={c} v={r[c.k]} refs={refs} compact /></td>)}
+              <td className="spi-hide px-2 py-2 text-muted tabular">{i + 1}</td>
+              {cols.map((c, j) => <td key={c.k} data-label={c.l} className={cn("px-2 py-2", ["money", "number", "percent"].includes(c.t) && "text-right", c.k === "description" && "min-w-[220px]", j === 0 && "spi-title")}><FieldValue f={c} v={r[c.k]} refs={refs} compact /></td>)}
             </tr>
           ))}
         </tbody>
         {rows.length > 1 && totals.some((x) => x !== null) && (
           <tfoot className="border-t border-edge bg-canvas font-semibold">
-            <tr><td />{cols.map((c, i) => <td key={c.k} className="px-2 py-2 text-right tabular">{totals[i] === null ? "" : c.t === "money" ? inr(totals[i]) : /qty/i.test(c.k) ? "" : num(totals[i])}</td>)}</tr>
+            <tr><td className="spi-hide" />{cols.map((c, i) => <td key={c.k} data-label={i === 0 ? "" : c.l} className={cn("px-2 py-2 tabular", i === 0 && totals[0] === null ? "spi-title text-left" : "text-right")}>{i === 0 && totals[0] === null ? "Total" : totals[i] === null ? "" : c.t === "money" ? inr(totals[i]) : /qty/i.test(c.k) ? "" : num(totals[i])}</td>)}</tr>
           </tfoot>
         )}
       </table>

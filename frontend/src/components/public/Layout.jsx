@@ -84,6 +84,67 @@ function ServicesMenu({ onClose }) {
 }
 
 const NAV = [["/projects", "Projects"], ["/industries", "Industries"], ["/tools", "Tools"], ["/about", "About"], ["/contact", "Contact"]];
+// Phone menu: the main pages as large rows, the rest as a compact two-column list
+const MOBILE_MAIN = [["/projects", "Projects"], ["/industries", "Industries"], ["/products", "Products"], ["/tools", "Tools"], ["/amc", "AMC & maintenance"], ["/about", "About"], ["/contact", "Contact"]];
+const MOBILE_MORE = [["/clients", "Clients"], ["/gallery", "Gallery"], ["/resources", "Resources"], ["/careers", "Careers"]];
+
+// Full-screen menu for phones and narrow windows: services fold away, the quote and login buttons stay at the bottom.
+function MobileMenu({ fit, onClose }) {
+  const site = useSite();
+  const t = useT();
+  const loc = useLocation();
+  const s = site.settings || {};
+  const [svcOpen, setSvcOpen] = useState(loc.pathname.startsWith("/services"));
+  const close = useRef(onClose);
+  close.current = onClose;
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e) => { if (e.key === "Escape") close.current(); };
+    window.addEventListener("keydown", onKey);
+    return () => { document.body.style.overflow = prev; window.removeEventListener("keydown", onKey); };
+  }, []);
+  const row = (active) => cn("flex items-center justify-between rounded-md px-3 py-3 text-[17px] font-semibold hover:bg-paper", active && "bg-paper");
+  return (
+    <div className={cn("fixed inset-0 z-50 flex flex-col bg-white text-fg", fit < 2 && "lg:hidden")} role="dialog" aria-modal="true" aria-label="Menu">
+      <div className="container flex h-16 shrink-0 items-center justify-between border-b border-line">
+        <Link to="/" onClick={onClose} aria-label="Sellandiamman Power Infra home"><Logo theme="light" /></Link>
+        <button type="button" onClick={onClose} className="rounded-md p-2" aria-label="Close menu"><X className="h-6 w-6" /></button>
+      </div>
+      {/* a tap on any link closes the menu, even when it points at the page already open */}
+      <nav className="container min-h-0 flex-1 overflow-y-auto overscroll-contain py-3" aria-label="Mobile" onClick={(e) => { if (e.target.closest("a")) onClose(); }}>
+        <button type="button" onClick={() => setSvcOpen((x) => !x)} aria-expanded={svcOpen} className={cn(row(loc.pathname.startsWith("/services")), "w-full text-start")}>
+          {t("Services")}<ChevronDown className={cn("h-5 w-5 text-muted transition-transform", svcOpen && "rotate-180")} />
+        </button>
+        {svcOpen && (
+          <ul className="mb-2 ms-3 border-s-2 border-signal ps-2">
+            {site.services.map((sv) => (
+              <li key={sv.slug}>
+                <Link to={`/services/${sv.slug}`} className={cn("flex items-center gap-2.5 rounded-md px-2 py-2 text-[15px] text-fg/85 hover:bg-paper", loc.pathname === `/services/${sv.slug}` && "font-semibold text-fg")}>
+                  <Icon name={sv.icon} className="h-4 w-4 shrink-0 text-muted" />{sv.title}
+                </Link>
+              </li>
+            ))}
+            <li><Link to="/services" className="block rounded-md px-2 py-2 text-[15px] font-semibold underline decoration-signal decoration-2 underline-offset-4">{t("All services")}</Link></li>
+          </ul>
+        )}
+        {MOBILE_MAIN.map(([to, l]) => <NavLink key={to} to={to} className={({ isActive }) => row(isActive)}>{t(l)}</NavLink>)}
+        <ul className="mt-2 grid grid-cols-2 gap-x-3 border-t border-line pt-3">
+          {MOBILE_MORE.map(([to, l]) => <li key={to}><NavLink to={to} className={({ isActive }) => cn("block rounded-md px-3 py-2 text-[15px] text-fg/80 hover:bg-paper", isActive && "font-semibold text-fg")}>{t(l)}</NavLink></li>)}
+        </ul>
+        <Link to="/emergency" className="mt-4 flex items-center gap-2.5 rounded-lg bg-ink px-4 py-3 text-[15px] font-semibold text-white">
+          <AlertTriangle className="h-4 w-4 shrink-0 text-signal-bright" />{t("24×7 breakdown")}
+          {s.emergency_phone && <span dir="ltr" className="ms-auto text-signal-bright">{s.emergency_phone}</span>}
+        </Link>
+        <div className="pb-2 pt-5"><LanguageSelect /></div>
+      </nav>
+      <div className="container grid shrink-0 grid-cols-2 gap-2 border-t border-line pt-3" style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom))" }} onClick={(e) => { if (e.target.closest("a")) onClose(); }}>
+        <Button as={Link} to="/login" variant="outline">{t("Client login")}</Button>
+        <Button as={Link} to="/get-quote">{t("Get a quote")}</Button>
+      </div>
+    </div>
+  );
+}
 
 function Header() {
   const site = useSite();
@@ -144,27 +205,7 @@ function Header() {
           </div>
         </div>
       </header>
-      {open && (
-        <div className={cn("fixed inset-0 z-50 overflow-y-auto bg-white text-fg", fit < 2 && "lg:hidden")} role="dialog" aria-modal="true" aria-label="Menu">
-          <div className="container flex h-16 items-center justify-between border-b border-line">
-            <Logo theme="light" />
-            <button type="button" onClick={() => setOpen(false)} className="rounded-md p-2" aria-label="Close menu"><X className="h-6 w-6" /></button>
-          </div>
-          <nav className="container space-y-1 pb-10 pt-2" aria-label="Mobile">
-            <p className="pb-1 pt-3 text-xs font-semibold text-muted">{t("Services")}</p>
-            {site.services.map((sv) => <Link key={sv.slug} to={`/services/${sv.slug}`} className="block rounded-md px-2 py-2 text-[16px] hover:bg-paper">{sv.title}</Link>)}
-            <div className="my-3 h-px bg-line" />
-            {[...NAV, ["/products", "Products"], ["/clients", "Clients"], ["/gallery", "Gallery"], ["/resources", "Resources"], ["/amc", "AMC & maintenance"], ["/emergency", "24×7 breakdown"], ["/careers", "Careers"]].map(([to, l]) => (
-              <Link key={to} to={to} className="block rounded-md px-2 py-2 text-lg font-semibold hover:bg-paper">{t(l)}</Link>
-            ))}
-            <div className="pt-4"><LanguageSelect /></div>
-            <div className="flex flex-col gap-2 pt-4">
-              <Button as={Link} to="/get-quote" size="lg">{t("Get a quote")}</Button>
-              <Button as={Link} to="/login" size="lg" variant="outline">{t("Client login")}</Button>
-            </div>
-          </nav>
-        </div>
-      )}
+      {open && <MobileMenu fit={fit} onClose={() => setOpen(false)} />}
     </>
   );
 }
