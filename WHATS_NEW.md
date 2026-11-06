@@ -1,3 +1,21 @@
+# Update, 6 Nov 2026: white header logo, phone layout and sturdier calculators
+
+- **Header logo stays white**: on phones with dark mode for websites (Chrome's "darken websites", Samsung, MIUI) the header used to turn black and the dark "SELLANDIAMMAN" name disappeared. The site now tells browsers it is light only, so the header stays white with the grey and yellow SA mark, the same as the browser-tab icon. The header is solid white (no see-through blur), and the logo and buttons scale down to fit a 320px phone; the language code next to the globe shows from 400px up.
+- **Phones**: checked every website page, ERP screen, portal and dialog (441 screens) at 320, 375 and 390px wide: nothing scrolls sideways and no text runs off the screen or gets cut. Long e-mail addresses wrap on the login and "My profile" screens.
+- **Calculators**:
+  - Clearing a box (for example the present power factor in PF correction) no longer freezes the page. Every box now has a sensible range, and a box that's empty or out of range turns red with a message saying what to enter. The last good result stays on screen, greyed out, until it's fixed.
+  - Typing is cleaned as you go (letters and a second decimal point are dropped, at most 15 characters). Very small results show four significant figures instead of rounding to 0.
+  - Boxes that don't apply to the chosen option are hidden: maximum demand, contract demand, peak and night share and power factor apply to HT tariffs only, and connected load to LT commercial and LT industrial only.
+  - Results now show the input that decides the answer, so changing any box visibly changes the result:
+    - Bill estimator: the power-factor incentive or penalty row.
+    - Contract demand: the demand charge rate.
+    - DG sizing: the size needed for motor starting.
+    - UPS battery: the size needed before rounding up.
+    - Rooftop solar: the three limits (consumption, roof area, sanctioned load).
+    - Cable size: the voltage-drop limit.
+    - PF correction: the non-linear load share behind the reactor advice.
+  - The browser and the server give identical results and identical error messages on 159 recorded cases, including 35 typing and edge cases.
+
 # Update, 5 Nov 2026: AI agents and MCP
 
 - **Settings → AI agents & MCP** (director and super admin): make agents that let Claude, or any MCP app, work in the ERP. Each one works as one staff login (that person's role, branches and hidden fields), is read only or read & write, can have an end date, and can be paused, given a new key or revoked. Six ready-made jobs: business analyst, sales assistant, project monitor, procurement, collections, service desk. Keys are shown once and stored as hashes.

@@ -47,6 +47,24 @@ V = {
     "document-checklists": [{"kind": k} for k in ("new_lt", "load_change", "new_ht", "ceig", "name_transfer", "solar")],
 }
 
+# Typing in the form: a blank box, half-typed numbers, out-of-range values. Both engines must give the same message
+# (or, for optional and hidden fields, the same result).
+EDGE = [
+    ("pf-correction", {"pf_now": ""}), ("pf-correction", {"kw": "999999999"}), ("pf-correction", {"kw": "1e3"}), ("pf-correction", {"kw": "100000"}),
+    ("motor", {"eff": "", "pf": ""}), ("motor", {"voltage": "0"}), ("motor", {"voltage": " "}),
+    ("lt-vs-ht", {"substation_cost": ""}), ("lt-vs-ht", {"pf": ""}), ("lt-vs-ht", {"units": "0"}),
+    ("lighting-lux", {"lux": ""}), ("lighting-lux", {"length": ""}),
+    ("fault-level", {"lv": "0"}), ("fault-level", {"lv": "1100"}), ("transformer-sizing", {"max_loading": ""}),
+    ("connected-load", {"method": "area", "area": "abc"}), ("connected-load", {"method": "loads", "area": ""}),
+    ("connected-load", {"loads": [{"name": "X", "qty": "abc", "kw": 1, "df": 1}]}), ("connected-load", {"loads": [{"name": "X", "qty": "", "kw": "", "df": 1}]}),
+    ("connected-load", {"loads": [{"name": "X", "qty": 20000, "kw": 1, "df": 1}]}),
+    ("earthing", {"electrode": "plate", "length": "", "diameter": ""}), ("earthing", {"electrode": "plate", "plate_w": "0"}), ("earthing", {"electrode": "strip", "strip_depth": ""}),
+    ("energy-savings", {"measure": "vfd", "fixtures": "", "old_w": "", "new_w": ""}), ("energy-savings", {"measure": "led", "fixtures": ""}),
+    ("solar-rooftop", {"metering": "net", "export_rate": ""}), ("solar-rooftop", {"metering": "gross", "export_rate": ""}),
+    ("contract-demand", {"md": [400, 200000]}), ("contract-demand", {"md": [400, "", 410]}), ("cable-size", {"length": "5001"}), ("harmonics", {"load_kva": ""}),
+    ("units-formulas", {"voltage": ""}), ("ups-battery", {"dod": ""}), ("voltage-drop", {"runs": ""}), ("dg-sizing", {"pf": "-"}),
+]
+
 
 def main():
     out = []
@@ -54,6 +72,11 @@ def main():
         for inp in cases:
             res = E.run(slug, inp)
             out.append({"slug": slug, "inputs": inp, "result": res})
+    for slug, inp in EDGE:
+        try:
+            out.append({"slug": slug, "inputs": inp, "result": E.run(slug, inp)})
+        except E.CalcError as ex:
+            out.append({"slug": slug, "inputs": inp, "error": str(ex)})
     p = Path(__file__).with_name("calc_cases.json")
     p.write_text(json.dumps(out, ensure_ascii=False, indent=0))
     print(f"{len(out)} cases for {len(V)} tools -> {p}")

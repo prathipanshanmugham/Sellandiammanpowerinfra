@@ -20,7 +20,7 @@ export function PageHead({ title, sub, icon, actions, back, children, className 
           {icon && <span className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-md bg-ink text-signal-bright sm:flex"><Icon name={icon} className="h-4 w-4" /></span>}
           <span className="min-w-0 break-words">{title}</span>
         </h1>
-        {sub && <p className="mt-1 max-w-2xl text-sm text-muted">{sub}</p>}
+        {sub && <p className="mt-1 max-w-2xl text-sm text-muted [overflow-wrap:anywhere]">{sub}</p>}
         {children}
       </div>
       {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}

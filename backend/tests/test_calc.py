@@ -66,6 +66,11 @@ def test_overrides_change_results():
 
 @pytest.mark.parametrize("case", CASES, ids=[f"{c['slug']}-{n}" for n, c in enumerate(CASES)])
 def test_recorded_cases(case):
+    if "error" in case:
+        with pytest.raises(E.CalcError) as ex:
+            E.run(case["slug"], case["inputs"])
+        assert str(ex.value) == case["error"]
+        return
     res = E.run(case["slug"], case["inputs"])
     want = case["result"]
     assert res["headline"] == want["headline"]

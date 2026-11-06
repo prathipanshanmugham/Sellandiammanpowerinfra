@@ -107,7 +107,8 @@
      "min": 10,
      "show": {
       "method": "area"
-     }
+     },
+     "max": 1000000
     },
     {
      "k": "loads",
@@ -152,13 +153,15 @@
        "k": "qty",
        "l": "Qty",
        "t": "number",
-       "min": 0
+       "min": 0,
+       "max": 10000
       },
       {
        "k": "kw",
        "l": "kW each",
        "t": "number",
-       "min": 0
+       "min": 0,
+       "max": 10000
       },
       {
        "k": "df",
@@ -230,7 +233,8 @@
      "t": "number",
      "unit": "kVA",
      "def": 150,
-     "min": 1
+     "min": 1,
+     "max": 100000
     },
     {
      "k": "units",
@@ -238,7 +242,8 @@
      "t": "number",
      "unit": "kWh",
      "def": 40000,
-     "min": 0
+     "min": 0,
+     "max": 100000000
     },
     {
      "k": "peak_share",
@@ -273,7 +278,9 @@
      "t": "number",
      "unit": "₹",
      "def": null,
-     "min": 0
+     "min": 0,
+     "max": 1000000000,
+     "optional": true
     }
    ]
   },
@@ -298,7 +305,8 @@
      "t": "number",
      "unit": "kWh",
      "def": 60000,
-     "min": 0
+     "min": 0,
+     "max": 100000000
     },
     {
      "k": "md_kva",
@@ -306,7 +314,15 @@
      "t": "number",
      "unit": "kVA",
      "def": 300,
-     "min": 0
+     "min": 0,
+     "max": 100000,
+     "show_in": {
+      "tariff": [
+       "HT_I",
+       "HT_IIB",
+       "HT_III"
+      ]
+     }
     },
     {
      "k": "cd_kva",
@@ -314,7 +330,15 @@
      "t": "number",
      "unit": "kVA",
      "def": 350,
-     "min": 0
+     "min": 0,
+     "max": 100000,
+     "show_in": {
+      "tariff": [
+       "HT_I",
+       "HT_IIB",
+       "HT_III"
+      ]
+     }
     },
     {
      "k": "load_kw",
@@ -322,7 +346,14 @@
      "t": "number",
      "unit": "kW",
      "def": 100,
-     "min": 0
+     "min": 0,
+     "max": 100000,
+     "show_in": {
+      "tariff": [
+       "LT_IIIB",
+       "LT_V"
+      ]
+     }
     },
     {
      "k": "peak_share",
@@ -331,7 +362,14 @@
      "unit": "%",
      "def": 30,
      "min": 0,
-     "max": 100
+     "max": 100,
+     "show_in": {
+      "tariff": [
+       "HT_I",
+       "HT_IIB",
+       "HT_III"
+      ]
+     }
     },
     {
      "k": "night_share",
@@ -340,7 +378,14 @@
      "unit": "%",
      "def": 10,
      "min": 0,
-     "max": 100
+     "max": 100,
+     "show_in": {
+      "tariff": [
+       "HT_I",
+       "HT_IIB",
+       "HT_III"
+      ]
+     }
     },
     {
      "k": "pf",
@@ -349,7 +394,14 @@
      "def": 0.92,
      "min": 0.3,
      "max": 1,
-     "step": 0.01
+     "step": 0.01,
+     "show_in": {
+      "tariff": [
+       "HT_I",
+       "HT_IIB",
+       "HT_III"
+      ]
+     }
     }
    ]
   },
@@ -367,7 +419,8 @@
      "t": "number",
      "unit": "kVA",
      "def": 500,
-     "min": 1
+     "min": 1,
+     "max": 100000
     },
     {
      "k": "md",
@@ -387,7 +440,8 @@
       398,
       405,
       430
-     ]
+     ],
+     "max": 100000
     },
     {
      "k": "tariff",
@@ -412,7 +466,8 @@
      "t": "number",
      "unit": "kVA",
      "def": 500,
-     "min": 1
+     "min": 1,
+     "max": 100000
     },
     {
      "k": "voltage",
@@ -470,7 +525,8 @@
      "t": "number",
      "unit": "kW",
      "def": 600,
-     "min": 1
+     "min": 1,
+     "max": 100000
     },
     {
      "k": "demand_factor",
@@ -564,7 +620,8 @@
      "t": "number",
      "unit": "₹/kWh",
      "def": 7.5,
-     "min": 0
+     "min": 0,
+     "max": 100
     },
     {
      "k": "years",
@@ -601,17 +658,23 @@
       {
        "k": "price",
        "l": "Price ₹",
-       "t": "number"
+       "t": "number",
+       "min": 0,
+       "max": 1000000000
       },
       {
        "k": "nll",
        "l": "No-load loss W",
-       "t": "number"
+       "t": "number",
+       "min": 0,
+       "max": 1000000
       },
       {
        "k": "ll",
        "l": "Load loss W",
-       "t": "number"
+       "t": "number",
+       "min": 0,
+       "max": 10000000
       }
      ]
     }
@@ -631,7 +694,8 @@
      "t": "number",
      "unit": "kW",
      "def": 120,
-     "min": 1
+     "min": 1,
+     "max": 20000
     },
     {
      "k": "pf",
@@ -648,7 +712,8 @@
      "t": "number",
      "unit": "kW",
      "def": 30,
-     "min": 0
+     "min": 0,
+     "max": 5000
     },
     {
      "k": "starter",
@@ -689,7 +754,8 @@
      "l": "Running hours per month",
      "t": "number",
      "def": 60,
-     "min": 0
+     "min": 0,
+     "max": 744
     }
    ]
   },
@@ -707,7 +773,8 @@
      "t": "number",
      "unit": "kW",
      "def": 8,
-     "min": 0.1
+     "min": 0.1,
+     "max": 5000
     },
     {
      "k": "pf",
@@ -733,7 +800,8 @@
      "t": "number",
      "unit": "minutes",
      "def": 60,
-     "min": 1
+     "min": 1,
+     "max": 1440
     },
     {
      "k": "bank_v",
@@ -810,7 +878,8 @@
      "t": "number",
      "unit": "kWh",
      "def": 12000,
-     "min": 0
+     "min": 0,
+     "max": 10000000
     },
     {
      "k": "roof_area",
@@ -818,7 +887,8 @@
      "t": "number",
      "unit": "m²",
      "def": 800,
-     "min": 0
+     "min": 0,
+     "max": 1000000
     },
     {
      "k": "sanctioned_kw",
@@ -826,7 +896,8 @@
      "t": "number",
      "unit": "kW",
      "def": 150,
-     "min": 0
+     "min": 0,
+     "max": 100000
     },
     {
      "k": "town",
@@ -841,7 +912,8 @@
      "t": "number",
      "unit": "₹/kWh",
      "def": 8.25,
-     "min": 0
+     "min": 0,
+     "max": 100
     },
     {
      "k": "metering",
@@ -868,7 +940,8 @@
      "min": 0,
      "show": {
       "metering": "gross"
-     }
+     },
+     "max": 100
     },
     {
      "k": "cost_per_kwp",
@@ -876,7 +949,8 @@
      "t": "number",
      "unit": "₹/kWp",
      "def": 48000,
-     "min": 0
+     "min": 0,
+     "max": 500000
     }
    ]
   },
@@ -942,7 +1016,8 @@
        "k": "qty",
        "l": "Qty",
        "t": "number",
-       "min": 0
+       "min": 0,
+       "max": 1000
       }
      ]
     },
@@ -961,7 +1036,8 @@
      "t": "number",
      "unit": "kVA",
      "def": 250,
-     "min": 0
+     "min": 0,
+     "max": 100000
     },
     {
      "k": "existing_md",
@@ -969,7 +1045,8 @@
      "t": "number",
      "unit": "kVA",
      "def": 170,
-     "min": 0
+     "min": 0,
+     "max": 100000
     }
    ]
   },
@@ -1015,7 +1092,8 @@
      "t": "number",
      "unit": "kW",
      "def": 75,
-     "min": 0.1
+     "min": 0.1,
+     "max": 5000
     },
     {
      "k": "pf",
@@ -1032,7 +1110,8 @@
      "t": "number",
      "unit": "m",
      "def": 120,
-     "min": 1
+     "min": 1,
+     "max": 5000
     },
     {
      "k": "conductor",
@@ -1184,7 +1263,8 @@
      "t": "number",
      "unit": "kA",
      "def": 25,
-     "min": 0
+     "min": 0,
+     "max": 200
     },
     {
      "k": "clear_s",
@@ -1228,7 +1308,8 @@
      "t": "number",
      "unit": "A",
      "def": 100,
-     "min": 0.1
+     "min": 0.1,
+     "max": 10000
     },
     {
      "k": "length",
@@ -1236,7 +1317,8 @@
      "t": "number",
      "unit": "m",
      "def": 100,
-     "min": 1
+     "min": 1,
+     "max": 5000
     },
     {
      "k": "conductor",
@@ -1310,7 +1392,8 @@
      "t": "number",
      "unit": "MVA",
      "def": 250,
-     "min": 1
+     "min": 1,
+     "max": 100000
     },
     {
      "k": "kva",
@@ -1318,7 +1401,8 @@
      "t": "number",
      "unit": "kVA",
      "def": 1000,
-     "min": 10
+     "min": 10,
+     "max": 10000
     },
     {
      "k": "z_pct",
@@ -1343,7 +1427,9 @@
      "l": "LV voltage",
      "t": "number",
      "unit": "V",
-     "def": 415
+     "def": 415,
+     "min": 100,
+     "max": 1100
     },
     {
      "k": "cable_m",
@@ -1351,7 +1437,8 @@
      "t": "number",
      "unit": "m",
      "def": 30,
-     "min": 0
+     "min": 0,
+     "max": 2000
     },
     {
      "k": "cable_size",
@@ -1447,7 +1534,8 @@
      "l": "Value",
      "t": "number",
      "def": 90,
-     "min": 0.01
+     "min": 0.01,
+     "max": 100000
     },
     {
      "k": "pf",
@@ -1492,7 +1580,8 @@
      "t": "number",
      "unit": "kA",
      "def": 25,
-     "min": 0
+     "min": 0,
+     "max": 200
     }
    ]
   },
@@ -1509,7 +1598,8 @@
      "l": "Motor rating",
      "t": "number",
      "def": 15,
-     "min": 0.1
+     "min": 0.1,
+     "max": 5000
     },
     {
      "k": "unit",
@@ -1532,7 +1622,9 @@
      "l": "Voltage",
      "t": "number",
      "unit": "V",
-     "def": 415
+     "def": 415,
+     "min": 100,
+     "max": 11000
     },
     {
      "k": "eff",
@@ -1541,7 +1633,8 @@
      "def": null,
      "min": 0.5,
      "max": 0.99,
-     "step": 0.005
+     "step": 0.005,
+     "optional": true
     },
     {
      "k": "pf",
@@ -1550,7 +1643,8 @@
      "def": null,
      "min": 0.5,
      "max": 1,
-     "step": 0.01
+     "step": 0.01,
+     "optional": true
     },
     {
      "k": "duty",
@@ -1582,7 +1676,8 @@
      "t": "number",
      "unit": "m",
      "def": 50,
-     "min": 1
+     "min": 1,
+     "max": 5000
     }
    ]
   },
@@ -1600,7 +1695,8 @@
      "t": "number",
      "unit": "kW",
      "def": 400,
-     "min": 1
+     "min": 1,
+     "max": 100000
     },
     {
      "k": "pf_now",
@@ -1626,7 +1722,8 @@
      "t": "number",
      "unit": "₹",
      "def": 1200000,
-     "min": 0
+     "min": 0,
+     "max": 1000000000
     },
     {
      "k": "nonlinear",
@@ -1659,7 +1756,8 @@
      "t": "number",
      "unit": "kVA",
      "def": 1000,
-     "min": 10
+     "min": 10,
+     "max": 10000
     },
     {
      "k": "z_pct",
@@ -1676,7 +1774,8 @@
      "t": "number",
      "unit": "kVA",
      "def": 650,
-     "min": 1
+     "min": 1,
+     "max": 100000
     },
     {
      "k": "nonlinear",
@@ -1731,7 +1830,8 @@
      "min": 1,
      "show": {
       "measure": "led"
-     }
+     },
+     "max": 100000
     },
     {
      "k": "old_w",
@@ -1742,7 +1842,8 @@
      "min": 1,
      "show": {
       "measure": "led"
-     }
+     },
+     "max": 5000
     },
     {
      "k": "new_w",
@@ -1753,7 +1854,8 @@
      "min": 1,
      "show": {
       "measure": "led"
-     }
+     },
+     "max": 5000
     },
     {
      "k": "motor_kw",
@@ -1767,7 +1869,8 @@
        "vfd",
        "motor"
       ]
-     }
+     },
+     "max": 5000
     },
     {
      "k": "flow",
@@ -1831,7 +1934,8 @@
      "t": "number",
      "unit": "₹/kWh",
      "def": 8.25,
-     "min": 0
+     "min": 0,
+     "max": 100
     },
     {
      "k": "cost",
@@ -1839,7 +1943,8 @@
      "t": "number",
      "unit": "₹",
      "def": 160000,
-     "min": 0
+     "min": 0,
+     "max": 1000000000
     }
    ]
   },
@@ -1857,7 +1962,8 @@
      "t": "number",
      "unit": "Ω·m",
      "def": 40,
-     "min": 1
+     "min": 1,
+     "max": 100000
     },
     {
      "k": "electrode",
@@ -1891,7 +1997,8 @@
        "pipe",
        "strip"
       ]
-     }
+     },
+     "max": 100
     },
     {
      "k": "diameter",
@@ -1902,7 +2009,8 @@
      "min": 10,
      "show": {
       "electrode": "pipe"
-     }
+     },
+     "max": 500
     },
     {
      "k": "plate_w",
@@ -1912,7 +2020,9 @@
      "def": 0.6,
      "show": {
       "electrode": "plate"
-     }
+     },
+     "min": 0.1,
+     "max": 3
     },
     {
      "k": "plate_h",
@@ -1922,7 +2032,9 @@
      "def": 0.6,
      "show": {
       "electrode": "plate"
-     }
+     },
+     "min": 0.1,
+     "max": 3
     },
     {
      "k": "strip_w",
@@ -1932,7 +2044,9 @@
      "def": 40,
      "show": {
       "electrode": "strip"
-     }
+     },
+     "min": 10,
+     "max": 200
     },
     {
      "k": "strip_depth",
@@ -1942,7 +2056,9 @@
      "def": 0.6,
      "show": {
       "electrode": "strip"
-     }
+     },
+     "min": 0.3,
+     "max": 3
     },
     {
      "k": "target",
@@ -1950,7 +2066,8 @@
      "t": "number",
      "unit": "Ω",
      "def": 2,
-     "min": 0.1
+     "min": 0.1,
+     "max": 100
     },
     {
      "k": "fault_ka",
@@ -1958,7 +2075,8 @@
      "t": "number",
      "unit": "kA",
      "def": 25,
-     "min": 0.1
+     "min": 0.1,
+     "max": 200
     },
     {
      "k": "duration",
@@ -2006,7 +2124,8 @@
      "t": "number",
      "unit": "m",
      "def": 60,
-     "min": 1
+     "min": 1,
+     "max": 2000
     },
     {
      "k": "w",
@@ -2014,7 +2133,8 @@
      "t": "number",
      "unit": "m",
      "def": 30,
-     "min": 1
+     "min": 1,
+     "max": 2000
     },
     {
      "k": "h",
@@ -2022,7 +2142,8 @@
      "t": "number",
      "unit": "m",
      "def": 12,
-     "min": 1
+     "min": 1,
+     "max": 1000
     },
     {
      "k": "ng",
@@ -2245,7 +2366,9 @@
      "l": "Target lux (blank = standard)",
      "t": "number",
      "def": null,
-     "min": 1
+     "min": 1,
+     "max": 5000,
+     "optional": true
     },
     {
      "k": "length",
@@ -2253,7 +2376,8 @@
      "t": "number",
      "unit": "m",
      "def": 12,
-     "min": 1
+     "min": 1,
+     "max": 500
     },
     {
      "k": "width",
@@ -2261,7 +2385,8 @@
      "t": "number",
      "unit": "m",
      "def": 8,
-     "min": 1
+     "min": 1,
+     "max": 500
     },
     {
      "k": "height",
@@ -2269,7 +2394,8 @@
      "t": "number",
      "unit": "m",
      "def": 2.2,
-     "min": 0.5
+     "min": 0.5,
+     "max": 50
     },
     {
      "k": "lumens",
@@ -2277,7 +2403,8 @@
      "t": "number",
      "unit": "lm",
      "def": 4000,
-     "min": 100
+     "min": 100,
+     "max": 200000
     },
     {
      "k": "watts",
@@ -2285,7 +2412,8 @@
      "t": "number",
      "unit": "W",
      "def": 36,
-     "min": 1
+     "min": 1,
+     "max": 2000
     },
     {
      "k": "mf",
@@ -2335,7 +2463,8 @@
      "l": "Value",
      "t": "number",
      "def": 100,
-     "min": 0
+     "min": 0,
+     "max": 1000000000
     },
     {
      "k": "phase",
@@ -2359,7 +2488,8 @@
      "t": "number",
      "unit": "V",
      "def": 415,
-     "min": 1
+     "min": 1,
+     "max": 1000000
     },
     {
      "k": "pf",

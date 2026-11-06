@@ -24,7 +24,7 @@ function LanguageMenu() {
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button type="button" className="flex items-center gap-1.5 whitespace-nowrap rounded-md px-2 py-2 text-sm text-ink/75 hover:text-ink" aria-label={t("Choose a language")}>
-          <Globe className="h-4 w-4" aria-hidden /><span translate="no" className="hidden xl:inline">{cur.native}</span><span translate="no" className="uppercase xl:hidden">{cur.code}</span>
+          <Globe className="h-4 w-4" aria-hidden /><span translate="no" className="hidden xl:inline">{cur.native}</span><span translate="no" className="hidden uppercase min-[400px]:inline xl:hidden">{cur.code}</span>
         </button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-[min(92vw,480px)] p-4">
@@ -181,8 +181,8 @@ function Header() {
           {ann.link ? <Link to={ann.link} className="underline-offset-2 hover:underline">{ann.text}</Link> : ann.text}
         </div>
       )}
-      <header className="sticky top-0 z-40 border-b border-line bg-white/95 backdrop-blur-md">
-        <div ref={bar} className="container flex h-16 items-center justify-between gap-4">
+      <header className="sticky top-0 z-40 border-b border-line bg-white">
+        <div ref={bar} className="container flex h-16 items-center justify-between gap-2 min-[400px]:gap-4">
           <Link to="/" className="shrink-0" aria-label="Sellandiamman Power Infra home"><Logo theme="light" /></Link>
           <nav className={cn("hidden items-center gap-1", fit < 2 && "lg:flex")} aria-label="Main">
             <div className="relative" onMouseLeave={() => setSvc(false)}>

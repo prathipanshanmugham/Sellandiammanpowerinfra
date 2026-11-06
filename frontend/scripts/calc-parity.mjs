@@ -34,6 +34,12 @@ function same(a, b, path, errs) {
 let fails = 0;
 for (const c of cases) {
   let res;
+  if (c.error !== undefined) { // the same message for a blank or out-of-range box
+    let msg = null;
+    try { E.run(c.slug, c.inputs); } catch (e) { msg = e.message; }
+    if (msg !== c.error) { fails += 1; console.log(`✗ ${c.slug} ${JSON.stringify(c.inputs)}\n   ts=${JSON.stringify(msg)} py=${JSON.stringify(c.error)}`); }
+    continue;
+  }
   try { res = E.run(c.slug, c.inputs); } catch (e) { console.log(`✗ ${c.slug} ${JSON.stringify(c.inputs)} threw ${e.message}`); fails += 1; continue; }
   const errs = [];
   same(JSON.parse(JSON.stringify(res)), c.result, c.slug, errs);

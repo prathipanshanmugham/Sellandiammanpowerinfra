@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Search, Plus, Trash2, FileDown, UserCheck, ChevronDown, Info, CheckCircle2, AlertTriangle, XCircle, RotateCcw } from "lucide-react";
 import { api, errMsg, openFile, cachedGet, IN_FRAME } from "@/lib/api";
 import { useMeta, cn } from "@/lib/utils";
-import { num, inr } from "@/lib/format";
+import { inr } from "@/lib/format";
 import { useT } from "@/lib/i18n";
 import { Button, Input, Select, Switch, Field, Alert, Dialog, Tip } from "@/components/ui/kit";
 import { useSite } from "@/components/public/site";
@@ -16,6 +16,19 @@ import DEFAULTS from "@/shared/constants.json";
 import { NotFound } from "./Content";
 
 const ENGINE = makeEngine(TOOLS, DEFAULTS);
+
+// What a number box accepts while typing: digits and one decimal point. Commas, spaces, ₹ and units are dropped,
+// so "1,20,000" and "₹ 48,000" become plain numbers. No calculator takes a negative value.
+export function cleanNumber(text) {
+  let x = String(text ?? "").replace(/[^\d.]/g, "");
+  const dot = x.indexOf(".");
+  if (dot >= 0) x = x.slice(0, dot + 1) + x.slice(dot + 1).replace(/\./g, "");
+  return x.slice(0, 15);
+}
+// Results: Indian grouping, up to 3 decimals; values below 1 keep 4 significant digits so 0.00045 doesn't show as 0
+const nBig = new Intl.NumberFormat("en-IN", { maximumFractionDigits: 3 });
+const nSmall = new Intl.NumberFormat("en-IN", { maximumSignificantDigits: 4 });
+export const calcNum = (v) => (v === null || v === undefined || v === "" ? "—" : Math.abs(Number(v)) < 1 && Number(v) !== 0 ? nSmall.format(Number(v)) : nBig.format(Number(v)));
 
 // Rates the office has changed in settings (tariffs, prices) arrive from the server; the bundled ones are the fallback.
 function useConstants() {
@@ -108,6 +121,12 @@ export function ToolPage({ staff = false }) {
     if (!spec) return {};
     try { return { res: ENGINE.run(slug, v, C || undefined) }; } catch (e) { return { err: e.message || String(e) }; }
   }, [slug, v, C, spec]);
+  // While a box is blank or out of range, keep showing the last good result (faded) instead of an empty panel
+  const last = useRef({ slug: null, res: null });
+  useEffect(() => { if (res) last.current = { slug, res }; }, [res, slug]);
+  const stale = !res && err && last.current.slug === slug ? last.current.res : null;
+  const shownRes = res || stale;
+  const errField = err && spec ? spec.inputs.find((f) => err.startsWith(`${f.l}:`)) : null;
   if (!spec) return <NotFound />;
   const group = TOOLS.groups.find((g) => g.key === spec.group);
   const related = TOOLS.tools.filter((t) => t.group === spec.group && t.slug !== slug).slice(0, 4);
@@ -128,9 +147,12 @@ export function ToolPage({ staff = false }) {
             <Button type="button" variant="ghost" size="sm" onClick={() => setV(initial(spec))}><RotateCcw className="h-3.5 w-3.5" />Reset</Button></div>
           {/* Calculator fields are English technical text with numbers and units, so they stay left-to-right in Arabic and Urdu too. */}
           <div dir="ltr" className="space-y-4">
-            {spec.inputs.filter((f) => visible(f, v)).map((f) => <InputField key={f.k} f={f} value={v[f.k]} C={C} onChange={(x) => setV((s) => ({ ...s, [f.k]: x }))} />)}
+            {spec.inputs.filter((f) => visible(f, v)).map((f) => <InputField key={f.k} f={f} value={v[f.k]} C={C} error={errField?.k === f.k ? err.slice(f.l.length + 1).trim() : null}
+              onChange={(x) => setV((s) => ({ ...s, [f.k]: x }))} />)}
           </div>
-          {res?.headline && (
+          {err ? (
+            <p role="alert" className="flex items-start gap-2 rounded-lg border border-amber/50 bg-amber-soft/70 px-4 py-3 text-sm text-amber-ink lg:hidden"><Info className="mt-0.5 h-4 w-4 shrink-0" />{err}</p>
+          ) : res?.headline && (
             <button type="button" onClick={() => document.getElementById("calc-result")?.scrollIntoView({ behavior: "smooth", block: "start" })}
               className="flex w-full items-center justify-between gap-3 rounded-lg bg-ink px-4 py-3 text-start text-white lg:hidden">
               <span className="min-w-0 text-sm leading-snug text-white/80">{res.headline.label}</span>
@@ -139,7 +161,8 @@ export function ToolPage({ staff = false }) {
           )}
         </form>
         <div className="min-w-0 scroll-mt-24" id="calc-result">
-          {err ? <Alert tone="amber" icon={Info} title="Check the inputs">{err}</Alert> : res ? <Result res={res} onLead={staff ? null : setLead} /> : null}
+          {err && <Alert tone="amber" icon={Info} title="Check the inputs" className="mb-4">{err}{stale ? ". The result below is from before this change." : ""}</Alert>}
+          {shownRes && <div className={cn("transition-opacity", stale && "pointer-events-none select-none opacity-45")} aria-hidden={stale ? true : undefined}><Result res={shownRes} onLead={staff || stale ? null : setLead} /></div>}
           {related.length > 0 && (
             <div className="mt-10">
               <h2 className="font-display text-[17px] font-bold">Related calculators</h2>
@@ -155,14 +178,16 @@ export function ToolPage({ staff = false }) {
   );
 }
 
-function InputField({ f, value, onChange, C }) {
+function InputField({ f, value, onChange, C, error }) {
   const id = `in-${f.k}`;
+  const bad = error ? "border-bad focus:border-bad focus:ring-bad/30" : "";
   const label = <span className="inline-flex items-center gap-1">{f.l}{f.help && <Tip text={f.help}><button type="button" className="text-muted" aria-label={`About ${f.l}`}><Info className="h-3.5 w-3.5" /></button></Tip>}</span>;
   if (f.t === "number") {
     return (
-      <Field label={label} htmlFor={id}>
+      <Field label={label} htmlFor={id} error={error}>
         <div className="relative">
-          <Input id={id} inputMode="decimal" value={value ?? ""} onChange={(e) => onChange(e.target.value.replace(/[^\d.\-]/g, ""))} className={f.unit ? "pe-14" : ""} />
+          <Input id={id} inputMode="decimal" autoComplete="off" enterKeyHint="next" value={value ?? ""} onChange={(e) => onChange(cleanNumber(e.target.value))}
+            aria-invalid={error ? true : undefined} className={cn(f.unit && "pe-14", bad)} />
           {f.unit && <span className="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-sm text-muted">{f.unit}</span>}
         </div>
       </Field>
@@ -170,7 +195,7 @@ function InputField({ f, value, onChange, C }) {
   }
   if (f.t === "select") {
     const opts = f.opts || (C ? ENGINE.optionsFrom(f.opts_from, ENGINE.constants(C)) : ENGINE.optionsFrom(f.opts_from, ENGINE.constants()));
-    return <Field label={label} htmlFor={id}><Select id={id} value={value ?? ""} onChange={(e) => onChange(e.target.value)} options={opts} /></Field>;
+    return <Field label={label} htmlFor={id} error={error}><Select id={id} value={value ?? ""} onChange={(e) => onChange(e.target.value)} options={opts} className={bad} aria-invalid={error ? true : undefined} /></Field>;
   }
   if (f.t === "bool") return <div className="pt-1"><Switch checked={!!value} onChange={onChange} label={f.l} /></div>;
   if (f.t === "series") {
@@ -179,10 +204,11 @@ function InputField({ f, value, onChange, C }) {
     return (
       <fieldset>
         <legend className="field-label">{f.l}{f.unit ? ` (${f.unit})` : ""}</legend>
+        {error && <p className="mb-1.5 text-xs text-bad">{error}</p>}
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
           {vals.map((x, n) => (
             <label key={n} className="block"><span className="sr-only">{months[n] || n + 1}</span>
-              <Input inputMode="decimal" value={x ?? ""} onChange={(e) => { const c = [...vals]; c[n] = e.target.value.replace(/[^\d.]/g, ""); onChange(c); }} className="h-9 text-center tabular" /></label>
+              <Input inputMode="decimal" autoComplete="off" value={x ?? ""} onChange={(e) => { const c = [...vals]; c[n] = cleanNumber(e.target.value); onChange(c); }} className={cn("h-9 text-center tabular", bad)} /></label>
           ))}
         </div>
         <div className="mt-2 flex gap-2">
@@ -199,6 +225,7 @@ function InputField({ f, value, onChange, C }) {
     return (
       <fieldset>
         <legend className="field-label">{f.l}</legend>
+        {error && <p className="mb-1.5 text-xs text-bad">{error}</p>}
         <div className="space-y-2">
           {rows.map((r, n) => (
             <div key={n} className="relative grid grid-cols-3 gap-2 rounded-lg border border-line p-2.5 sm:[grid-template-columns:var(--cols)]" style={{ "--cols": f.fields.map((x) => (x.t === "text" ? "minmax(0,1.9fr)" : x.t === "select" ? "minmax(0,1.6fr)" : "minmax(0,1fr)")).join(" ") + " 36px" }}>
@@ -206,7 +233,7 @@ function InputField({ f, value, onChange, C }) {
                 <label key={x.k} className={cn("block min-w-0", x.t === "number" ? "col-span-1" : "col-span-3 sm:col-span-1")}>
                   <span className={cn("mb-0.5 block truncate text-[12px] text-muted", x.t !== "number" && "pe-8 sm:pe-0")}>{x.l}</span>
                   {x.t === "select" ? <Select value={r[x.k] ?? ""} onChange={(e) => set(n, x.k, e.target.value)} options={x.opts} className="h-9" />
-                    : <Input value={r[x.k] ?? ""} inputMode={x.t === "number" ? "decimal" : undefined} onChange={(e) => set(n, x.k, x.t === "number" ? e.target.value.replace(/[^\d.]/g, "") : e.target.value)} className="h-9" />}
+                    : <Input value={r[x.k] ?? ""} inputMode={x.t === "number" ? "decimal" : undefined} autoComplete="off" onChange={(e) => set(n, x.k, x.t === "number" ? cleanNumber(e.target.value) : e.target.value.slice(0, 80))} className="h-9" />}
                 </label>
               ))}
               <button type="button" onClick={() => onChange(rows.filter((_, i) => i !== n))} className="absolute end-1.5 top-1.5 rounded-md p-1.5 text-muted hover:bg-bad/10 hover:text-bad sm:static sm:self-end sm:p-2" aria-label={`Remove row ${n + 1}`}><Trash2 className="h-4 w-4" /></button>
@@ -226,10 +253,10 @@ export function fmtItem(it) {
   if (typeof v === "string") return v;
   if (it.fmt === "inr" || it.unit === "₹") return inr(v);
   const d = it.fmt === "int" ? 0 : it.fmt === "1dp" ? 1 : it.fmt === "2dp" ? 2 : it.fmt === "3dp" ? 3 : undefined;
-  const s = d === undefined ? num(v) : new Intl.NumberFormat("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: d }).format(v);
+  const s = d === undefined ? calcNum(v) : new Intl.NumberFormat("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: d }).format(v);
   return it.unit ? `${s} ${it.unit}` : s;
 }
-const cellText = (x) => (typeof x === "number" ? new Intl.NumberFormat("en-IN", { maximumFractionDigits: 2 }).format(x) : x ?? "");
+const cellText = (x) => (typeof x === "number" ? (Math.abs(x) < 1 && x !== 0 ? nSmall.format(x) : new Intl.NumberFormat("en-IN", { maximumFractionDigits: 2 }).format(x)) : x ?? "");
 const STATUS = { ok: ["border-good/30 bg-good/[.06]", CheckCircle2, "text-good"], warn: ["border-amber/60 bg-amber-soft/70", AlertTriangle, "text-amber-ink"], bad: ["border-bad/30 bg-bad/[.06]", XCircle, "text-bad"] };
 
 function Result({ res, onLead }) {
@@ -243,7 +270,7 @@ function Result({ res, onLead }) {
         <div className="p-6">
           <p dir="auto" className="text-sm text-white/75">{h.label}</p>
           <p dir="ltr" className="mt-1 text-start font-display text-[42px] font-semibold leading-none tabular md:text-[52px]" style={{ letterSpacing: "-0.015em" }}>
-            {h.fmt === "inr" || h.unit === "₹" ? inr(h.value) : typeof h.value === "number" ? num(h.value) : h.value}
+            {h.fmt === "inr" || h.unit === "₹" ? inr(h.value) : typeof h.value === "number" ? calcNum(h.value) : h.value}
             {h.unit && h.unit !== "₹" && <span className="ms-2 text-[22px] font-bold text-signal-bright">{h.unit}</span>}
           </p>
           {h.sub && <p dir="auto" className="mt-2 text-[16px] text-white/85">{h.sub}</p>}

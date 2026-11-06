@@ -121,30 +121,75 @@ def options_from(name, C):
     return []
 
 
+def _txt(x):
+    """The value as the form compares it (JavaScript's String())."""
+    if isinstance(x, bool):
+        return "true" if x else "false"
+    if isinstance(x, float) and x.is_integer():
+        return str(int(x))
+    return "" if x is None else str(x)
+
+
+def shown(f, vals):
+    """The form's visibility rules: a field that is hidden right now isn't asked for."""
+    if f.get("show") and not all(_txt(vals.get(k)) == _txt(x) for k, x in f["show"].items()):
+        return False
+    if f.get("show_in") and not all(_txt(vals.get(k)) in [_txt(x) for x in xs] for k, xs in f["show_in"].items()):
+        return False
+    if f.get("show_if_gt"):
+        for k, x in f["show_if_gt"].items():
+            try:
+                if not float(vals.get(k)) > float(x):
+                    return False
+            except (TypeError, ValueError):
+                return False
+    return True
+
+
+def _number(f, v):
+    """A number within the field's limits, or a plain message naming the field."""
+    if isinstance(v, bool):
+        raise CalcError(f"{f['l']}: enter a number")
+    try:
+        v = float(v)
+    except (TypeError, ValueError):
+        raise CalcError(f"{f['l']}: enter a number")
+    if math.isnan(v) or math.isinf(v):
+        raise CalcError(f"{f['l']}: enter a number")
+    if f.get("min") is not None and v < f["min"]:
+        raise CalcError(f"{f['l']}: must be at least {fmt_limit(f['min'])}")
+    if f.get("max") is not None and v > f["max"]:
+        raise CalcError(f"{f['l']}: must be at most {fmt_limit(f['max'])}")
+    return v
+
+
+def fmt_limit(x):
+    return ind(x, 0) if float(x).is_integer() and abs(x) >= 1000 else g(x)
+
+
 def validate(slug, raw, C):
     spec = SPEC.get(slug)
     if not spec:
         raise CalcError("Unknown calculator")
     out = {}
     raw = raw or {}
+    given = {f["k"]: raw.get(f["k"], f.get("def")) for f in spec["inputs"]}
     for f in spec["inputs"]:
         k, t = f["k"], f["t"]
-        v = raw.get(k, f.get("def"))
+        v = given[k]
         if t == "number":
-            if v in (None, ""):
-                out[k] = None
+            if not shown(f, given):  # hidden: keep the value if it's usable, else the default
+                try:
+                    out[k] = _number(f, v) if v not in (None, "") else (None if f.get("def") is None else float(f["def"]))
+                except CalcError:
+                    out[k] = None if f.get("def") is None else float(f["def"])
                 continue
-            try:
-                v = float(v)
-            except (TypeError, ValueError):
-                raise CalcError(f"{f['l']}: enter a number")
-            if math.isnan(v) or math.isinf(v):
-                raise CalcError(f"{f['l']}: enter a number")
-            if f.get("min") is not None and v < f["min"]:
-                raise CalcError(f"{f['l']}: must be at least {f['min']}")
-            if f.get("max") is not None and v > f["max"]:
-                raise CalcError(f"{f['l']}: must be at most {f['max']}")
-            out[k] = v
+            if v in (None, ""):
+                if f.get("optional"):
+                    out[k] = None
+                    continue
+                raise CalcError(f"{f['l']}: enter a value")
+            out[k] = _number(f, v)
         elif t == "select":
             opts = f.get("opts") or options_from(f.get("opts_from"), C)
             v = str(v) if v is not None else None
@@ -160,8 +205,12 @@ def validate(slug, raw, C):
                 vals = [float(x) for x in v if x not in (None, "")]
             except (TypeError, ValueError):
                 raise CalcError(f"{f['l']}: numbers only")
+            if any(math.isnan(x) or math.isinf(x) for x in vals):
+                raise CalcError(f"{f['l']}: numbers only")
             if not vals or any(x < 0 for x in vals) or len(vals) > 24:
                 raise CalcError(f"{f['l']}: enter up to 24 positive values")
+            if f.get("max") is not None and any(x > f["max"] for x in vals):
+                raise CalcError(f"{f['l']}: each value must be at most {fmt_limit(f['max'])}")
             out[k] = vals
         elif t == "lines":
             rows = []
@@ -174,10 +223,12 @@ def validate(slug, raw, C):
                             x = float(x) if x not in (None, "") else 0.0
                         except (TypeError, ValueError):
                             raise CalcError(f"{f['l']}: {sf['l']} must be a number")
+                        if math.isnan(x) or math.isinf(x):
+                            raise CalcError(f"{f['l']}: {sf['l']} must be a number")
                         if sf.get("min") is not None and x < sf["min"]:
-                            raise CalcError(f"{f['l']}: {sf['l']} must be at least {sf['min']}")
+                            raise CalcError(f"{f['l']}: {sf['l']} must be at least {fmt_limit(sf['min'])}")
                         if sf.get("max") is not None and x > sf["max"]:
-                            raise CalcError(f"{f['l']}: {sf['l']} must be at most {sf['max']}")
+                            raise CalcError(f"{f['l']}: {sf['l']} must be at most {fmt_limit(sf['max'])}")
                     elif sf["t"] == "select":
                         if x not in [o["value"] for o in sf["opts"]]:
                             raise CalcError(f"{f['l']}: choose a {sf['l'].lower()}")
@@ -478,7 +529,7 @@ def t_bill_estimator(i, C):
         rows = [["Energy", f"{ind(i['units'])} kWh × ₹{t['energy']}", R(b["energy"], 0)],
                 ["Time-of-day", f"peak +{C['tod']['peak_surcharge_pct']}% on {i['peak_share']:g}%, night −{C['tod']['night_rebate_pct']}% on {i['night_share']:g}%", R(b["tod"], 0)],
                 ["Demand charges", f"{R(b['billed_kva'], 1):g} kVA × ₹{t['demand']}" + (f" + excess {R(b['excess_kva'], 1):g} kVA" if b["excess_kva"] else ""), R(b["demand"], 0)],
-                ["PF penalty", f"{b['pf_penalty_pct']:g}% of energy charges" if b["pf_penalty_pct"] else "PF ≥ 0.90 — none", R(b["pf_penalty"], 0)],
+                ["PF penalty", f"PF {g(i['pf'])}: {b['pf_penalty_pct']:g}% of energy charges" if b["pf_penalty_pct"] else f"PF {g(i['pf'])}: none (starts below {g(C['pf_threshold'])})", R(b["pf_penalty"], 0)],
                 ["Electricity tax", f"{C['electricity_tax_pct']}% of energy + ToD", R(b["tax"], 0)],
                 ["Meter rent", "", R(b["meter_rent"], 0)],
                 ["Total", "", R(b["total"], 0)]]
@@ -539,7 +590,8 @@ def t_contract_demand(i, C):
                         if saving > 1 else f"Your present contract demand of {i['cd_kva']:g} kVA is already close to the best."),
             "items": [item("Present yearly demand charges", R(now, 0), "₹", "inr"), item("At the best contract demand", R(best, 0), "₹", "inr"),
                       item("Yearly saving", R(saving, 0), "₹", "inr", "good" if saving > 0 else None),
-                      item("Highest recorded demand", R(peak, 1), "kVA", "1dp"), item("Months above the new CD", over, None, "int", "warn" if over else None)],
+                      item("Highest recorded demand", R(peak, 1), "kVA", "1dp"), item("Months above the new CD", over, None, "int", "warn" if over else None),
+                      item("Demand charge rate", f"₹{g(rate)}/kVA ({t['label'].split(' — ')[0]})")],
             "table": {"title": "Billing demand by month (kVA)", "columns": ["Month", "Recorded", f"Billed at {i['cd_kva']:g}", f"Billed at {best_cd}", "Excess at new CD"], "rows": rows},
             "steps": [step("Billing demand", f"higher of recorded MD or {C['billing_demand_floor_pct']}% of CD", "per month"),
                       step("Excess demand", f"above CD, charged at {g(mult)}× ₹{rate}/kVA", "per month"),
@@ -663,6 +715,7 @@ def t_dg_sizing(i, C):
     return {"headline": {"label": "DG set", "value": rating, "unit": "kVA"},
             "verdict": f"A {rating} kVA DG set covers the load; sizing is set by {governs}. It runs at {R(run_kva / rating * 100, 0):g}% loading.",
             "items": [item("Running load", R(run_kva, 1), "kVA", "1dp"), item("Size needed", R(need, 1), "kVA", "1dp"),
+                      *([item("Largest motor starting", R(m_start, 1), "kVA", "1dp"), item("Size for motor starting", R(req2, 1), "kVA", "1dp")] if m_kw > 0 else []),
                       item("Standard DG rating", rating, "kVA", None, "accent"), item("Loading", R(run_kva / rating * 100, 0), "%", "int"),
                       item("Fuel at this load", R(fuel_lph, 1), "litres/hour", "1dp"), item("Fuel per month", R(monthly_l, 0), "litres", "int"),
                       item("Diesel cost per month", R(monthly_cost, 0), "₹", "inr")],
@@ -689,7 +742,7 @@ def t_ups_battery(i, C):
              step("Battery capacity", f"{g(R(wh, 0))} ÷ ({v:g} V × {g(i['eff'])} × {g(i['dod'])}) × {g(i['ageing'])}", R(ah, 1), "Ah")]
     return {"headline": {"label": "UPS", "value": ups or R(kva, 0), "unit": "kVA", "sub": f"{per_string * strings} × 12 V {block} Ah batteries"},
             "verdict": f"{ups} kVA UPS with {strings} string{'s' if strings > 1 else ''} of {per_string} × 12 V {block} Ah batteries ({v:g} V bank).",
-            "items": [item("UPS rating", ups, "kVA"), item("Battery capacity needed", R(ah, 1), "Ah", "1dp"),
+            "items": [item("Size needed", R(kva, 2), "kVA", "2dp"), item("UPS rating", ups, "kVA"), item("Battery capacity needed", R(ah, 1), "Ah", "1dp"),
                       item("Battery block", f"12 V {block} Ah"), item("Batteries per string", per_string, None, "int"),
                       item("Strings in parallel", strings, None, "int"), item("Total batteries", per_string * strings, None, "int")],
             "steps": steps, "notes": ["For backups under an hour, check the maker's constant-power discharge table: batteries deliver less at high rates.",
@@ -735,7 +788,9 @@ def t_solar_rooftop(i, C):
                       item("Share of your consumption", R(min(gen / need * 100, 100) if need else 0, 0), "%", "int"),
                       item("Yearly saving", R(saving, 0), "₹", "inr"), item("Investment", R(cost, 0), "₹", "inr"),
                       item("Payback", R(payback, 1) if payback else "—", "years", "1dp"), item("25-year savings", R(life, 0), "₹", "inr"),
-                      item("CO₂ avoided", R(co2, 1), "tonnes/year", "1dp"), item("Roof area used", R(kwp * s["area_per_kwp_sqm"], 0), "m²", "int")],
+                      item("CO₂ avoided", R(co2, 1), "tonnes/year", "1dp"), item("Roof area used", R(kwp * s["area_per_kwp_sqm"], 0), "m²", "int"),
+                      item("Size for your consumption", R(k_need, 1), "kWp", "1dp"), item("Size your roof allows", R(k_roof, 1), "kWp", "1dp"),
+                      item("Allowed by sanctioned load", R(k_cap, 1), "kWp", "1dp")],
             "steps": steps, "notes": [f"Yield for {i['town']}: {g(y)} kWh/kWp/day (typical). Tamil Nadu metering rules and charges change — verify the current order.",
                                       f"CO₂ at {C['co2_kg_per_kwh']} kg/kWh ({C['co2_basis']}).", "Delivered with Sensoper Controls and Renewables, our group's solar company."]}
 
@@ -797,7 +852,7 @@ def t_cable_size(i, C):
             "verdict": f"Use {desc}. It carries {R(ch['rated'], 0):g} A after derating against {R(current, 0):g} A needed, with {g(R(ch['vd_pct'], 2))}% voltage drop.",
             "items": [item("Design current", R(current, 1), "A", "1dp"), item("Derating factor", R(d["total"], 3), None, "3dp"),
                       item("Cable", desc, tone="accent"), item("Derated rating", R(ch["rated"], 0), "A", "int"),
-                      item("Voltage drop", R(ch["vd_pct"], 2), "%", "2dp", "good" if ch["vd_pct"] <= i["vd_limit"] else "bad"),
+                      item("Voltage drop", R(ch["vd_pct"], 2), "%", "2dp", "good" if ch["vd_pct"] <= i["vd_limit"] else "bad"), item("Voltage-drop limit", i["vd_limit"], "%"),
                       item("Minimum size for fault", R(ch["s_min"], 1), "mm²", "1dp")],
             "table": {"title": "Sizes checked", "columns": ["Size", "Derated A", "VD %", "Min mm² (SC)", "Result"], "rows": rows},
             "steps": steps, "notes": ["Ratings are typical catalogue values; confirm with the chosen maker's table.",
@@ -973,9 +1028,8 @@ def t_pf_correction(i, C):
     bank = math.ceil(kvar / 25) * 25
     caps = C["capacitor_steps_kvar"]
     s = next_std(bank / 10, caps) or caps[-1]
-    steps_ = [s, s]
-    while sum(steps_) < bank:
-        steps_.append(2 * s)
+    # two small steps, then as many double steps as the bank needs (counted, not looped, so a huge load can't stall)
+    steps_ = [s, s] + [2 * s] * max(0, math.ceil((bank - 2 * s) / (2 * s)))
     detuned = i["nonlinear"] > 15
     kva1 = i["kw"] / i["pf_now"]
     kva2 = i["kw"] / i["pf_target"]
@@ -989,7 +1043,7 @@ def t_pf_correction(i, C):
             "verdict": f"Add about {R(kvar, 0):g} kVAR (an APFC panel of {bank} kVAR)" + (f"; it saves about ₹{ind(R(monthly, 0))} a month." if monthly > 0 else "."),
             "items": [item("kVAR needed", R(kvar, 1), "kVAR", "1dp"), item("APFC panel", bank, "kVAR", None, "accent"),
                       item("Steps", " + ".join(f"{x:g}" for x in steps_) + " kVAR"),
-                      item("Reactors", "7% detuned reactors" if detuned else "Not needed (low harmonics)", tone="warn" if detuned else None),
+                      item("Reactors", f"7% detuned reactors ({g(i['nonlinear'])}% non-linear load)" if detuned else f"Not needed ({g(i['nonlinear'])}% non-linear load)", tone="warn" if detuned else None),
                       item("Demand before → after", f"{R(kva1, 0):g} → {R(kva2, 0):g} kVA"),
                       item("PF penalty avoided", R(pen, 0), "₹/month", "inr"), item("Demand charge saved", R(demand_save, 0), "₹/month", "inr"),
                       item("Indicative panel cost", R(cost, 0), "₹", "inr"), item("Payback", R(payback_m, 1) if payback_m else "—", "months", "1dp")],

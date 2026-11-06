@@ -70,7 +70,7 @@ export function DemoPicker({ staff }) {
           <button key={k} type="button" onClick={() => go(k)} className="flex items-center gap-1.5 rounded-md border border-ink/15 bg-white px-2.5 py-2 text-left text-[14px] font-medium hover:border-ink/40"><LogIn className="h-3.5 w-3.5 shrink-0 text-ink/75" />{l}</button>
         ))}
       </div>
-      <p className="mt-3 text-xs text-ink/75">Or type a demo login, e.g. {staff ? "director" : "client"}@demo.sellandiammanpowerinfra.test, password Demo@12345.</p>
+      <p className="mt-3 text-xs text-ink/75 [overflow-wrap:anywhere]">Or type a demo login, e.g. {staff ? "director" : "client"}@demo.sellandiammanpowerinfra.test, password Demo@12345.</p>
     </div>
   );
 }

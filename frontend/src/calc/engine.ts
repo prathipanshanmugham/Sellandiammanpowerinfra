@@ -134,19 +134,46 @@ export function mergedConstants(DEFAULTS: Any, overrides?: Any) {
   return C;
 }
 
+// The form's visibility rules: a field that is hidden right now isn't asked for (mirrors engine.py shown()).
+export function shown(f: Any, vals: Any) {
+  const txt = (x: Any) => (x === null || x === undefined ? "" : String(x));
+  if (f.show && !Object.entries(f.show).every(([k, x]) => txt(vals[k]) === txt(x))) return false;
+  if (f.show_in && !Object.entries(f.show_in).every(([k, xs]: Any) => xs.map(txt).includes(txt(vals[k])))) return false;
+  if (f.show_if_gt && !Object.entries(f.show_if_gt).every(([k, x]) => vals[k] !== null && vals[k] !== undefined && vals[k] !== "" && Number(vals[k]) > Number(x))) return false;
+  return true;
+}
+
+const fmtLimit = (x: number) => (Number.isInteger(x) && Math.abs(x) >= 1000 ? ind(x, 0) : g(x));
+
+// A number within the field's limits, or a plain message naming the field (mirrors engine.py _number()).
+function numberIn(f: Any, v: Any) {
+  if (typeof v === "boolean" || (typeof v === "string" && !v.trim())) throw new CalcError(`${f.l}: enter a number`);
+  const n = Number(v);
+  if (Number.isNaN(n) || !Number.isFinite(n)) throw new CalcError(`${f.l}: enter a number`);
+  if (f.min !== undefined && f.min !== null && n < f.min) throw new CalcError(`${f.l}: must be at least ${fmtLimit(f.min)}`);
+  if (f.max !== undefined && f.max !== null && n > f.max) throw new CalcError(`${f.l}: must be at most ${fmtLimit(f.max)}`);
+  return n;
+}
+
 export function validate(spec: Any, raw: Any, C: Any) {
   const out: Any = {};
   raw = raw || {};
+  const given: Any = Object.fromEntries(spec.inputs.map((f: Any) => [f.k, raw[f.k] !== undefined ? raw[f.k] : f.def]));
   for (const f of spec.inputs) {
     const { k, t } = f;
-    let v = raw[k] !== undefined ? raw[k] : f.def;
+    let v = given[k];
     if (t === "number") {
-      if (v === null || v === undefined || v === "") { out[k] = null; continue; }
-      const n = Number(v);
-      if (typeof v === "boolean" || Number.isNaN(n) || !Number.isFinite(n)) throw new CalcError(`${f.l}: enter a number`);
-      if (f.min !== undefined && f.min !== null && n < f.min) throw new CalcError(`${f.l}: must be at least ${f.min}`);
-      if (f.max !== undefined && f.max !== null && n > f.max) throw new CalcError(`${f.l}: must be at most ${f.max}`);
-      out[k] = n;
+      const empty = v === null || v === undefined || v === "";
+      if (!shown(f, given)) { // hidden: keep the value if it's usable, else the default
+        const d = f.def === null || f.def === undefined ? null : Number(f.def);
+        try { out[k] = empty ? d : numberIn(f, v); } catch { out[k] = d; }
+        continue;
+      }
+      if (empty) {
+        if (f.optional) { out[k] = null; continue; }
+        throw new CalcError(`${f.l}: enter a value`);
+      }
+      out[k] = numberIn(f, v);
     } else if (t === "select") {
       const opts = f.opts || optionsFrom(f.opts_from, C);
       v = v === null || v === undefined ? null : String(v);
@@ -157,8 +184,9 @@ export function validate(spec: Any, raw: Any, C: Any) {
     } else if (t === "series") {
       if (!Array.isArray(v) || !v.length) throw new CalcError(`${f.l}: enter the values`);
       const vals = v.filter((x: Any) => x !== null && x !== undefined && x !== "").map(Number);
-      if (vals.some((x: number) => Number.isNaN(x))) throw new CalcError(`${f.l}: numbers only`);
+      if (vals.some((x: number) => !Number.isFinite(x))) throw new CalcError(`${f.l}: numbers only`);
       if (!vals.length || vals.some((x: number) => x < 0) || vals.length > 24) throw new CalcError(`${f.l}: enter up to 24 positive values`);
+      if (f.max !== undefined && f.max !== null && vals.some((x: number) => x > f.max)) throw new CalcError(`${f.l}: each value must be at most ${fmtLimit(f.max)}`);
       out[k] = vals;
     } else if (t === "lines") {
       const rows: Any[] = [];
@@ -168,9 +196,9 @@ export function validate(spec: Any, raw: Any, C: Any) {
           let x = row[sf.k];
           if (sf.t === "number") {
             x = x === null || x === undefined || x === "" ? 0 : Number(x);
-            if (Number.isNaN(x)) throw new CalcError(`${f.l}: ${sf.l} must be a number`);
-            if (sf.min !== undefined && x < sf.min) throw new CalcError(`${f.l}: ${sf.l} must be at least ${sf.min}`);
-            if (sf.max !== undefined && x > sf.max) throw new CalcError(`${f.l}: ${sf.l} must be at most ${sf.max}`);
+            if (!Number.isFinite(x)) throw new CalcError(`${f.l}: ${sf.l} must be a number`);
+            if (sf.min !== undefined && x < sf.min) throw new CalcError(`${f.l}: ${sf.l} must be at least ${fmtLimit(sf.min)}`);
+            if (sf.max !== undefined && x > sf.max) throw new CalcError(`${f.l}: ${sf.l} must be at most ${fmtLimit(sf.max)}`);
           } else if (sf.t === "select") {
             if (!sf.opts.some((o: Any) => o.value === x)) throw new CalcError(`${f.l}: choose a ${sf.l.toLowerCase()}`);
           } else x = String(x || "").slice(0, 80);
@@ -400,7 +428,7 @@ function tBillEstimator(i: Any, C: Any) {
     rows = [["Energy", `${ind(i.units)} kWh × ₹${t.energy}`, R(b.energy, 0)],
       ["Time-of-day", `peak +${C.tod.peak_surcharge_pct}% on ${g(i.peak_share)}%, night −${C.tod.night_rebate_pct}% on ${g(i.night_share)}%`, R(b.tod, 0)],
       ["Demand charges", `${g(R(b.billed_kva, 1))} kVA × ₹${t.demand}${b.excess_kva ? ` + excess ${g(R(b.excess_kva, 1))} kVA` : ""}`, R(b.demand, 0)],
-      ["PF penalty", b.pf_penalty_pct ? `${g(b.pf_penalty_pct)}% of energy charges` : "PF ≥ 0.90 — none", R(b.pf_penalty, 0)],
+      ["PF penalty", b.pf_penalty_pct ? `PF ${g(i.pf)}: ${g(b.pf_penalty_pct)}% of energy charges` : `PF ${g(i.pf)}: none (starts below ${g(C.pf_threshold)})`, R(b.pf_penalty, 0)],
       ["Electricity tax", `${C.electricity_tax_pct}% of energy + ToD`, R(b.tax, 0)], ["Meter rent", "", R(b.meter_rent, 0)], ["Total", "", R(b.total, 0)]];
     if (b.excess_kva) notes.push(`Demand exceeded the contract demand by ${g(R(b.excess_kva, 1))} kVA — excess is charged at ${C.excess_demand_multiplier}× the rate.`);
     if (b.pf_penalty_pct) notes.push("Improve power factor to 0.90 or above to avoid the penalty — see the Power factor correction tool.");
@@ -439,7 +467,7 @@ function tContractDemand(i: Any, C: Any) {
     verdict: saving > 1 ? `Changing the contract demand from ${g(i.cd_kva)} to ${bestCd} kVA saves about ₹${ind(R(saving, 0))} a year in demand charges.` : `Your present contract demand of ${g(i.cd_kva)} kVA is already close to the best.`,
     items: [item("Present yearly demand charges", R(now, 0), "₹", "inr"), item("At the best contract demand", R(best, 0), "₹", "inr"),
       item("Yearly saving", R(saving, 0), "₹", "inr", saving > 0 ? "good" : null), item("Highest recorded demand", R(peak, 1), "kVA", "1dp"),
-      item("Months above the new CD", over, null, "int", over ? "warn" : null)],
+      item("Months above the new CD", over, null, "int", over ? "warn" : null), item("Demand charge rate", `₹${g(rate)}/kVA (${t.label.split(" — ")[0]})`)],
     table: { title: "Billing demand by month (kVA)", columns: ["Month", "Recorded", `Billed at ${g(i.cd_kva)}`, `Billed at ${bestCd}`, "Excess at new CD"], rows },
     steps: [step("Billing demand", `higher of recorded MD or ${C.billing_demand_floor_pct}% of CD`, "per month"),
       step("Excess demand", `above CD, charged at ${mult}× ₹${rate}/kVA`, "per month"), step("Search", `CD from ${lo} to ${hi} kVA in 5 kVA steps`, `${bestCd} kVA`)],
@@ -532,7 +560,9 @@ function tDgSizing(i: Any, C: Any) {
   if (rating === null) return { headline: { label: "DG needed", value: R(need, 0), unit: "kVA" }, status: "warn", verdict: "Larger than single standard sets — consider sets in parallel.", items: [], steps, notes: [] };
   return { headline: { label: "DG set", value: rating, unit: "kVA" }, status: "ok",
     verdict: `A ${rating} kVA DG set covers the load; sizing is set by ${governs}. It runs at ${g(R((runKva / rating) * 100, 0))}% loading.`,
-    items: [item("Running load", R(runKva, 1), "kVA", "1dp"), item("Size needed", R(need, 1), "kVA", "1dp"), item("Standard DG rating", rating, "kVA", null, "accent"),
+    items: [item("Running load", R(runKva, 1), "kVA", "1dp"), item("Size needed", R(need, 1), "kVA", "1dp"),
+      ...(mKw > 0 ? [item("Largest motor starting", R(mStart, 1), "kVA", "1dp"), item("Size for motor starting", R(req2, 1), "kVA", "1dp")] : []),
+      item("Standard DG rating", rating, "kVA", null, "accent"),
       item("Loading", R((runKva / rating) * 100, 0), "%", "int"), item("Fuel at this load", R(fuelLph, 1), "litres/hour", "1dp"),
       item("Fuel per month", R(monthlyL, 0), "litres", "int"), item("Diesel cost per month", R(monthlyCost, 0), "₹", "inr")],
     steps, notes: [`Fuel at ${C.dg_fuel_l_per_kwh} L/kWh and ₹${C.diesel_price}/L (typical; check the maker's curve).`, "Stagger large motor starts and keep DG loading above 30% to avoid wet stacking."] };
@@ -553,7 +583,7 @@ function tUpsBattery(i: Any, C: Any) {
     step("Battery capacity", `${g(R(wh, 0))} ÷ (${g(v)} V × ${g(i.eff)} × ${g(i.dod)}) × ${g(i.ageing)}`, R(ah, 1), "Ah")];
   return { headline: { label: "UPS", value: ups || R(kva, 0), unit: "kVA", sub: `${perString * strings} × 12 V ${block} Ah batteries` }, status: "ok",
     verdict: `${ups} kVA UPS with ${strings} string${strings > 1 ? "s" : ""} of ${perString} × 12 V ${block} Ah batteries (${g(v)} V bank).`,
-    items: [item("UPS rating", ups, "kVA"), item("Battery capacity needed", R(ah, 1), "Ah", "1dp"), item("Battery block", `12 V ${block} Ah`),
+    items: [item("Size needed", R(kva, 2), "kVA", "2dp"), item("UPS rating", ups, "kVA"), item("Battery capacity needed", R(ah, 1), "Ah", "1dp"), item("Battery block", `12 V ${block} Ah`),
       item("Batteries per string", perString, null, "int"), item("Strings in parallel", strings, null, "int"), item("Total batteries", perString * strings, null, "int")],
     steps, notes: ["For backups under an hour, check the maker's constant-power discharge table: batteries deliver less at high rates.", "Keep the battery room ventilated and at 25 °C for full life."] };
 }
@@ -586,7 +616,8 @@ function tSolarRooftop(i: Any, C: Any) {
     items: [item("Plant size", kwp, "kWp", "1dp", "accent"), item("Yearly generation", R(gen, 0), "kWh", "int"),
       item("Share of your consumption", R(need ? Math.min((gen / need) * 100, 100) : 0, 0), "%", "int"), item("Yearly saving", R(saving, 0), "₹", "inr"),
       item("Investment", R(cost, 0), "₹", "inr"), item("Payback", payback ? R(payback, 1) : "—", "years", "1dp"), item("25-year savings", R(life, 0), "₹", "inr"),
-      item("CO₂ avoided", R(co2, 1), "tonnes/year", "1dp"), item("Roof area used", R(kwp * s.area_per_kwp_sqm, 0), "m²", "int")],
+      item("CO₂ avoided", R(co2, 1), "tonnes/year", "1dp"), item("Roof area used", R(kwp * s.area_per_kwp_sqm, 0), "m²", "int"),
+      item("Size for your consumption", R(kNeed, 1), "kWp", "1dp"), item("Size your roof allows", R(kRoof, 1), "kWp", "1dp"), item("Allowed by sanctioned load", R(kCap, 1), "kWp", "1dp")],
     steps, notes: [`Yield for ${i.town}: ${g(y)} kWh/kWp/day (typical). Tamil Nadu metering rules and charges change — verify the current order.`,
       `CO₂ at ${C.co2_kg_per_kwh} kg/kWh (${C.co2_basis}).`, "Delivered with Sensoper Controls and Renewables, our group's solar company."] };
 }
@@ -632,7 +663,7 @@ function tCableSize(i: Any, C: Any) {
   return { headline: { label: "Cable", value: fmtSize(ch.size, ch.runs), sub: `${condL} XLPE armoured` }, status: "ok",
     verdict: `Use ${desc}. It carries ${g(R(ch.rated, 0))} A after derating against ${g(R(current, 0))} A needed, with ${g(R(ch.vd_pct, 2))}% voltage drop.`,
     items: [item("Design current", R(current, 1), "A", "1dp"), item("Derating factor", R(d.total, 3), null, "3dp"), item("Cable", desc, null, null, "accent"),
-      item("Derated rating", R(ch.rated, 0), "A", "int"), item("Voltage drop", R(ch.vd_pct, 2), "%", "2dp", ch.vd_pct <= i.vd_limit ? "good" : "bad"),
+      item("Derated rating", R(ch.rated, 0), "A", "int"), item("Voltage drop", R(ch.vd_pct, 2), "%", "2dp", ch.vd_pct <= i.vd_limit ? "good" : "bad"), item("Voltage-drop limit", i.vd_limit, "%"),
       item("Minimum size for fault", R(ch.s_min, 1), "mm²", "1dp")],
     table, steps, notes: ["Ratings are typical catalogue values; confirm with the chosen maker's table.", "Glands, lugs and termination size follow the cable chosen."] };
 }
@@ -753,8 +784,8 @@ function tPfCorrection(i: Any, C: Any) {
   const t1 = Math.tan(Math.acos(i.pf_now)); const t2 = Math.tan(Math.acos(i.pf_target));
   const kvar = i.kw * (t1 - t2); const bank = Math.ceil(kvar / 25) * 25;
   const caps = C.capacitor_steps_kvar; const s = nextStd(bank / 10, caps) || caps[caps.length - 1];
-  const steps_: number[] = [s, s];
-  while (sum(steps_) < bank) steps_.push(2 * s);
+  // two small steps, then as many double steps as the bank needs (counted, not looped, so a huge load can't stall)
+  const steps_: number[] = [s, s, ...Array(Math.max(0, Math.ceil((bank - 2 * s) / (2 * s)))).fill(2 * s)];
   const detuned = i.nonlinear > 15;
   const kva1 = i.kw / i.pf_now; const kva2 = i.kw / i.pf_target;
   const penPct = i.ht ? pfPenaltyPct(i.pf_now, C) : 0; const pen = (i.energy_bill * penPct) / 100;
@@ -764,7 +795,7 @@ function tPfCorrection(i: Any, C: Any) {
   return { headline: { label: "Capacitors needed", value: R(kvar, 1), unit: "kVAR", sub: `APFC panel ${bank} kVAR` }, status: "ok",
     verdict: `Add about ${g(R(kvar, 0))} kVAR (an APFC panel of ${bank} kVAR)${monthly > 0 ? `; it saves about ₹${ind(R(monthly, 0))} a month.` : "."}`,
     items: [item("kVAR needed", R(kvar, 1), "kVAR", "1dp"), item("APFC panel", bank, "kVAR", null, "accent"), item("Steps", `${steps_.map((x) => g(x)).join(" + ")} kVAR`),
-      item("Reactors", detuned ? "7% detuned reactors" : "Not needed (low harmonics)", null, null, detuned ? "warn" : null),
+      item("Reactors", detuned ? `7% detuned reactors (${g(i.nonlinear)}% non-linear load)` : `Not needed (${g(i.nonlinear)}% non-linear load)`, null, null, detuned ? "warn" : null),
       item("Demand before → after", `${g(R(kva1, 0))} → ${g(R(kva2, 0))} kVA`), item("PF penalty avoided", R(pen, 0), "₹/month", "inr"),
       item("Demand charge saved", R(demandSave, 0), "₹/month", "inr"), item("Indicative panel cost", R(cost, 0), "₹", "inr"), item("Payback", paybackM ? R(paybackM, 1) : "—", "months", "1dp")],
     steps: [step("kVAR", `${g(i.kw)} × (tan(acos ${g(i.pf_now)}) − tan(acos ${g(i.pf_target)})) = ${g(i.kw)} × (${g(R(t1, 4))} − ${g(R(t2, 4))})`, R(kvar, 2), "kVAR"),

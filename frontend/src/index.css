@@ -12,7 +12,9 @@
   --font-scripts: "Noto Sans Devanagari", "Noto Sans Tamil", "Noto Sans Bengali", "Noto Sans Telugu", "Noto Sans Kannada", "Noto Sans Malayalam", "Noto Sans Gujarati", "Noto Sans Gurmukhi", "Noto Sans Oriya", "Nirmala UI", "Noto Sans Arabic", "Segoe UI", "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", system-ui, sans-serif;
   --font-sans: "Plus Jakarta Sans", var(--font-scripts);
   --font-display: "Outfit", "Plus Jakarta Sans", var(--font-scripts);
-  color-scheme: light;
+  /* "only light": phone browsers in dark mode (Samsung Internet, Chrome's "darken websites", MIUI) must not repaint the
+     white header, the logo or the pages; the staff ERP's own dark theme below still switches to dark */
+  color-scheme: only light;
 }
 /* the same Chinese characters are drawn differently in Japanese and Chinese fonts, so each gets its own first choice */
 html:lang(ja) { --font-scripts: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", "Noto Sans JP", "Noto Sans CJK JP", system-ui, sans-serif; }
@@ -31,7 +33,9 @@ html:lang(ur) { --font-scripts: "Noto Naskh Arabic", "Noto Sans Arabic", "Segoe 
 
 @layer base {
   html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
-  body { @apply bg-canvas text-fg font-sans antialiased; text-rendering: optimizeLegibility; }
+  /* break-word: a word longer than its line (an e-mail address, a code, a long Tamil compound) wraps instead of
+     pushing the page sideways on a small phone; it doesn't change how wide anything sizes itself */
+  body { @apply bg-canvas text-fg font-sans antialiased; text-rendering: optimizeLegibility; overflow-wrap: break-word; }
   h1, h2, h3, h4 { @apply font-display text-fg; letter-spacing: -0.01em; text-wrap: balance; }
   /* long words (Tamil compounds, e-mail addresses) wrap instead of pushing the page sideways on phones */
   h1, h2, h3, h4 { overflow-wrap: break-word; }

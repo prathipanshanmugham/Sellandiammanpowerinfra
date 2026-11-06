@@ -1458,7 +1458,7 @@
 ],
 [
 "PF penalty",
-"PF ≥ 0.90 — none",
+"PF 0.92: none (starts below 0.9)",
 0.0
 ],
 [
@@ -1555,7 +1555,7 @@
 ],
 [
 "PF penalty",
-"6.5% of energy charges",
+"PF 0.84: 6.5% of energy charges",
 16344.0
 ],
 [
@@ -1813,7 +1813,7 @@
 ],
 [
 "PF penalty",
-"26% of energy charges",
+"PF 0.72: 26% of energy charges",
 117000.0
 ],
 [
@@ -1896,6 +1896,10 @@
 "value": 2,
 "fmt": "int",
 "tone": "warn"
+},
+{
+"label": "Demand charge rate",
+"value": "₹608/kVA (HT I)"
 }
 ],
 "table": {
@@ -2083,6 +2087,10 @@
 "value": 2,
 "fmt": "int",
 "tone": "warn"
+},
+{
+"label": "Demand charge rate",
+"value": "₹608/kVA (HT I)"
 }
 ],
 "table": {
@@ -2275,6 +2283,10 @@
 "label": "Months above the new CD",
 "value": 0,
 "fmt": "int"
+},
+{
+"label": "Demand charge rate",
+"value": "₹608/kVA (HT III)"
 }
 ],
 "table": {
@@ -2395,6 +2407,10 @@
 "label": "Months above the new CD",
 "value": 0,
 "fmt": "int"
+},
+{
+"label": "Demand charge rate",
+"value": "₹608/kVA (HT I)"
 }
 ],
 "table": {
@@ -2518,6 +2534,10 @@
 "value": 2,
 "fmt": "int",
 "tone": "warn"
+},
+{
+"label": "Demand charge rate",
+"value": "₹608/kVA (HT I)"
 }
 ],
 "table": {
@@ -4092,6 +4112,18 @@
 "fmt": "1dp"
 },
 {
+"label": "Largest motor starting",
+"value": 82.1,
+"unit": "kVA",
+"fmt": "1dp"
+},
+{
+"label": "Size for motor starting",
+"value": 97.4,
+"unit": "kVA",
+"fmt": "1dp"
+},
+{
 "label": "Standard DG rating",
 "value": 200,
 "unit": "kVA",
@@ -4196,6 +4228,18 @@
 },
 {
 "label": "Size needed",
+"value": 321.7,
+"unit": "kVA",
+"fmt": "1dp"
+},
+{
+"label": "Largest motor starting",
+"value": 583.1,
+"unit": "kVA",
+"fmt": "1dp"
+},
+{
+"label": "Size for motor starting",
 "value": 321.7,
 "unit": "kVA",
 "fmt": "1dp"
@@ -4402,6 +4446,18 @@
 "fmt": "1dp"
 },
 {
+"label": "Largest motor starting",
+"value": 392.7,
+"unit": "kVA",
+"fmt": "1dp"
+},
+{
+"label": "Size for motor starting",
+"value": 404.7,
+"unit": "kVA",
+"fmt": "1dp"
+},
+{
 "label": "Standard DG rating",
 "value": 1010,
 "unit": "kVA",
@@ -4513,6 +4569,18 @@
 "fmt": "1dp"
 },
 {
+"label": "Largest motor starting",
+"value": 47.8,
+"unit": "kVA",
+"fmt": "1dp"
+},
+{
+"label": "Size for motor starting",
+"value": 31.3,
+"unit": "kVA",
+"fmt": "1dp"
+},
+{
 "label": "Standard DG rating",
 "value": 35,
 "unit": "kVA",
@@ -4608,6 +4676,12 @@
 "verdict": "15 kVA UPS with 1 string of 16 × 12 V 100 Ah batteries (192 V bank).",
 "items": [
 {
+"label": "Size needed",
+"value": 11.11,
+"unit": "kVA",
+"fmt": "2dp"
+},
+{
 "label": "UPS rating",
 "value": 15,
 "unit": "kVA"
@@ -4696,6 +4770,12 @@
 },
 "verdict": "60 kVA UPS with 1 string of 32 × 12 V 65 Ah batteries (384 V bank).",
 "items": [
+{
+"label": "Size needed",
+"value": 55.56,
+"unit": "kVA",
+"fmt": "2dp"
+},
 {
 "label": "UPS rating",
 "value": 60,
@@ -4786,6 +4866,12 @@
 "verdict": "3 kVA UPS with 2 strings of 4 × 12 V 200 Ah batteries (48 V bank).",
 "items": [
 {
+"label": "Size needed",
+"value": 2.78,
+"unit": "kVA",
+"fmt": "2dp"
+},
+{
 "label": "UPS rating",
 "value": 3,
 "unit": "kVA"
@@ -4875,6 +4961,12 @@
 "verdict": "160 kVA UPS with 5 strings of 30 × 12 V 200 Ah batteries (360 V bank).",
 "items": [
 {
+"label": "Size needed",
+"value": 138.89,
+"unit": "kVA",
+"fmt": "2dp"
+},
+{
 "label": "UPS rating",
 "value": 160,
 "unit": "kVA"
@@ -4963,6 +5055,12 @@
 },
 "verdict": "1 kVA UPS with 1 string of 16 × 12 V 7 Ah batteries (192 V bank).",
 "items": [
+{
+"label": "Size needed",
+"value": 0.63,
+"unit": "kVA",
+"fmt": "2dp"
+},
 {
 "label": "UPS rating",
 "value": 1,
@@ -5102,6 +5200,24 @@
 "value": 728.0,
 "unit": "m²",
 "fmt": "int"
+},
+{
+"label": "Size for your consumption",
+"value": 91.7,
+"unit": "kWp",
+"fmt": "1dp"
+},
+{
+"label": "Size your roof allows",
+"value": 100.0,
+"unit": "kWp",
+"fmt": "1dp"
+},
+{
+"label": "Allowed by sanctioned load",
+"value": 150.0,
+"unit": "kWp",
+"fmt": "1dp"
 }
 ],
 "steps": [
@@ -5221,6 +5337,24 @@
 "value": 728.0,
 "unit": "m²",
 "fmt": "int"
+},
+{
+"label": "Size for your consumption",
+"value": 91.7,
+"unit": "kWp",
+"fmt": "1dp"
+},
+{
+"label": "Size your roof allows",
+"value": 100.0,
+"unit": "kWp",
+"fmt": "1dp"
+},
+{
+"label": "Allowed by sanctioned load",
+"value": 150.0,
+"unit": "kWp",
+"fmt": "1dp"
 }
 ],
 "steps": [
@@ -5341,6 +5475,24 @@
 "value": 120.0,
 "unit": "m²",
 "fmt": "int"
+},
+{
+"label": "Size for your consumption",
+"value": 93.9,
+"unit": "kWp",
+"fmt": "1dp"
+},
+{
+"label": "Size your roof allows",
+"value": 15.0,
+"unit": "kWp",
+"fmt": "1dp"
+},
+{
+"label": "Allowed by sanctioned load",
+"value": 150.0,
+"unit": "kWp",
+"fmt": "1dp"
 }
 ],
 "steps": [
@@ -5463,6 +5615,24 @@
 "value": 24.0,
 "unit": "m²",
 "fmt": "int"
+},
+{
+"label": "Size for your consumption",
+"value": 3.1,
+"unit": "kWp",
+"fmt": "1dp"
+},
+{
+"label": "Size your roof allows",
+"value": 100.0,
+"unit": "kWp",
+"fmt": "1dp"
+},
+{
+"label": "Allowed by sanctioned load",
+"value": 5.0,
+"unit": "kWp",
+"fmt": "1dp"
 }
 ],
 "steps": [
@@ -5582,6 +5752,24 @@
 "value": 320.0,
 "unit": "m²",
 "fmt": "int"
+},
+{
+"label": "Size for your consumption",
+"value": 91.7,
+"unit": "kWp",
+"fmt": "1dp"
+},
+{
+"label": "Size your roof allows",
+"value": 100.0,
+"unit": "kWp",
+"fmt": "1dp"
+},
+{
+"label": "Allowed by sanctioned load",
+"value": 40.0,
+"unit": "kWp",
+"fmt": "1dp"
 }
 ],
 "steps": [
@@ -6187,6 +6375,11 @@
 "tone": "good"
 },
 {
+"label": "Voltage-drop limit",
+"value": 5.0,
+"unit": "%"
+},
+{
 "label": "Minimum size for fault",
 "value": 118.9,
 "unit": "mm²",
@@ -6364,6 +6557,11 @@
 "unit": "%",
 "fmt": "2dp",
 "tone": "good"
+},
+{
+"label": "Voltage-drop limit",
+"value": 5.0,
+"unit": "%"
 },
 {
 "label": "Minimum size for fault",
@@ -6547,6 +6745,11 @@
 "tone": "good"
 },
 {
+"label": "Voltage-drop limit",
+"value": 5.0,
+"unit": "%"
+},
+{
 "label": "Minimum size for fault",
 "value": 150.4,
 "unit": "mm²",
@@ -6725,6 +6928,11 @@
 "unit": "%",
 "fmt": "2dp",
 "tone": "good"
+},
+{
+"label": "Voltage-drop limit",
+"value": 5.0,
+"unit": "%"
 },
 {
 "label": "Minimum size for fault",
@@ -6928,6 +7136,11 @@
 "unit": "%",
 "fmt": "2dp",
 "tone": "good"
+},
+{
+"label": "Voltage-drop limit",
+"value": 5.0,
+"unit": "%"
 },
 {
 "label": "Minimum size for fault",
@@ -7171,6 +7384,11 @@
 "unit": "%",
 "fmt": "2dp",
 "tone": "good"
+},
+{
+"label": "Voltage-drop limit",
+"value": 5.0,
+"unit": "%"
 },
 {
 "label": "Minimum size for fault",
@@ -9195,7 +9413,7 @@
 },
 {
 "label": "Reactors",
-"value": "7% detuned reactors",
+"value": "7% detuned reactors (25% non-linear load)",
 "tone": "warn"
 },
 {
@@ -9297,7 +9515,7 @@
 },
 {
 "label": "Reactors",
-"value": "Not needed (low harmonics)"
+"value": "Not needed (5% non-linear load)"
 },
 {
 "label": "Demand before → after",
@@ -9393,7 +9611,7 @@
 },
 {
 "label": "Reactors",
-"value": "7% detuned reactors",
+"value": "7% detuned reactors (25% non-linear load)",
 "tone": "warn"
 },
 {
@@ -9494,7 +9712,7 @@
 },
 {
 "label": "Reactors",
-"value": "7% detuned reactors",
+"value": "7% detuned reactors (45% non-linear load)",
 "tone": "warn"
 },
 {
@@ -9592,7 +9810,7 @@
 },
 {
 "label": "Reactors",
-"value": "7% detuned reactors",
+"value": "7% detuned reactors (25% non-linear load)",
 "tone": "warn"
 },
 {
@@ -12788,5 +13006,1499 @@
 },
 "rates_as_of": "2025-07-01"
 }
+},
+{
+"slug": "pf-correction",
+"inputs": {
+"pf_now": ""
+},
+"error": "Present power factor: enter a value"
+},
+{
+"slug": "pf-correction",
+"inputs": {
+"kw": "999999999"
+},
+"error": "Average load: must be at most 1,00,000"
+},
+{
+"slug": "pf-correction",
+"inputs": {
+"kw": "1e3"
+},
+"result": {
+"headline": {
+"label": "Capacitors needed",
+"value": 494.9,
+"unit": "kVAR",
+"sub": "APFC panel 500 kVAR"
+},
+"verdict": "Add about 495 kVAR (an APFC panel of 500 kVAR); it saves about ₹2,35,055 a month.",
+"items": [
+{
+"label": "kVAR needed",
+"value": 494.9,
+"unit": "kVAR",
+"fmt": "1dp"
+},
+{
+"label": "APFC panel",
+"value": 500,
+"unit": "kVAR",
+"tone": "accent"
+},
+{
+"label": "Steps",
+"value": "50 + 50 + 100 + 100 + 100 + 100 kVAR"
+},
+{
+"label": "Reactors",
+"value": "7% detuned reactors (25% non-linear load)",
+"tone": "warn"
+},
+{
+"label": "Demand before → after",
+"value": "1220 → 1020 kVA"
+},
+{
+"label": "PF penalty avoided",
+"value": 114000.0,
+"unit": "₹/month",
+"fmt": "inr"
+},
+{
+"label": "Demand charge saved",
+"value": 121055.0,
+"unit": "₹/month",
+"fmt": "inr"
+},
+{
+"label": "Indicative panel cost",
+"value": 1000000.0,
+"unit": "₹",
+"fmt": "inr"
+},
+{
+"label": "Payback",
+"value": 4.3,
+"unit": "months",
+"fmt": "1dp"
+}
+],
+"steps": [
+{
+"label": "kVAR",
+"formula": "1000 × (tan(acos 0.82) − tan(acos 0.98)) = 1000 × (0.698 − 0.2031)",
+"value": 494.95,
+"unit": "kVAR"
+},
+{
+"label": "PF penalty now",
+"formula": "9.5% of energy charges",
+"value": 114000.0,
+"unit": "₹/month"
+}
+],
+"notes": [
+"With more than 15% VFD / UPS / LED load, plain capacitors can resonate — use detuned reactors.",
+"Panel cost is indicative; we quote after a power-quality measurement."
+],
+"status": "ok",
+"table": null,
+"basis": "Q = P·(tan φ1 − tan φ2); TNERC PF penalty below 0.90",
+"slug": "pf-correction",
+"title": "Power factor correction",
+"inputs": {
+"kw": 1000.0,
+"pf_now": 0.82,
+"pf_target": 0.98,
+"energy_bill": 1200000.0,
+"nonlinear": 25.0,
+"ht": true
+},
+"rates_as_of": "2025-07-01"
+}
+},
+{
+"slug": "pf-correction",
+"inputs": {
+"kw": "100000"
+},
+"result": {
+"headline": {
+"label": "Capacitors needed",
+"value": 49494.6,
+"unit": "kVAR",
+"sub": "APFC panel 49500 kVAR"
+},
+"verdict": "Add about 49495 kVAR (an APFC panel of 49500 kVAR); it saves about ₹1,22,19,525 a month.",
+"items": [
+{
+"label": "kVAR needed",
+"value": 49494.6,
+"unit": "kVAR",
+"fmt": "1dp"
+},
+{
+"label": "APFC panel",
+"value": 49500,
+"unit": "kVAR",
+"tone": "accent"
+},
+{
+"label": "Steps",
+"value": "50 + 50 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 + 100 kVAR"
+},
+{
+"label": "Reactors",
+"value": "7% detuned reactors (25% non-linear load)",
+"tone": "warn"
+},
+{
+"label": "Demand before → after",
+"value": "121951 → 102041 kVA"
+},
+{
+"label": "PF penalty avoided",
+"value": 114000.0,
+"unit": "₹/month",
+"fmt": "inr"
+},
+{
+"label": "Demand charge saved",
+"value": 12105525.0,
+"unit": "₹/month",
+"fmt": "inr"
+},
+{
+"label": "Indicative panel cost",
+"value": 99000000.0,
+"unit": "₹",
+"fmt": "inr"
+},
+{
+"label": "Payback",
+"value": 8.1,
+"unit": "months",
+"fmt": "1dp"
+}
+],
+"steps": [
+{
+"label": "kVAR",
+"formula": "100000 × (tan(acos 0.82) − tan(acos 0.98)) = 100000 × (0.698 − 0.2031)",
+"value": 49494.56,
+"unit": "kVAR"
+},
+{
+"label": "PF penalty now",
+"formula": "9.5% of energy charges",
+"value": 114000.0,
+"unit": "₹/month"
+}
+],
+"notes": [
+"With more than 15% VFD / UPS / LED load, plain capacitors can resonate — use detuned reactors.",
+"Panel cost is indicative; we quote after a power-quality measurement."
+],
+"status": "ok",
+"table": null,
+"basis": "Q = P·(tan φ1 − tan φ2); TNERC PF penalty below 0.90",
+"slug": "pf-correction",
+"title": "Power factor correction",
+"inputs": {
+"kw": 100000.0,
+"pf_now": 0.82,
+"pf_target": 0.98,
+"energy_bill": 1200000.0,
+"nonlinear": 25.0,
+"ht": true
+},
+"rates_as_of": "2025-07-01"
+}
+},
+{
+"slug": "motor",
+"inputs": {
+"eff": "",
+"pf": ""
+},
+"result": {
+"headline": {
+"label": "Full-load current",
+"value": 26.4,
+"unit": "A",
+"sub": "Star-delta"
+},
+"verdict": "A 15 kW motor draws about 26.4 A. Use a star-delta starter (≈58 A while starting) and 4 mm² copper XLPE armoured.",
+"items": [
+{
+"label": "Rating",
+"value": 15.0,
+"unit": "kW",
+"fmt": "2dp"
+},
+{
+"label": "Efficiency used",
+"value": 0.92
+},
+{
+"label": "Power factor used",
+"value": 0.86
+},
+{
+"label": "Full-load current",
+"value": 26.4,
+"unit": "A",
+"fmt": "1dp",
+"tone": "accent"
+},
+{
+"label": "Starter",
+"value": "Star-delta"
+},
+{
+"label": "Starting current",
+"value": 58.0,
+"unit": "A",
+"fmt": "int"
+},
+{
+"label": "Cable (125% of FLC)",
+"value": "4 mm² copper XLPE armoured"
+},
+{
+"label": "Motor protection breaker",
+"value": "40 A"
+}
+],
+"steps": [
+{
+"label": "Full-load current",
+"formula": "15000 W ÷ (√3 × 415 × 0.92 × 0.86)",
+"value": 26.38,
+"unit": "A"
+},
+{
+"label": "Starting current",
+"formula": "× 2.2 for star-delta",
+"value": 58.0,
+"unit": "A"
+}
+],
+"notes": [
+"Typical IE3 4-pole efficiency and PF are used when you leave them blank; use the nameplate if you have it."
+],
+"status": "ok",
+"table": null,
+"basis": "IS 12615 (IE efficiency classes); I = P / (√3·V·η·cos φ)",
+"slug": "motor",
+"title": "Motor current, starter & cable",
+"inputs": {
+"rating": 15.0,
+"unit": "kw",
+"voltage": 415.0,
+"eff": null,
+"pf": null,
+"duty": "pump",
+"length": 50.0
+},
+"rates_as_of": "2025-07-01"
+}
+},
+{
+"slug": "motor",
+"inputs": {
+"voltage": "0"
+},
+"error": "Voltage: must be at least 100"
+},
+{
+"slug": "motor",
+"inputs": {
+"voltage": " "
+},
+"error": "Voltage: enter a number"
+},
+{
+"slug": "lt-vs-ht",
+"inputs": {
+"substation_cost": ""
+},
+"result": {
+"headline": {
+"label": "LT saves per year",
+"value": 27179.0,
+"unit": "₹",
+"fmt": "inr"
+},
+"status": "warn",
+"verdict": "LT is cheaper to run at this load; HT doesn't pay back.",
+"items": [
+{
+"label": "LT yearly bill",
+"value": 5197680.0,
+"unit": "₹",
+"fmt": "inr"
+},
+{
+"label": "HT yearly bill",
+"value": 5224859.0,
+"unit": "₹",
+"fmt": "inr"
+},
+{
+"label": "Yearly difference (LT − HT)",
+"value": -27179.0,
+"unit": "₹",
+"fmt": "inr",
+"tone": "bad"
+},
+{
+"label": "Substation cost",
+"value": 1200000.0,
+"unit": "₹",
+"fmt": "inr"
+}
+],
+"table": {
+"title": "Monthly bill: LT IIIB vs HT I",
+"columns": [
+"",
+"LT ₹",
+"HT ₹"
+],
+"rows": [
+[
+"Energy",
+330000.0,
+302728.0
+],
+[
+"Fixed / demand charges",
+86640.0,
+91200.0
+],
+[
+"Time-of-day (peak +, night −)",
+0,
+21191.0
+],
+[
+"Electricity tax",
+16500.0,
+16196.0
+],
+[
+"Meter rent",
+0,
+4090.0
+],
+[
+"Monthly total",
+433140.0,
+435405.0
+],
+[
+"Yearly total",
+5197680.0,
+5224859.0
+]
+]
+},
+"steps": [
+{
+"label": "LT monthly bill",
+"formula": "energy + fixed (per kW slab) + tax",
+"value": 433140.0,
+"unit": "₹"
+},
+{
+"label": "Transformer for HT",
+"formula": "150 kVA ÷ 0.8 → next standard",
+"value": 200,
+"unit": "kVA"
+},
+{
+"label": "Transformer losses billed on HT side",
+"formula": "(300 + 2400 × 0.292²) W × 720 h",
+"value": 364.0,
+"unit": "kWh/month"
+},
+{
+"label": "HT monthly bill",
+"formula": "energy + ToD + demand + tax + meter rent",
+"value": 435405.0,
+"unit": "₹"
+}
+],
+"notes": [
+"Substation cost: typical 200 kVA substation at ₹6,000/kVA.",
+"Rates: TNERC T.O. No. 6 of 2025 (effective 1 Jul 2025) — verify.",
+"HT is metered on the HT side, so transformer losses are added to HT units."
+],
+"basis": "TNERC tariff order (energy, demand / fixed, ToD, PF rules) — rates as of the date shown",
+"slug": "lt-vs-ht",
+"title": "LT or HT? Cost comparison",
+"inputs": {
+"category": "industrial",
+"md_kva": 150.0,
+"units": 40000.0,
+"peak_share": 30.0,
+"night_share": 10.0,
+"pf": 0.95,
+"substation_cost": null
+},
+"rates_as_of": "2025-07-01"
+}
+},
+{
+"slug": "lt-vs-ht",
+"inputs": {
+"pf": ""
+},
+"error": "Power factor: enter a value"
+},
+{
+"slug": "lt-vs-ht",
+"inputs": {
+"units": "0"
+},
+"result": {
+"headline": {
+"label": "LT saves per year",
+"value": 125641.0,
+"unit": "₹",
+"fmt": "inr"
+},
+"status": "warn",
+"verdict": "LT is cheaper to run at this load; HT doesn't pay back.",
+"items": [
+{
+"label": "LT yearly bill",
+"value": 1039680.0,
+"unit": "₹",
+"fmt": "inr"
+},
+{
+"label": "HT yearly bill",
+"value": 1165321.0,
+"unit": "₹",
+"fmt": "inr"
+},
+{
+"label": "Yearly difference (LT − HT)",
+"value": -125641.0,
+"unit": "₹",
+"fmt": "inr",
+"tone": "bad"
+},
+{
+"label": "Substation cost",
+"value": 1200000.0,
+"unit": "₹",
+"fmt": "inr"
+}
+],
+"table": {
+"title": "Monthly bill: LT IIIB vs HT I",
+"columns": [
+"",
+"LT ₹",
+"HT ₹"
+],
+"rows": [
+[
+"Energy",
+0.0,
+1620.0
+],
+[
+"Fixed / demand charges",
+86640.0,
+91200.0
+],
+[
+"Time-of-day (peak +, night −)",
+0,
+113.0
+],
+[
+"Electricity tax",
+0.0,
+87.0
+],
+[
+"Meter rent",
+0,
+4090.0
+],
+[
+"Monthly total",
+86640.0,
+97110.0
+],
+[
+"Yearly total",
+1039680.0,
+1165321.0
+]
+]
+},
+"steps": [
+{
+"label": "LT monthly bill",
+"formula": "energy + fixed (per kW slab) + tax",
+"value": 86640.0,
+"unit": "₹"
+},
+{
+"label": "Transformer for HT",
+"formula": "150 kVA ÷ 0.8 → next standard",
+"value": 200,
+"unit": "kVA"
+},
+{
+"label": "Transformer losses billed on HT side",
+"formula": "(300 + 2400 × 0²) W × 720 h",
+"value": 216.0,
+"unit": "kWh/month"
+},
+{
+"label": "HT monthly bill",
+"formula": "energy + ToD + demand + tax + meter rent",
+"value": 97110.0,
+"unit": "₹"
+}
+],
+"notes": [
+"Substation cost: typical 200 kVA substation at ₹6,000/kVA.",
+"Rates: TNERC T.O. No. 6 of 2025 (effective 1 Jul 2025) — verify.",
+"HT is metered on the HT side, so transformer losses are added to HT units."
+],
+"basis": "TNERC tariff order (energy, demand / fixed, ToD, PF rules) — rates as of the date shown",
+"slug": "lt-vs-ht",
+"title": "LT or HT? Cost comparison",
+"inputs": {
+"category": "industrial",
+"md_kva": 150.0,
+"units": 0.0,
+"peak_share": 30.0,
+"night_share": 10.0,
+"pf": 0.95,
+"substation_cost": null
+},
+"rates_as_of": "2025-07-01"
+}
+},
+{
+"slug": "lighting-lux",
+"inputs": {
+"lux": ""
+},
+"result": {
+"headline": {
+"label": "Fixtures",
+"value": 23,
+"sub": "517 lux achieved"
+},
+"verdict": "23 fixtures in about 4 rows × 6 give 517 lux at 8.6 W/m².",
+"items": [
+{
+"label": "Target",
+"value": 500,
+"unit": "lux"
+},
+{
+"label": "Room index",
+"value": 2.18,
+"fmt": "2dp"
+},
+{
+"label": "Utilisation factor",
+"value": 0.67,
+"fmt": "2dp"
+},
+{
+"label": "Fixtures",
+"value": 23,
+"fmt": "int",
+"tone": "accent"
+},
+{
+"label": "Layout",
+"value": "4 rows × 6"
+},
+{
+"label": "Achieved",
+"value": 517.0,
+"unit": "lux",
+"fmt": "int"
+},
+{
+"label": "Lighting power density",
+"value": 8.63,
+"unit": "W/m²",
+"fmt": "2dp"
+},
+{
+"label": "Spacing",
+"value": "≈ 2 m × 2 m"
+}
+],
+"steps": [
+{
+"label": "Room index",
+"formula": "L × W ÷ (Hm × (L + W)) = 12 × 8 ÷ (2.2 × 20)",
+"value": 2.18
+},
+{
+"label": "Fixtures",
+"formula": "E × A ÷ (lumens × UF × MF) = 500 × 96 ÷ (4000 × 0.67 × 0.8)",
+"value": 23
+}
+],
+"notes": [
+"Utilisation factor for typical reflectances (ceiling 70%, walls 50%, floor 20%); use the fixture's photometric data for final design."
+],
+"status": "ok",
+"table": null,
+"basis": "Lumen method; IS 3646 / NBC 2016 illuminance levels",
+"slug": "lighting-lux",
+"title": "Lighting / lux design",
+"inputs": {
+"space": "office",
+"lux": null,
+"length": 12.0,
+"width": 8.0,
+"height": 2.2,
+"lumens": 4000.0,
+"watts": 36.0,
+"mf": 0.8
+},
+"rates_as_of": "2025-07-01"
+}
+},
+{
+"slug": "lighting-lux",
+"inputs": {
+"length": ""
+},
+"error": "Room length: enter a value"
+},
+{
+"slug": "fault-level",
+"inputs": {
+"lv": "0"
+},
+"error": "LV voltage: must be at least 100"
+},
+{
+"slug": "fault-level",
+"inputs": {
+"lv": "1100"
+},
+"result": {
+"headline": {
+"label": "Fault level at the panel",
+"value": 10.1,
+"unit": "kA"
+},
+"verdict": "About 10.2 kA at the transformer terminals and 10.1 kA at the panel. Breakers there need at least 16 kA breaking capacity.",
+"items": [
+{
+"label": "At transformer LV terminals",
+"value": 10.21,
+"unit": "kA",
+"fmt": "2dp"
+},
+{
+"label": "At the panel",
+"value": 10.1,
+"unit": "kA",
+"fmt": "2dp",
+"tone": "accent"
+},
+{
+"label": "Peak (making) current",
+"value": 22.9,
+"unit": "kA",
+"fmt": "1dp"
+},
+{
+"label": "Breaking capacity needed",
+"value": 16,
+"unit": "kA"
+},
+{
+"label": "Transformer full-load current",
+"value": 525.0,
+"unit": "A",
+"fmt": "int"
+}
+],
+"steps": [
+{
+"label": "Source impedance at LV",
+"formula": "1100² ÷ 250 MVA",
+"value": 4.84,
+"unit": "mΩ"
+},
+{
+"label": "Transformer impedance",
+"formula": "5% × 1100² ÷ 1000 kVA",
+"value": 60.5,
+"unit": "mΩ"
+},
+{
+"label": "Cable impedance",
+"formula": "30 m of 4 × 300 mm²",
+"value": 0.96,
+"unit": "mΩ"
+},
+{
+"label": "Fault current",
+"formula": "c × V ÷ (√3 × |Z|), c = 1.05",
+"value": 10.1,
+"unit": "kA"
+},
+{
+"label": "Peak factor κ",
+"formula": "1.02 + 0.98 e^(−3R/X)",
+"value": 1.605
+}
+],
+"notes": [
+"Motor contribution is not included; add it for large motor loads.",
+"Simplified IEC 60909 method; a full study uses actual network data."
+],
+"status": "ok",
+"table": null,
+"basis": "IEC 60909 (simplified, c = 1.05 for LV)",
+"slug": "fault-level",
+"title": "Fault level",
+"inputs": {
+"source_mva": 250.0,
+"kva": 1000.0,
+"z_pct": 5.0,
+"xr": 6.0,
+"lv": 1100.0,
+"cable_m": 30.0,
+"cable_size": "300",
+"conductor": "al",
+"runs": 4.0
+},
+"rates_as_of": "2025-07-01"
+}
+},
+{
+"slug": "transformer-sizing",
+"inputs": {
+"max_loading": ""
+},
+"error": "Keep loading under: enter a value"
+},
+{
+"slug": "connected-load",
+"inputs": {
+"method": "area",
+"area": "abc"
+},
+"error": "Built-up area: enter a number"
+},
+{
+"slug": "connected-load",
+"inputs": {
+"method": "loads",
+"area": ""
+},
+"error": "How do you want to estimate?: choose one of the options"
+},
+{
+"slug": "connected-load",
+"inputs": {
+"loads": [
+{
+"name": "X",
+"qty": "abc",
+"kw": 1,
+"df": 1
+}
+]
+},
+"error": "Loads: Qty must be a number"
+},
+{
+"slug": "connected-load",
+"inputs": {
+"loads": [
+{
+"name": "X",
+"qty": "",
+"kw": "",
+"df": 1
+}
+]
+},
+"result": {
+"headline": {
+"label": "Maximum demand",
+"value": 0.0,
+"unit": "kVA",
+"sub": "LT supply"
+},
+"status": "ok",
+"verdict": "LT supply works: your maximum demand of 0 kW is within the 150 kW LT limit in Tamil Nadu.",
+"items": [
+{
+"label": "Connected load",
+"value": 0.0,
+"unit": "kW",
+"fmt": "1dp"
+},
+{
+"label": "Maximum demand now",
+"value": 0.0,
+"unit": "kW",
+"fmt": "1dp"
+},
+{
+"label": "Maximum demand with growth",
+"value": 0.0,
+"unit": "kW",
+"fmt": "1dp"
+},
+{
+"label": "Maximum demand",
+"value": 0.0,
+"unit": "kVA",
+"fmt": "1dp"
+},
+{
+"label": "Supply",
+"value": "LT",
+"tone": "accent"
+},
+{
+"label": "Suggested LT sanctioned load",
+"value": 0,
+"unit": "kW",
+"fmt": "int"
+}
+],
+"table": {
+"title": "Load list",
+"columns": [
+"Load",
+"Qty",
+"kW each",
+"Total kW",
+"Demand factor",
+"Demand kW"
+],
+"rows": [
+[
+"X",
+0.0,
+0.0,
+0.0,
+1.0,
+0.0
+]
+]
+},
+"steps": [
+{
+"label": "Connected load",
+"formula": "Σ qty × kW",
+"value": 0.0,
+"unit": "kW"
+},
+{
+"label": "Sum of individual demands",
+"formula": "Σ qty × kW × demand factor",
+"value": 0.0,
+"unit": "kW"
+},
+{
+"label": "Maximum demand now",
+"formula": "0 × simultaneity 0.85",
+"value": 0.0,
+"unit": "kW"
+},
+{
+"label": "With growth",
+"formula": "0 × (1 + 20%)",
+"value": 0.0,
+"unit": "kW"
+},
+{
+"label": "Maximum demand",
+"formula": "0 kW ÷ PF 0.9",
+"value": 0.0,
+"unit": "kVA"
+}
+],
+"notes": [
+"Demand and simultaneity factors are typical; your actual running pattern matters. A site survey firms this up.",
+"LT limit and metering per the TNERC supply code; verify for your area."
+],
+"basis": "NBC 2016 Part 8; IS 732; LT up to 150 kW in Tamil Nadu (TNERC supply code)",
+"slug": "connected-load",
+"title": "Connected load & maximum demand",
+"inputs": {
+"method": "list",
+"building": "office_ac",
+"area": 2000.0,
+"loads": [
+{
+"name": "X",
+"qty": 0.0,
+"kw": 0.0,
+"df": 1.0
+}
+],
+"diversity": 0.85,
+"pf": 0.9,
+"growth": 20.0
+},
+"rates_as_of": "2025-07-01"
+}
+},
+{
+"slug": "connected-load",
+"inputs": {
+"loads": [
+{
+"name": "X",
+"qty": 20000,
+"kw": 1,
+"df": 1
+}
+]
+},
+"error": "Loads: Qty must be at most 10,000"
+},
+{
+"slug": "earthing",
+"inputs": {
+"electrode": "plate",
+"length": "",
+"diameter": ""
+},
+"result": {
+"headline": {
+"label": "Earth pits needed",
+"value": 27,
+"sub": "≈ 1.99 Ω combined"
+},
+"status": "ok",
+"verdict": "27 pits of this type, spaced at least twice the electrode length apart, give about 1.99 Ω.",
+"items": [
+{
+"label": "One electrode",
+"value": 29.54,
+"unit": "Ω",
+"fmt": "2dp"
+},
+{
+"label": "Pits",
+"value": 27,
+"fmt": "int",
+"tone": "accent"
+},
+{
+"label": "Combined",
+"value": 1.99,
+"unit": "Ω",
+"fmt": "2dp"
+},
+{
+"label": "Conductor size needed",
+"value": 391.0,
+"unit": "mm²",
+"fmt": "int"
+},
+{
+"label": "Earthing conductor",
+"value": "50 × 10 mm GI strip"
+}
+],
+"steps": [
+{
+"label": "One electrode",
+"formula": "(ρ ÷ 4) × √(π ÷ A) = (40 ÷ 4) × √(π ÷ 0.36)",
+"value": 29.54,
+"unit": "Ω"
+},
+{
+"label": "Several in parallel",
+"formula": "R1 ÷ (n × utilisation)",
+"value": 1.99,
+"unit": "Ω"
+},
+{
+"label": "Conductor",
+"formula": "I × √t ÷ k = 25 kA × √1 ÷ 80 + 25% corrosion allowance",
+"value": 391.0,
+"unit": "mm²"
+}
+],
+"notes": [
+"Measure soil resistivity on site (Wenner four-pin method) — it can vary 10× across a plot and with the season.",
+"Typical targets: ≤1 Ω for HT substations, ≤5 Ω for LT equipment earths."
+],
+"table": null,
+"basis": "IS 3043:2018 electrode formulae and conductor sizing",
+"slug": "earthing",
+"title": "Earthing design",
+"inputs": {
+"rho": 40.0,
+"electrode": "plate",
+"length": 3.0,
+"diameter": 40.0,
+"plate_w": 0.6,
+"plate_h": 0.6,
+"strip_w": 40.0,
+"strip_depth": 0.6,
+"target": 2.0,
+"fault_ka": 25.0,
+"duration": 1.0,
+"material": "gi"
+},
+"rates_as_of": "2025-07-01"
+}
+},
+{
+"slug": "earthing",
+"inputs": {
+"electrode": "plate",
+"plate_w": "0"
+},
+"error": "Plate width: must be at least 0.1"
+},
+{
+"slug": "earthing",
+"inputs": {
+"electrode": "strip",
+"strip_depth": ""
+},
+"error": "Burial depth: enter a value"
+},
+{
+"slug": "energy-savings",
+"inputs": {
+"measure": "vfd",
+"fixtures": "",
+"old_w": "",
+"new_w": ""
+},
+"result": {
+"headline": {
+"label": "Yearly saving",
+"value": 678706.0,
+"unit": "₹",
+"fmt": "inr",
+"sub": "82,267 kWh"
+},
+"verdict": "VFD saves about 82,267 kWh (₹6,78,706) a year and pays back in 0.2 years.",
+"items": [
+{
+"label": "Energy before",
+"value": 139152.0,
+"unit": "kWh/yr",
+"fmt": "int"
+},
+{
+"label": "Energy after",
+"value": 56885.0,
+"unit": "kWh/yr",
+"fmt": "int"
+},
+{
+"label": "Saved",
+"value": 82267.0,
+"unit": "kWh/yr",
+"fmt": "int",
+"tone": "good"
+},
+{
+"label": "Saved",
+"value": 678706.0,
+"unit": "₹/yr",
+"fmt": "inr",
+"tone": "good"
+},
+{
+"label": "Payback",
+"value": 0.2,
+"unit": "years",
+"fmt": "1dp"
+},
+{
+"label": "CO₂ avoided",
+"value": 58.41,
+"unit": "tonnes/yr",
+"fmt": "2dp"
+}
+],
+"steps": [
+{
+"label": "With throttle valve / damper",
+"formula": "37 kW × (0.55 + 0.45 × 0.7) ÷ 0.92",
+"value": 34.79,
+"unit": "kW"
+},
+{
+"label": "With VFD (affinity law)",
+"formula": "37 kW × 0.7³ ÷ 0.97 ÷ 0.92",
+"value": 14.22,
+"unit": "kW"
+}
+],
+"notes": [
+"CO₂ at 0.71 kg/kWh (CEA CO2 baseline database (grid weighted average) — verify the latest version)."
+],
+"status": "ok",
+"table": null,
+"basis": "Affinity laws for pumps and fans; IS 12615 efficiency classes; CEA emission factor",
+"slug": "energy-savings",
+"title": "Energy savings",
+"inputs": {
+"measure": "vfd",
+"fixtures": 200.0,
+"old_w": 72.0,
+"new_w": 36.0,
+"motor_kw": 37.0,
+"flow": 70.0,
+"load_pct": 75.0,
+"eff_old": 0.88,
+"eff_new": 0.94,
+"hours": 4000.0,
+"tariff": 8.25,
+"cost": 160000.0
+},
+"rates_as_of": "2025-07-01"
+}
+},
+{
+"slug": "energy-savings",
+"inputs": {
+"measure": "led",
+"fixtures": ""
+},
+"error": "Fixtures: enter a value"
+},
+{
+"slug": "solar-rooftop",
+"inputs": {
+"metering": "net",
+"export_rate": ""
+},
+"result": {
+"headline": {
+"label": "Solar plant",
+"value": 91,
+"unit": "kWp",
+"sub": "limited by consumption"
+},
+"verdict": "A 91 kWp plant makes about 142.8 MWh a year, saving ₹11.78 lakh a year with a 3.7-year payback.",
+"items": [
+{
+"label": "Plant size",
+"value": 91,
+"unit": "kWp",
+"fmt": "1dp",
+"tone": "accent"
+},
+{
+"label": "Yearly generation",
+"value": 142825.0,
+"unit": "kWh",
+"fmt": "int"
+},
+{
+"label": "Share of your consumption",
+"value": 99.0,
+"unit": "%",
+"fmt": "int"
+},
+{
+"label": "Yearly saving",
+"value": 1178302.0,
+"unit": "₹",
+"fmt": "inr"
+},
+{
+"label": "Investment",
+"value": 4368000.0,
+"unit": "₹",
+"fmt": "inr"
+},
+{
+"label": "Payback",
+"value": 3.7,
+"unit": "years",
+"fmt": "1dp"
+},
+{
+"label": "25-year savings",
+"value": 40170063.0,
+"unit": "₹",
+"fmt": "inr"
+},
+{
+"label": "CO₂ avoided",
+"value": 101.4,
+"unit": "tonnes/year",
+"fmt": "1dp"
+},
+{
+"label": "Roof area used",
+"value": 728.0,
+"unit": "m²",
+"fmt": "int"
+},
+{
+"label": "Size for your consumption",
+"value": 91.7,
+"unit": "kWp",
+"fmt": "1dp"
+},
+{
+"label": "Size your roof allows",
+"value": 100.0,
+"unit": "kWp",
+"fmt": "1dp"
+},
+{
+"label": "Allowed by sanctioned load",
+"value": 150.0,
+"unit": "kWp",
+"fmt": "1dp"
+}
+],
+"steps": [
+{
+"label": "Size for your consumption",
+"formula": "1,44,000 kWh ÷ (4.3 × 365)",
+"value": 91.7,
+"unit": "kWp"
+},
+{
+"label": "Size your roof allows",
+"formula": "800 m² ÷ 8 m²/kWp",
+"value": 100.0,
+"unit": "kWp"
+},
+{
+"label": "Allowed by sanctioned load",
+"formula": "≤ sanctioned load",
+"value": 150.0,
+"unit": "kWp"
+},
+{
+"label": "Yearly generation",
+"formula": "91 kWp × 4.3 × 365",
+"value": 142825.0,
+"unit": "kWh"
+}
+],
+"notes": [
+"Yield for Erode: 4.3 kWh/kWp/day (typical). Tamil Nadu metering rules and charges change — verify the current order.",
+"CO₂ at 0.71 kg/kWh (CEA CO2 baseline database (grid weighted average) — verify the latest version).",
+"Delivered with Sensoper Controls and Renewables, our group's solar company."
+],
+"status": "ok",
+"table": null,
+"basis": "Typical Tamil Nadu yields; TN solar metering rules (verify current order)",
+"slug": "solar-rooftop",
+"title": "Solar rooftop sizing & savings",
+"inputs": {
+"monthly_units": 12000.0,
+"roof_area": 800.0,
+"sanctioned_kw": 150.0,
+"town": "Erode",
+"tariff": 8.25,
+"metering": "net",
+"export_rate": 3.1,
+"cost_per_kwp": 48000.0
+},
+"rates_as_of": "2025-07-01"
+}
+},
+{
+"slug": "solar-rooftop",
+"inputs": {
+"metering": "gross",
+"export_rate": ""
+},
+"error": "Export rate (gross metering): enter a value"
+},
+{
+"slug": "contract-demand",
+"inputs": {
+"md": [
+400,
+200000
+]
+},
+"error": "Recorded maximum demand, last 12 months: each value must be at most 1,00,000"
+},
+{
+"slug": "contract-demand",
+"inputs": {
+"md": [
+400,
+"",
+410
+]
+},
+"result": {
+"headline": {
+"label": "Best contract demand",
+"value": 410,
+"unit": "kVA"
+},
+"status": "ok",
+"verdict": "Changing the contract demand from 500 to 410 kVA saves about ₹54,720 a year in demand charges.",
+"items": [
+{
+"label": "Present yearly demand charges",
+"value": 547200.0,
+"unit": "₹",
+"fmt": "inr"
+},
+{
+"label": "At the best contract demand",
+"value": 492480.0,
+"unit": "₹",
+"fmt": "inr"
+},
+{
+"label": "Yearly saving",
+"value": 54720.0,
+"unit": "₹",
+"fmt": "inr",
+"tone": "good"
+},
+{
+"label": "Highest recorded demand",
+"value": 410.0,
+"unit": "kVA",
+"fmt": "1dp"
+},
+{
+"label": "Months above the new CD",
+"value": 0,
+"fmt": "int"
+},
+{
+"label": "Demand charge rate",
+"value": "₹608/kVA (HT I)"
+}
+],
+"table": {
+"title": "Billing demand by month (kVA)",
+"columns": [
+"Month",
+"Recorded",
+"Billed at 500",
+"Billed at 410",
+"Excess at new CD"
+],
+"rows": [
+[
+"Month 1",
+400.0,
+450.0,
+400.0,
+0.0
+],
+[
+"Month 2",
+410.0,
+450.0,
+410.0,
+0.0
+]
+]
+},
+"steps": [
+{
+"label": "Billing demand",
+"formula": "higher of recorded MD or 90% of CD",
+"value": "per month"
+},
+{
+"label": "Excess demand",
+"formula": "above CD, charged at 2× ₹608/kVA",
+"value": "per month"
+},
+{
+"label": "Search",
+"formula": "CD from 285 to 535 kVA in 5 kVA steps",
+"value": "410 kVA"
+}
+],
+"notes": [
+"Keep some margin for growth; repeated excess demand can also lead to notices from TNPDCL.",
+"A change of contract demand needs an application and may have a minimum period. We can file it for you."
+],
+"basis": "TNERC tariff order — billing demand = higher of recorded MD or 90% of CD; excess demand charged extra",
+"slug": "contract-demand",
+"title": "Contract demand optimiser",
+"inputs": {
+"cd_kva": 500.0,
+"md": [
+400.0,
+410.0
+],
+"tariff": "HT_I"
+},
+"rates_as_of": "2025-07-01"
+}
+},
+{
+"slug": "cable-size",
+"inputs": {
+"length": "5001"
+},
+"error": "Route length: must be at most 5,000"
+},
+{
+"slug": "harmonics",
+"inputs": {
+"load_kva": ""
+},
+"error": "Present maximum demand: enter a value"
+},
+{
+"slug": "units-formulas",
+"inputs": {
+"voltage": ""
+},
+"error": "Voltage: enter a value"
+},
+{
+"slug": "ups-battery",
+"inputs": {
+"dod": ""
+},
+"error": "Usable depth of discharge: enter a value"
+},
+{
+"slug": "voltage-drop",
+"inputs": {
+"runs": ""
+},
+"error": "Runs in parallel: enter a value"
+},
+{
+"slug": "dg-sizing",
+"inputs": {
+"pf": "-"
+},
+"error": "Load power factor: enter a number"
 }
 ]
