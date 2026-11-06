@@ -49,6 +49,51 @@ V = {
 
 # Typing in the form: a blank box, half-typed numbers, out-of-range values. Both engines must give the same message
 # (or, for optional and hidden fields, the same result).
+# 6 Nov 2026 review: each fix keeps a case so both engines must agree on it
+REVIEW = [
+    ("dg-sizing", {"pf": 1, "motor_kw": 0}), ("dg-sizing", {"pf": 0.9, "motor_kw": 0}),
+    ("ups-battery", {"load_kw": 8, "backup_min": 15, "bank_v": "96"}), ("ups-battery", {"load_kw": 500}), ("ups-battery", {"backup_min": 600}),
+    ("motor", {"rating": 500, "voltage": 11000}), ("motor", {"rating": 37}), ("motor", {"rating": 22, "duty": "conveyor"}),
+    ("pf-correction", {"kw": 300, "pf_now": 0.7, "pf_target": 0.95}), ("pf-correction", {"kw": 20, "pf_now": 0.85, "pf_target": 0.95}),
+    ("pf-correction", {"kw": 100000, "pf_now": 0.7}), ("pf-correction", {"pf_now": 0.84}), ("pf-correction", {"pf_now": 0.74}),
+    ("harmonics", {"kva": 500, "z_pct": 12, "load_kva": 300, "nonlinear": 14, "capacitors": False}),
+    ("breaker-selector", {"voltage": "11000", "input": "kva", "value": 1000, "fault_ka": 40}), ("breaker-selector", {"voltage": "33000", "input": "kva", "value": 80000}),
+    ("breaker-selector", {"value": 200, "input": "amps", "fault_ka": 150}), ("breaker-selector", {"value": 6000, "input": "amps"}),
+    ("breaker-selector", {"value": 10, "input": "amps", "fault_ka": 25}), ("breaker-selector", {"voltage": "230", "input": "kva", "value": 5}),
+    ("breaker-selector", {"value": 30, "input": "amps", "load_type": "motor", "fault_ka": 6}),
+    ("cable-size", {"group": 7}), ("cable-size", {"group": 9, "laying": "air"}), ("cable-size", {"laying": "air"}), ("cable-size", {"laying": "air", "ambient": 30}),
+    ("cable-size", {"voltage": "33000", "conductor": "cu", "load_kw": 5000}), ("cable-size", {"clear_s": 0.02}),
+    ("fault-level", {"source_mva": 1000, "kva": 4000, "z_pct": 5, "cable_m": 1}), ("voltage-drop", {"conductor": "cu", "size": "10"}),
+    ("earthing", {"electrode": "plate"}), ("earthing", {"electrode": "strip", "length": 0.5, "strip_w": 200, "strip_depth": 3}),
+    ("earthing", {"electrode": "strip", "length": 30}), ("earthing", {"rho": 500, "target": 1}),
+    ("lightning-risk", {}), ("lightning-risk", {"use": "office", "l": 40, "w": 20, "h": 10, "contents": "ordinary"}),
+    ("lightning-risk", {"isolation": "isolated", "terrain": "hill"}), ("lightning-risk", {"l": 10, "w": 8, "h": 4, "use": "house", "ng": 1}),
+    ("lighting-lux", {"length": 500, "width": 1}), ("lighting-lux", {"length": 40, "width": 2}),
+    ("units-formulas", {"phase": "1", "from": "amps", "value": 10}), ("units-formulas", {"phase": "1", "voltage": 240}),
+    ("bill-estimator", {"tariff": "LT_IIIB"}), ("bill-estimator", {"tariff": "LT_V", "pf": 0.8, "units": 40}), ("bill-estimator", {"tariff": "LT_IIIB", "load_kw": 142.5, "pf": 0.7}),
+    ("bill-estimator", {"pf": 0.85}), ("bill-estimator", {"pf": 0.84}), ("bill-estimator", {"pf": 0.75}), ("bill-estimator", {"pf": 0.74}),
+    ("lt-vs-ht", {}), ("lt-vs-ht", {"category": "commercial"}), ("lt-vs-ht", {"md_kva": 5000}),
+    ("connected-load", {}), ("connected-load", {"loads": [{"name": "M", "qty": 30, "kw": 10, "df": 0.5}], "diversity": 0.8, "growth": 0}),
+    ("contract-demand", {"md": [0] * 12}), ("contract-demand", {"md": [400] * 12}),
+    ("ht-connection-roadmap", {"kva": 5000}), ("ht-connection-roadmap", {"kva": 100}),
+    ("transformer-sizing", {"load_kw": 10}), ("transformer-sizing", {"location": "indoor"}),
+    ("transformer-losses", {"options": [{"name": "A", "price": 1000000, "nll": 1100, "ll": 8000}, {"name": "B", "price": 1100000, "nll": 900, "ll": 7000},
+                                        {"name": "C", "price": 900000, "nll": 1500, "ll": 11000}]}),
+    ("energy-savings", {"measure": "vfd", "flow": 100}), ("energy-savings", {"new_w": 72}),
+    ("ev-charger-load", {"sanctioned_kva": 112, "existing_md": 90, "chargers": [{"type": "dc_120", "qty": 1}]}),
+    ("document-checklists", {"kind": "solar"}),
+    # re-check round
+    ("lighting-lux", {"length": 12, "width": 6, "lumens": 7100}), ("lighting-lux", {"length": 10, "width": 10}),
+    ("bill-estimator", {"tariff": "LT_IIIB", "tod_meter": False}), ("bill-estimator", {"tariff": "LT_V", "tod_meter": False, "pf": 0.7}),
+    ("pf-correction", {"ht": False, "pf_now": 0.75}), ("pf-correction", {"kw": 30000, "pf_now": 0.7}),
+    ("motor", {"rating": 900}), ("motor", {"rating": 5000}), ("motor", {"rating": 37}),
+    ("ups-battery", {"backup_min": 1}), ("ups-battery", {"backup_min": 4.5}),
+    ("harmonics", {"kva": 500, "z_pct": 12, "load_kva": 300, "nonlinear": 12.6, "capacitors": False}),
+    ("breaker-selector", {"value": 64, "input": "amps", "fault_ka": 25}),
+    ("earthing", {"electrode": "strip", "length": 0.8, "strip_w": 200, "strip_depth": 3}), ("earthing", {"electrode": "strip", "length": 2.4}),
+    ("cable-size", {"load_kw": 5, "fault_ka": 6, "clear_s": 0.01}),
+]
+
 EDGE = [
     ("pf-correction", {"pf_now": ""}), ("pf-correction", {"kw": "999999999"}), ("pf-correction", {"kw": "1e3"}), ("pf-correction", {"kw": "100000"}),
     ("motor", {"eff": "", "pf": ""}), ("motor", {"voltage": "0"}), ("motor", {"voltage": " "}),
@@ -72,7 +117,7 @@ def main():
         for inp in cases:
             res = E.run(slug, inp)
             out.append({"slug": slug, "inputs": inp, "result": res})
-    for slug, inp in EDGE:
+    for slug, inp in EDGE + REVIEW:
         try:
             out.append({"slug": slug, "inputs": inp, "result": E.run(slug, inp)})
         except E.CalcError as ex:

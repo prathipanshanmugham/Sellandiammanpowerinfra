@@ -33,9 +33,37 @@ def test_pipe_electrode_resistance():
 
 
 def test_motor_full_load_current():
-    # 15 kW, 415 V, η 0.92, PF 0.86 → I = 15000 / (√3 × 415 × 0.92 × 0.86) = 26.4 A
+    # 15 kW, 415 V, IE3 η 0.921 (IEC 60034-30-1), typical PF 0.84 → I = 15000 / (√3 × 415 × 0.921 × 0.84) = 27.0 A
     res = E.run("motor", {"rating": 15, "unit": "kw", "voltage": 415})
-    assert res["headline"]["value"] == pytest.approx(15000 / (math.sqrt(3) * 415 * 0.92 * 0.86), abs=0.05)
+    assert res["headline"]["value"] == pytest.approx(15000 / (math.sqrt(3) * 415 * 0.921 * 0.84), abs=0.05)
+
+
+def test_review_fixes_6_nov_2026():
+    """Independent hand calculations behind the 6 Nov 2026 review."""
+    # HT PF penalty: the band's rate × every 0.01 below 0.90 (T.O. 6/2025 cl. 3.1.1.6)
+    for pf, pct in ((0.90, 0), (0.85, 5), (0.84, 9), (0.80, 15), (0.75, 22.5), (0.74, 32), (0.70, 40)):
+        assert E.pf_penalty_pct(pf, E.merged_constants()) == pytest.approx(pct), pf
+    # LT PF penalty from 0.85 (cl. 3.2.1(b))
+    for pf, pct in ((0.85, 0), (0.80, 5), (0.75, 10), (0.70, 22.5)):
+        assert E.lt_pf_penalty_pct(pf, E.merged_constants()) == pytest.approx(pct), pf
+    # LT IIIB, 60,000 kWh, 30% peak, 10% night: ToD = 60000 × 8.25 × (0.30 × 0.25 − 0.10 × 0.05) = 34,650
+    lt = E.run("bill-estimator", {"tariff": "LT_IIIB"})
+    assert dict((r[0], r[2]) for r in lt["table"]["rows"])["Time-of-day"] == pytest.approx(34650)
+    # LT fixed charges per kW or part: 142.5 kW bills as 143 kW × ₹608
+    lt2 = E.run("bill-estimator", {"tariff": "LT_IIIB", "load_kw": 142.5})
+    assert dict((r[0], r[2]) for r in lt2["table"]["rows"])["Fixed charges"] == pytest.approx(143 * 608)
+    # DG: 120 kW at PF 1 needs 120 ÷ 0.8 ÷ 0.8 = 187.5 kVA → 200 kVA
+    assert E.run("dg-sizing", {"pf": 1, "motor_kw": 0})["headline"]["value"] == 200
+    # Cable: 7 cables in ground take the 8-cable factor (0.50), so 120 mm² Al (232 A × 0.5 = 116 A) fails 122.8 A
+    assert E.run("cable-size", {"group": 7})["headline"]["value"] == "150 mm²"
+    # Plate: A is both faces, so 0.6 × 0.6 m in 40 Ω·m gives (40 ÷ 4) × √(π ÷ 0.72) = 20.89 Ω
+    assert E.run("earthing", {"electrode": "plate"})["items"][0]["value"] == pytest.approx(20.89, abs=0.01)
+    # Lightning: risk 169× the acceptable needs E = 0.994 > 0.98 → Class I with extra measures
+    assert E.run("lightning-risk", {})["headline"]["sub"] == "Class I with extra measures"
+    # PF steps add up to the panel
+    pf = E.run("pf-correction", {"kw": 300, "pf_now": 0.7, "pf_target": 0.95})
+    steps = next(x["value"] for x in pf["items"] if x["label"].startswith("Steps"))
+    assert sum(float(x) for x in steps.split("=")[0].split("+")) == pytest.approx(225)
 
 
 def test_lt_limit_in_tamil_nadu():

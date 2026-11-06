@@ -7,6 +7,7 @@
     pdf_bytes = doc.build()
 """
 import io
+import re
 from datetime import datetime
 from xml.sax.saxutils import escape
 
@@ -70,8 +71,24 @@ def rs(x, d=2):
     return "Rs. " + ind(x, d) if x not in (None, "") else ""
 
 
+# The PDFs use the built-in (not embedded) fonts, which have no superscript or subscript digits apart from ² and ³, and
+# even those depend on the viewer's substitute font. So "mm²", "10⁻⁵" and "CO₂" are drawn as raised / lowered ordinary
+# digits, which every viewer shows.
+_SUP = str.maketrans("⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺", "0123456789-+")
+_SUB = str.maketrans("₀₁₂₃₄₅₆₇₈₉", "0123456789")
+_SUP_RUN = re.compile("[⁰¹²³⁴⁵⁶⁷⁸⁹⁻⁺]+")
+_SUB_RUN = re.compile("[₀₁₂₃₄₅₆₇₈₉]+")
+
+
+def markup(text):
+    """Escaped text for a Paragraph, with line breaks, superscripts and subscripts as markup the PDF fonts can draw."""
+    t = escape(str(text if text is not None else "")).replace("\n", "<br/>")
+    t = _SUP_RUN.sub(lambda m: f"<super>{m.group(0).translate(_SUP)}</super>", t)
+    return _SUB_RUN.sub(lambda m: f"<sub>{m.group(0).translate(_SUB)}</sub>", t)
+
+
 def P(text, style="p"):
-    return Paragraph(escape(str(text if text is not None else "")).replace("\n", "<br/>"), S[style])
+    return Paragraph(markup(text), S[style])
 
 
 def words_inr(n):
@@ -198,7 +215,7 @@ class Letterhead:
                 continue
             if all(ln.lstrip().startswith(("- ", "* ")) for ln in lines):
                 for ln in lines:
-                    self.flow.append(Paragraph("• " + escape(ln.lstrip()[2:].replace("**", "")), S["p"]))
+                    self.flow.append(Paragraph("• " + markup(ln.lstrip()[2:].replace("**", "")), S["p"]))
             else:
                 self.flow.append(P(" ".join(lines).replace("**", "").lstrip("# "), "p"))
             self.flow.append(Spacer(1, 1.5 * mm))

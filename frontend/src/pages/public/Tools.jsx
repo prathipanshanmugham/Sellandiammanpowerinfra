@@ -147,8 +147,8 @@ export function ToolPage({ staff = false }) {
             <Button type="button" variant="ghost" size="sm" onClick={() => setV(initial(spec))}><RotateCcw className="h-3.5 w-3.5" />Reset</Button></div>
           {/* Calculator fields are English technical text with numbers and units, so they stay left-to-right in Arabic and Urdu too. */}
           <div dir="ltr" className="space-y-4">
-            {spec.inputs.filter((f) => visible(f, v)).map((f) => <InputField key={f.k} f={f} value={v[f.k]} C={C} error={errField?.k === f.k ? err.slice(f.l.length + 1).trim() : null}
-              onChange={(x) => setV((s) => ({ ...s, [f.k]: x }))} />)}
+            {spec.inputs.filter((f) => visible(f, v)).map((f) => <InputField key={f.k} f={f} value={v[f.k]} vals={v} C={C} error={errField?.k === f.k ? err.slice(f.l.length + 1).trim() : null}
+              onChange={(x) => setV((s) => follow(spec, { ...s, [f.k]: x }, C, s))} />)}
           </div>
           {err ? (
             <p role="alert" className="flex items-start gap-2 rounded-lg border border-amber/50 bg-amber-soft/70 px-4 py-3 text-sm text-amber-ink lg:hidden"><Info className="mt-0.5 h-4 w-4 shrink-0" />{err}</p>
@@ -178,7 +178,32 @@ export function ToolPage({ staff = false }) {
   );
 }
 
-function InputField({ f, value, onChange, C, error }) {
+const consts = (C) => (C ? ENGINE.constants(C) : ENGINE.constants());
+
+// A list that follows another box (cable sizes follow the conductor: aluminium starts at 16 mm², copper stops at 400 mm²):
+// when the size picked doesn't exist for the new choice, move to the nearest one that does, so the result never stops.
+// A default that follows another box (single phase → 230 V, cable in air → 40 °C) moves with it, unless it was typed in.
+export function follow(spec, vals, C, prev) {
+  let out = vals;
+  if (prev) {
+    for (const f of spec.inputs) {
+      if (!f.def_by) continue;
+      const before = ENGINE.defaultOf(f, prev, spec);
+      const after = ENGINE.defaultOf(f, out, spec);
+      if (before !== after && String(out[f.k] ?? "") === String(before ?? "")) out = { ...out, [f.k]: after };
+    }
+  }
+  for (const f of spec.inputs) {
+    if (f.t !== "select" || f.opts || !f.opts_from) continue;
+    const opts = ENGINE.optionsFrom(f.opts_from, consts(C), out);
+    const x = parseFloat(out[f.k]);
+    if (!opts.length || Number.isNaN(x) || opts.some((o) => o.value === String(out[f.k]))) continue;
+    out = { ...out, [f.k]: (opts.find((o) => parseFloat(o.value) >= x) || opts[opts.length - 1]).value };
+  }
+  return out;
+}
+
+function InputField({ f, value, vals, onChange, C, error }) {
   const id = `in-${f.k}`;
   const bad = error ? "border-bad focus:border-bad focus:ring-bad/30" : "";
   const label = <span className="inline-flex items-center gap-1">{f.l}{f.help && <Tip text={f.help}><button type="button" className="text-muted" aria-label={`About ${f.l}`}><Info className="h-3.5 w-3.5" /></button></Tip>}</span>;
@@ -194,7 +219,7 @@ function InputField({ f, value, onChange, C, error }) {
     );
   }
   if (f.t === "select") {
-    const opts = f.opts || (C ? ENGINE.optionsFrom(f.opts_from, ENGINE.constants(C)) : ENGINE.optionsFrom(f.opts_from, ENGINE.constants()));
+    const opts = f.opts || ENGINE.optionsFrom(f.opts_from, consts(C), vals);
     return <Field label={label} htmlFor={id} error={error}><Select id={id} value={value ?? ""} onChange={(e) => onChange(e.target.value)} options={opts} className={bad} aria-invalid={error ? true : undefined} /></Field>;
   }
   if (f.t === "bool") return <div className="pt-1"><Switch checked={!!value} onChange={onChange} label={f.l} /></div>;
@@ -305,10 +330,13 @@ function Result({ res, onLead }) {
         <div dir="ltr" className="mt-6 overflow-hidden rounded-xl border border-line bg-white">
           {res.table.title && <p className="border-b border-line px-4 py-2.5 text-sm font-semibold">{res.table.title}</p>}
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead><tr className="bg-paper text-start">{res.table.columns.map((c, i) => <th key={i} scope="col" className={cn("whitespace-nowrap px-3 py-2 font-medium text-muted", i > 0 && "text-end")}>{c}</th>)}</tr></thead>
+            {/* phones: three or more columns stack into one block per row (first cell as its title), so amounts aren't off-screen */}
+            <table className={cn("w-full text-sm", res.table.columns.length >= 3 && "spi-stack")}>
+              <thead><tr className="bg-paper text-start">{res.table.columns.map((c, i) => <th key={i} scope="col" className={cn("px-3 py-2 align-bottom font-medium text-muted", res.table.columns.length < 4 && "whitespace-nowrap", i > 0 && "text-end")}>{c}</th>)}</tr></thead>
               <tbody className="divide-y divide-line">
-                {res.table.rows.map((r, i) => <tr key={i}>{r.map((x, j) => <td key={j} className={cn("whitespace-nowrap px-3 py-2 tabular", j > 0 && "text-end", /total/i.test(String(r[0])) && "font-semibold")}>{cellText(x)}</td>)}</tr>)}
+                {res.table.rows.map((r, i) => <tr key={i}>{r.map((x, j) => <td key={j} data-label={j > 0 ? String(res.table.columns[j] ?? "") : ""}
+                  className={cn("px-3 py-2 tabular", typeof x === "number" || String(x).length <= 24 ? "whitespace-nowrap" : "min-w-[12rem]", j > 0 && res.table.columns.length > 1 && "text-end",
+                    j === 0 && "spi-title", /total/i.test(String(r[0])) && "font-semibold")}>{cellText(x)}</td>)}</tr>)}
               </tbody>
             </table>
           </div>

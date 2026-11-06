@@ -1,4 +1,4 @@
-import { forwardRef, useState } from "react";
+import { cloneElement, forwardRef, isValidElement, useId, useState } from "react";
 import * as RDialog from "@radix-ui/react-dialog";
 import * as RDrop from "@radix-ui/react-dropdown-menu";
 import * as RPop from "@radix-ui/react-popover";
@@ -82,12 +82,21 @@ export function Switch({ checked, onChange, label, disabled }) {
     </button>
   );
 }
+const LABELLABLE = new Set(["input", "select", "textarea"]);
+
+// The label is tied to its box (screen readers announce it; tapping the label focuses the box) and the hint or error is
+// read out with it. A single Input, Select or Textarea child gets an id automatically; anything else passes htmlFor.
 export function Field({ label, hint, error, required, children, className, htmlFor }) {
+  const auto = useId();
+  const own = isValidElement(children) && (LABELLABLE.has(children.type) || children.type === Input || children.type === Select || children.type === Textarea);
+  const id = htmlFor || (own && children.props.id) || (own ? `f${auto.replace(/[^a-zA-Z0-9_-]/g, "")}` : undefined);
+  const note = error || hint ? `${id || `f${auto.replace(/[^a-zA-Z0-9_-]/g, "")}`}-note` : undefined;
+  const child = own ? cloneElement(children, { id, "aria-describedby": [children.props["aria-describedby"], note].filter(Boolean).join(" ") || undefined }) : children;
   return (
     <div className={cn("min-w-0", className)}>
-      {label && <label className="field-label" htmlFor={htmlFor}>{label}{required && <span className="text-bad"> *</span>}</label>}
-      {children}
-      {error ? <p className="mt-1 text-xs text-bad">{error}</p> : hint ? <p className="mt-1 text-xs text-muted">{hint}</p> : null}
+      {label && <label className="field-label" htmlFor={id}>{label}{required && <span className="text-bad"> *</span>}</label>}
+      {child}
+      {error ? <p id={note} className="mt-1 text-xs text-bad">{error}</p> : hint ? <p id={note} className="mt-1 text-xs text-muted">{hint}</p> : null}
     </div>
   );
 }

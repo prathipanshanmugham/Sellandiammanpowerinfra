@@ -97,6 +97,25 @@ def floor_key(table, x):
     return table[best]
 
 
+def ceil_key(table, x):
+    """The value for the smallest key at or above x (the last one past the end): a group of 7 cables uses the 8-cable factor."""
+    keys = sorted((k for k in table if not k.startswith("_")), key=float)
+    for k in keys:
+        if float(k) >= x - 1e-9:
+            return table[k]
+    return table[keys[-1]]
+
+
+def tx_plan(kva_needed, C):
+    """One standard transformer, or several equal ones when one 2500 kVA unit isn't enough: (count, rating)."""
+    ratings = C["transformer_ratings"]
+    one = next_std(kva_needed, ratings)
+    if one is not None:
+        return 1, one
+    n = math.ceil(kva_needed / ratings[-1])
+    return n, next_std(kva_needed / n, ratings) or ratings[-1]
+
+
 def interp(pairs, x):
     if x <= pairs[0][0]:
         return pairs[0][1]
@@ -106,7 +125,9 @@ def interp(pairs, x):
     return pairs[-1][1]
 
 
-def options_from(name, C):
+def options_from(name, C, vals=None):
+    """The options of a select whose list comes from the constants. With the form's values, a list that depends on
+    another box narrows to match it (cable sizes follow the conductor: aluminium starts at 16 mm², copper stops at 400)."""
     if name == "tariffs":
         return [{"value": k, "label": v["label"]} for k, v in C["tariffs"].items()]
     if name == "tariffs_ht":
@@ -116,7 +137,8 @@ def options_from(name, C):
     if name == "solar_towns":
         return [{"value": k, "label": k} for k in C["solar"]["yield_kwh_per_kwp_day"]]
     if name == "cable_sizes":
-        keys = sorted(set(C["cable"]["r20_al"]) | set(C["cable"]["r20_cu"]), key=float)
+        cond = (vals or {}).get("conductor")
+        keys = sorted(C["cable"][f"r20_{cond}"] if cond in ("al", "cu") else set(C["cable"]["r20_al"]) | set(C["cable"]["r20_cu"]), key=float)
         return [{"value": k, "label": f"{k} mm²"} for k in keys]
     return []
 
@@ -167,13 +189,22 @@ def fmt_limit(x):
     return ind(x, 0) if float(x).is_integer() and abs(x) >= 1000 else g(x)
 
 
+def default_of(f, raw, spec):
+    """A box's default; def_by makes it follow another box (single phase → 230 V, cable in air → 40 °C)."""
+    for dep, table in (f.get("def_by") or {}).items():
+        dv = raw.get(dep, next((x.get("def") for x in spec["inputs"] if x["k"] == dep), None))
+        if _txt(dv) in table:
+            return table[_txt(dv)]
+    return f.get("def")
+
+
 def validate(slug, raw, C):
     spec = SPEC.get(slug)
     if not spec:
         raise CalcError("Unknown calculator")
     out = {}
     raw = raw or {}
-    given = {f["k"]: raw.get(f["k"], f.get("def")) for f in spec["inputs"]}
+    given = {f["k"]: raw.get(f["k"], default_of(f, raw, spec)) for f in spec["inputs"]}
     for f in spec["inputs"]:
         k, t = f["k"], f["t"]
         v = given[k]
@@ -297,31 +328,42 @@ def lt_fixed_rate(t, kw):
     return t["fixed_slabs"][-1][1]
 
 
-def tariff_lt_bill(t, units, load_kw, C):
-    if "energy_low" in t and units <= t["low_units"]:
-        energy = units * t["energy_low"]
-    else:
-        energy = units * t["energy"]
-    fixed = load_kw * lt_fixed_rate(t, load_kw)
-    tax = energy * C["electricity_tax_pct"] / 100
-    total = energy + fixed + tax
-    return {"energy": energy, "fixed": fixed, "fixed_rate": lt_fixed_rate(t, load_kw), "tax": tax, "total": total}
+def tariff_lt_bill(t, units, load_kw, C, peak_share=None, night_share=None, pf=None):
+    """LT bill per T.O. 6/2025: fixed charges per kW or part of a kW (cl. 3.2.1(g)); time-of-day on LT IIIB / LT V
+    (cl. 3.2.1(c), and without a ToD meter 25% on 20% of units, cl. 3.2.1(d)); PF penalty below 0.85 (cl. 3.2.1(b))."""
+    rate = t["energy_low"] if "energy_low" in t and units <= t["low_units"] else t["energy"]
+    energy = units * rate
+    tod = 0.0
+    if t.get("tod"):
+        peak = C["tod"].get("lt_no_meter_peak_share_pct", 20) if peak_share is None else peak_share
+        night = 0 if night_share is None else night_share
+        tod = units * peak / 100 * rate * C["tod"]["peak_surcharge_pct"] / 100 - units * night / 100 * rate * C["tod"]["night_rebate_pct"] / 100
+    kw = math.ceil(load_kw - 1e-9) if load_kw > 0 else 0
+    fixed_rate = lt_fixed_rate(t, kw)
+    fixed = kw * fixed_rate
+    pen_pct = lt_pf_penalty_pct(pf, C) if pf is not None else 0.0
+    pf_pen = (energy + tod) * pen_pct / 100
+    tax = (energy + tod) * C["electricity_tax_pct"] / 100
+    total = energy + tod + fixed + pf_pen + tax
+    return {"energy": energy, "tod": tod, "fixed": fixed, "fixed_rate": fixed_rate, "billed_kw": kw, "pf_penalty": pf_pen,
+            "pf_penalty_pct": pen_pct, "tax": tax, "total": total}
+
+
+def _pf_pct(pf, thr, bands):
+    """T.O. 6/2025: the rate of the band the PF falls in, for every 0.01 drop measured from the threshold."""
+    pf = R(pf, 2)
+    if pf >= thr:
+        return 0.0
+    band = next((b for b in sorted(bands, key=lambda b: -b["to"]) if pf >= b["from"] - 1e-9), bands[-1])
+    return R(round((thr - pf) * 100) * band["pct_per_0_01"], 2)
 
 
 def pf_penalty_pct(pf, C):
-    pf = R(pf, 2)
-    thr = C["pf_threshold"]
-    if pf >= thr:
-        return 0.0
-    pct = 0.0
-    for band in sorted(C["pf_penalty"], key=lambda b: -b["to"]):
-        hi, lo = band["to"], band["from"]
-        if pf >= hi:
-            continue
-        low = max(pf, lo)
-        steps_ = round((hi - low) * 100)
-        pct += steps_ * band["pct_per_0_01"]
-    return pct
+    return _pf_pct(pf, C["pf_threshold"], C["pf_penalty"])
+
+
+def lt_pf_penalty_pct(pf, C):
+    return _pf_pct(pf, C.get("lt_pf_threshold", 0.85), C.get("lt_pf_penalty") or [{"from": 0.0, "to": 0.85, "pct_per_0_01": 1.0}])
 
 
 def cable_r90(C, conductor, size):
@@ -351,16 +393,14 @@ def derating(C, laying, ambient, group, spacing, soil, depth, ht):
     kt = math.sqrt((tmax - ambient) / (tmax - base))
     n = int(group)
     if laying == "ground":
-        kg = floor_key(cab["group_ground_touching" if spacing == "touching" else "group_ground_spaced"], n)
+        kg = ceil_key(cab["group_ground_touching" if spacing == "touching" else "group_ground_spaced"], n)
         kd = cab["depth"][str(depth)] / (cab["depth"]["90"] if ht else 1.0)
         ks = cab["soil"][str(soil)]
     else:
-        kg = floor_key(cab["group_air_tray"], n)
+        kg = ceil_key(cab["group_air_tray"], n)
         kd = 1.0
         ks = 1.0
-    if n > 1 and kg == 1.0:
-        kg = floor_key(cab["group_air_tray"], n)
-    return {"temp": kt, "group": kg, "depth": kd, "soil": ks, "total": kt * kg * kd * ks}
+    return {"temp": kt, "group": kg, "depth": kd, "soil": ks, "base": base, "total": kt * kg * kd * ks}
 
 
 def select_cable(C, current, volts, pf, length, conductor, laying, ambient, group, spacing, soil, depth, vd_limit, fault_ka, clear_s):
@@ -374,6 +414,7 @@ def select_cable(C, current, volts, pf, length, conductor, laying, ambient, grou
     phase3 = volts != 230
     rows = []
     chosen = None
+    by_current = None
     for runs in range(1, 9):
         for s in sizes_of(C, key):
             if runs > 1 and float(s) < 95:
@@ -386,6 +427,8 @@ def select_cable(C, current, volts, pf, length, conductor, laying, ambient, grou
             ok_i = rated * runs >= current
             ok_v = vd_pct <= vd_limit + 1e-9
             ok_s = float(s) >= s_min - 1e-9
+            if ok_i and ok_v and by_current is None:
+                by_current = {"size": s, "runs": runs}
             if runs == 1 or (chosen is None and runs > 1):
                 rows.append({"size": s, "runs": runs, "rated": rated * runs, "vd_pct": vd_pct, "s_min": s_min,
                              "ok": ok_i and ok_v and ok_s, "ok_i": ok_i, "ok_v": ok_v, "ok_s": ok_s})
@@ -394,7 +437,7 @@ def select_cable(C, current, volts, pf, length, conductor, laying, ambient, grou
                 break
         if chosen:
             break
-    return {"chosen": chosen, "derating": der, "rows": rows[:16], "key": key, "cond": cond, "k_sc": k_sc, "x": x}
+    return {"chosen": chosen, "by_current": by_current, "derating": der, "rows": rows[:16], "key": key, "cond": cond, "k_sc": k_sc, "x": x}
 
 
 def motor_eff_pf(C, kw):
@@ -442,23 +485,26 @@ def t_connected_load(i, C):
         verdict = f"LT supply works: your maximum demand of {R(md_future, 1):g} kW is within the {lt_max} kW LT limit in Tamil Nadu."
         if md_future > C["lt_ct_min_kw"]:
             verdict += " Expect CT-operated (LT-CT) metering at this size."
-        sugg = item("Suggested LT sanctioned load", math.ceil(conn_kw), "kW", "int")
+        sugg = item("Suggested LT sanctioned load", math.ceil(md_future - 1e-9), "kW", "int")
         status = "ok"
     else:
         supply = "HT"
         verdict = f"HT supply needed: {R(md_future, 1):g} kW is above the {lt_max} kW LT limit in Tamil Nadu."
         sugg = item("Suggested contract demand", int(math.ceil(md_kva / 5) * 5), "kVA", "int")
         status = "warn"
-    tx = next_std(md_kva / 0.8, C["transformer_ratings"])
+    n_tx, tx = tx_plan(md_kva / 0.8, C)
     items = [item("Connected load", R(conn_kw, 1), "kW", "1dp"), item("Maximum demand now", R(md_kw, 1), "kW", "1dp"),
              item("Maximum demand with growth", R(md_future, 1), "kW", "1dp"), item("Maximum demand", R(md_kva, 1), "kVA", "1dp"),
              item("Supply", supply, tone="accent"), sugg]
     if supply == "HT":
-        items.append(item("Transformer (≤80% loading)", f"{tx} kVA" if tx else "More than 2500 kVA — split across transformers"))
+        items.append(item("Transformer (≤80% loading)", f"{tx} kVA" if n_tx == 1 else f"{n_tx} × {tx} kVA"))
     return {"headline": {"label": "Maximum demand", "value": R(md_kva, 1), "unit": "kVA", "sub": f"{supply} supply"},
             "status": status, "verdict": verdict, "items": items, "table": table, "steps": steps,
             "notes": ["Demand and simultaneity factors are typical; your actual running pattern matters. A site survey firms this up.",
-                      "LT limit and metering per the TNERC supply code; verify for your area."]}
+                      "LT limit and metering per the TNERC supply code; verify for your area."]
+            + ([f"The suggestion is your maximum demand with growth. If the section office sanctions your connected load ({math.ceil(conn_kw - 1e-9)} kW) instead, fixed charges are billed on that figure"
+                + (f", and above {lt_max} kW it needs an HT service." if conn_kw > lt_max else ".")]
+               if supply == "LT" and conn_kw > md_future + 0.5 else [])}
 
 
 # ------------------------------------------------------------------ 2 LT vs HT
@@ -467,27 +513,29 @@ def t_lt_vs_ht(i, C):
     lt_t, ht_t = C["tariffs"][lt_key], C["tariffs"][ht_key]
     md_kva, units, pf = i["md_kva"], i["units"], i["pf"]
     md_kw = md_kva * pf
-    tx = next_std(md_kva / 0.8, C["transformer_ratings"]) or C["transformer_ratings"][-1]
+    n_tx, tx = tx_plan(md_kva / 0.8, C)
     nll, ll = C["transformer_losses"].get(str(tx), [0, 0])
     avg_kva = units / 720 / pf
-    frac = avg_kva / tx
-    loss_kwh = (nll + ll * frac * frac) * 720 / 1000
+    frac = avg_kva / (tx * n_tx)
+    loss_kwh = n_tx * (nll + ll * frac * frac) * 720 / 1000
     ht = tariff_ht_bill(ht_t, units + loss_kwh, md_kva, md_kva, i["peak_share"], i["night_share"], pf, C)
     lt_ok = md_kw <= C["lt_max_kw"]
-    lt = tariff_lt_bill(lt_t, units, md_kw, C) if lt_ok else None
+    lt = tariff_lt_bill(lt_t, units, md_kw, C, i["peak_share"], i["night_share"], pf) if lt_ok else None
     cost = i["substation_cost"]
+    tx_txt = f"{tx} kVA" if n_tx == 1 else f"{n_tx} × {tx} kVA"
     if cost is None:
         rate = next(r for lim, r in C["substation_cost_per_kva"] if tx <= lim)
-        cost = tx * rate
-        cost_note = f"typical {tx} kVA substation at ₹{ind(rate)}/kVA"
+        cost = n_tx * tx * rate
+        cost_note = f"typical {tx_txt} substation at ₹{ind(rate)}/kVA"
     else:
         cost_note = "your figure"
-    steps = [step("Transformer for HT", f"{R(md_kva, 1):g} kVA ÷ 0.8 → next standard", tx, "kVA"),
-             step("Transformer losses billed on HT side", f"({nll} + {ll} × {g(R(frac, 3))}²) W × 720 h", R(loss_kwh, 0), "kWh/month"),
+    steps = [step("Transformer for HT", f"{R(md_kva, 1):g} kVA ÷ 0.8 → next standard", tx_txt),
+             step("Transformer losses billed on HT side", f"{n_tx} × " * (n_tx > 1) + f"({nll} + {ll} × {g(R(frac, 3))}²) W × 720 h", R(loss_kwh, 0), "kWh/month"),
              step("HT monthly bill", "energy + ToD + demand + tax + meter rent", R(ht["total"], 0), "₹")]
     rows = [["Energy", R(lt["energy"], 0) if lt else "—", R(ht["energy"], 0)],
             ["Fixed / demand charges", R(lt["fixed"], 0) if lt else "—", R(ht["demand"], 0)],
-            ["Time-of-day (peak +, night −)", 0 if lt else "—", R(ht["tod"], 0)],
+            ["Time-of-day (peak +, night −)", R(lt["tod"], 0) if lt else "—", R(ht["tod"], 0)],
+            ["PF penalty", R(lt["pf_penalty"], 0) if lt else "—", R(ht["pf_penalty"], 0)],
             ["Electricity tax", R(lt["tax"], 0) if lt else "—", R(ht["tax"], 0)],
             ["Meter rent", 0 if lt else "—", R(ht["meter_rent"], 0)],
             ["Monthly total", R(lt["total"], 0) if lt else "—", R(ht["total"], 0)],
@@ -495,7 +543,7 @@ def t_lt_vs_ht(i, C):
     items = [item("HT yearly bill", R(ht["total"] * 12, 0), "₹", "inr")]
     if lt_ok:
         saving = (lt["total"] - ht["total"]) * 12
-        steps.insert(0, step("LT monthly bill", "energy + fixed (per kW slab) + tax", R(lt["total"], 0), "₹"))
+        steps.insert(0, step("LT monthly bill", "energy + ToD + fixed (per kW slab) + PF penalty + tax", R(lt["total"], 0), "₹"))
         items.insert(0, item("LT yearly bill", R(lt["total"] * 12, 0), "₹", "inr"))
         items.append(item("Yearly difference (LT − HT)", R(saving, 0), "₹", "inr", "good" if saving > 0 else "bad"))
         items.append(item("Substation cost", R(cost, 0), "₹", "inr"))
@@ -518,7 +566,8 @@ def t_lt_vs_ht(i, C):
             "status": status, "verdict": verdict, "items": items,
             "table": {"title": f"Monthly bill: {lt_t['label'].split(' —')[0]} vs {ht_t['label'].split(' —')[0]}", "columns": ["", "LT ₹", "HT ₹"], "rows": rows},
             "steps": steps, "notes": [f"Substation cost: {cost_note}.", f"Rates: {C['tariff_order']}.",
-                                      "HT is metered on the HT side, so transformer losses are added to HT units."]}
+                                      "HT is metered on the HT side, so transformer losses are added to HT units.",
+                                      f"Time-of-day applies to both LT and HT: +{C['tod']['peak_surcharge_pct']}% on peak-hour units ({C['tod']['peak_hours']}), −{C['tod']['night_rebate_pct']}% at night ({C['tod']['night_hours']})."]}
 
 
 # ------------------------------------------------------------------ 3 bill estimator
@@ -541,12 +590,21 @@ def t_bill_estimator(i, C):
         status = "warn" if (b["excess_kva"] or b["pf_penalty_pct"]) else "ok"
         unit_rate = b["total"] / i["units"] if i["units"] else 0
     else:
-        b = tariff_lt_bill(t, i["units"], i["load_kw"], C)
+        meter = i["tod_meter"]
+        b = tariff_lt_bill(t, i["units"], i["load_kw"], C, i["peak_share"] if meter else None, i["night_share"] if meter else None, i["pf"])
+        lt_thr = C.get("lt_pf_threshold", 0.85)
+        no_meter = C["tod"].get("lt_no_meter_peak_share_pct", 20)
         rows = [["Energy", f"{ind(i['units'])} kWh", R(b["energy"], 0)],
-                ["Fixed charges", f"{i['load_kw']:g} kW × ₹{b['fixed_rate']}", R(b["fixed"], 0)],
-                ["Electricity tax", f"{C['electricity_tax_pct']}% of energy", R(b["tax"], 0)],
+                ["Time-of-day", (f"peak +{C['tod']['peak_surcharge_pct']}% on {i['peak_share']:g}%, night −{C['tod']['night_rebate_pct']}% on {i['night_share']:g}%" if meter
+                                 else f"no ToD meter: +{C['tod']['peak_surcharge_pct']}% on {no_meter}% of units"), R(b["tod"], 0)],
+                ["Fixed charges", f"{b['billed_kw']:g} kW × ₹{b['fixed_rate']}", R(b["fixed"], 0)],
+                ["PF penalty", f"PF {g(i['pf'])}: {b['pf_penalty_pct']:g}% of energy charges (three-phase services)" if b["pf_penalty_pct"] else f"PF {g(i['pf'])}: none (starts below {g(lt_thr)})", R(b["pf_penalty"], 0)],
+                ["Electricity tax", f"{C['electricity_tax_pct']}% of energy + ToD", R(b["tax"], 0)],
                 ["Total", "", R(b["total"], 0)]]
-        notes, status = [], "ok"
+        notes, status = ([] if not meter else [f"Without a ToD meter TNPDCL may bill the {C['tod']['peak_surcharge_pct']}% peak charge on {no_meter}% of units instead — switch off \"ToD meter fitted\" to see that."]), "ok"
+        if b["pf_penalty_pct"]:
+            notes.append(f"Improve power factor to {g(lt_thr)} or above to avoid the penalty — see the Power factor correction tool.")
+            status = "warn"
         if i["load_kw"] > C["lt_max_kw"]:
             notes.append(f"LT supply is limited to {C['lt_max_kw']} kW; above this an HT connection is needed.")
             status = "warn"
@@ -570,13 +628,18 @@ def t_contract_demand(i, C):
         return sum(max(m, floor * cd) * rate + max(m - cd, 0) * rate * (mult - 1) for m in mds)
 
     peak = max(mds)
+    if peak <= 0:
+        md_label = next(f["l"] for f in SPEC["contract-demand"]["inputs"] if f["k"] == "md")
+        raise CalcError(f"{md_label}: enter at least one month above 0")
     lo = int(math.floor(peak * 0.7 / 5) * 5) or 5
-    hi = int(math.ceil(peak * 1.3 / 5) * 5)
+    hi = max(int(math.ceil(peak * 1.3 / 5) * 5), lo)
     best_cd, best = None, None
     for cd in range(lo, hi + 1, 5):
         c = cost(cd)
-        if best is None or c < best - 1e-6:
+        if best is None or c < best - 0.5:
             best_cd, best = cd, c
+        elif c <= best + 0.5:  # same cost at a higher demand: take it, the headroom is free
+            best_cd = cd
     now = cost(i["cd_kva"])
     saving = now - best
     rows = []
@@ -610,13 +673,16 @@ def t_ht_roadmap(i, C):
                   ("Testing, CEIG inspection, meter fixing and energisation", w["inspection_energisation"])]
     lo = sum(s[1][0] for s in steps_list)
     hi = sum(s[1][1] for s in steps_list)
-    tx = next_std(i["kva"] / 0.8, C["transformer_ratings"]) or C["transformer_ratings"][-1]
+    n_tx, tx = tx_plan(i["kva"] / 0.8, C)
     rate = next(r for lim, r in C["substation_cost_per_kva"] if tx <= lim)
-    sub_cost = tx * rate
+    sub_cost = n_tx * tx * rate
     rows = [[n + 1, s[0], f"{s[1][0]}–{s[1][1]} weeks"] for n, s in enumerate(steps_list)]
+    small = i["kva"] * 0.9 <= C["lt_max_kw"]
     return {"headline": {"label": "Typical time to energise", "value": f"{lo}–{hi}", "unit": "weeks"},
-            "verdict": f"A {i['kva']:g} kVA {i['voltage'].replace('kV', ' kV')} service typically takes {lo}–{hi} weeks from application to energisation; some steps run in parallel.",
-            "items": [item("Transformer (≤80% loading)", f"{tx} kVA"), item("Indicative substation cost (our scope)", R(sub_cost, 0), "₹", "inr"),
+            "status": "warn" if small else "ok",
+            "verdict": f"A {i['kva']:g} kVA {i['voltage'].replace('kV', ' kV')} service typically takes {lo}–{hi} weeks from application to energisation, with the steps one after another; works can start while approvals are pending, which shortens it."
+            + (f" At this size an LT service (up to {C['lt_max_kw']} kW) may be enough — check with the LT vs HT tool." if small else ""),
+            "items": [item("Transformer (≤80% loading)", f"{tx} kVA" if n_tx == 1 else f"{n_tx} × {tx} kVA"), item("Indicative substation cost (our scope)", R(sub_cost, 0), "₹", "inr"),
                       item("Time", f"{lo}–{hi} weeks")],
             "table": {"title": "Steps", "columns": ["#", "Step", "Typical time"], "rows": rows},
             "checklist": TOOLS["checklists"]["new_ht" if i["kind"] != "load_increase" else "load_change"],
@@ -651,7 +717,8 @@ def t_transformer_sizing(i, C):
                       item("Loading after growth", R(load_fut, 0), "%", "int"), item("Type", ttype),
                       item("Losses at today's load (typical)", R(loss_now, 0), "W", "int")],
             "steps": steps, "notes": ["Indoor transformers inside buildings are normally dry type for fire safety.",
-                                      "Ratings per IS 1180 up to 2500 kVA; choose an energy-efficiency level by total owning cost."]}
+                                      "Ratings per IS 1180 up to 2500 kVA; choose an energy-efficiency level by total owning cost."]
+            + (["Losses shown are typical oil-type (IS 1180) values; dry-type (IS 11171) losses differ — use the maker's figures."] if i["location"] == "indoor" else [])}
 
 
 # ------------------------------------------------------------------ 7 transformer losses / TOC
@@ -672,9 +739,10 @@ def t_transformer_losses(i, C):
     if not rows:
         raise CalcError("Add at least one offer")
     rows.sort(key=lambda r: r[4])
-    gap = rows[-1][4] - rows[0][4] if len(rows) > 1 else 0
+    gap = rows[1][4] - rows[0][4] if len(rows) > 1 else 0
     return {"headline": {"label": "Lowest total owning cost", "value": best[0], "sub": f"₹{ind(R(best[1], 0))} over {i['years']:g} years"},
-            "verdict": (f"{best[0]} costs ₹{ind(R(gap, 0))} less over {i['years']:g} years once losses are counted." if gap else f"{best[0]}."),
+            "verdict": (f"{best[0]} costs ₹{ind(R(gap, 0))} less over {i['years']:g} years than the next best ({rows[1][0]}) once losses are counted." if gap
+                        else (f"{best[0]} and {rows[1][0]} cost the same over {i['years']:g} years." if len(rows) > 1 else f"{best[0]}.")),
             "items": [item("Capitalised no-load loss (A)", R(a, 2), "₹ per W", "2dp"), item("Capitalised load loss (B)", R(b, 2), "₹ per W", "2dp")],
             "table": {"title": f"{i['kva']} kVA offers", "columns": ["Offer", "Price ₹", "Losses kWh/yr", "Loss cost ₹/yr", "Total owning cost ₹"], "rows": rows},
             "steps": [step("Yearly loss energy", "(no-load W × hours + load W × loading² × hours) ÷ 1000", "kWh"),
@@ -695,16 +763,20 @@ def t_dg_sizing(i, C):
     else:
         eff = mpf = m_run_kva = m_start = mult = 0
     others = max(run_kva - m_run_kva, 0)
-    req1 = run_kva / 0.8
+    eq_kva = max(run_kva, i["running_kw"] / 0.8)  # a set gives 0.8 kW per kVA, so a high-PF load is limited by kW
+    req1 = eq_kva / 0.8
     req2 = (others + m_start) / i["transient"] if m_kw > 0 else 0
     need = max(req1, req2)
     rating = next_std(need, C["dg_ratings"])
     fuel_lph = i["running_kw"] * C["dg_fuel_l_per_kwh"]
     monthly_l = fuel_lph * i["hours"]
     monthly_cost = monthly_l * C["diesel_price"]
-    governs = "running load" if req1 >= req2 else "motor starting"
-    steps = [step("Running load", f"{i['running_kw']:g} kW ÷ PF {g(i['pf'])}", R(run_kva, 1), "kVA"),
-             step("For ≤80% loading", f"{g(R(run_kva, 1))} ÷ 0.8", R(req1, 1), "kVA")]
+    kw_bound = i["running_kw"] / 0.8 > run_kva + 1e-9
+    governs = ("running kW (a DG gives 0.8 kW per kVA)" if kw_bound else "running load") if req1 >= req2 else "motor starting"
+    steps = [step("Running load", f"{i['running_kw']:g} kW ÷ PF {g(i['pf'])}", R(run_kva, 1), "kVA")]
+    if kw_bound:
+        steps.append(step("kW limit of the set", f"{i['running_kw']:g} kW ÷ 0.8 (sets are rated at PF 0.8)", R(eq_kva, 1), "kVA"))
+    steps.append(step("For ≤80% loading", f"{g(R(eq_kva, 1))} ÷ 0.8", R(req1, 1), "kVA"))
     if m_kw > 0:
         steps += [step("Largest motor running", f"{m_kw:g} kW ÷ (η {g(eff)} × PF {g(mpf)})", R(m_run_kva, 1), "kVA"),
                   step("Its starting kVA", f"× {g(mult)} ({i['starter'].replace('_', '-')})", R(m_start, 1), "kVA"),
@@ -713,10 +785,11 @@ def t_dg_sizing(i, C):
         return {"headline": {"label": "DG needed", "value": R(need, 0), "unit": "kVA"}, "status": "warn",
                 "verdict": "Larger than single standard sets — consider sets in parallel.", "items": [], "steps": steps, "notes": []}
     return {"headline": {"label": "DG set", "value": rating, "unit": "kVA"},
-            "verdict": f"A {rating} kVA DG set covers the load; sizing is set by {governs}. It runs at {R(run_kva / rating * 100, 0):g}% loading.",
+            "verdict": f"A {rating} kVA DG set ({R(rating * 0.8, 1):g} kW) covers the load; sizing is set by {governs}. It runs at {R(eq_kva / rating * 100, 0):g}% loading.",
             "items": [item("Running load", R(run_kva, 1), "kVA", "1dp"), item("Size needed", R(need, 1), "kVA", "1dp"),
                       *([item("Largest motor starting", R(m_start, 1), "kVA", "1dp"), item("Size for motor starting", R(req2, 1), "kVA", "1dp")] if m_kw > 0 else []),
-                      item("Standard DG rating", rating, "kVA", None, "accent"), item("Loading", R(run_kva / rating * 100, 0), "%", "int"),
+                      item("Standard DG rating", rating, "kVA", None, "accent"), item("kW rating (at PF 0.8)", R(rating * 0.8, 1), "kW", "1dp"),
+                      item("Loading", R(eq_kva / rating * 100, 0), "%", "int"),
                       item("Fuel at this load", R(fuel_lph, 1), "litres/hour", "1dp"), item("Fuel per month", R(monthly_l, 0), "litres", "int"),
                       item("Diesel cost per month", R(monthly_cost, 0), "₹", "inr")],
             "steps": steps, "notes": [f"Fuel at {C['dg_fuel_l_per_kwh']} L/kWh and ₹{C['diesel_price']}/L (typical; check the maker's curve).",
@@ -727,9 +800,17 @@ def t_dg_sizing(i, C):
 def t_ups_battery(i, C):
     kva = i["load_kw"] / i["pf"] * (1 + i["growth"] / 100)
     ups = next_std(kva, C["ups_ratings"])
+    n_ups = 1
+    if ups is None:
+        n_ups = math.ceil(kva / C["ups_ratings"][-1])
+        ups = next_std(kva / n_ups, C["ups_ratings"])
+    ups_txt = f"{ups} kVA" if n_ups == 1 else f"{n_ups} × {ups} kVA (parallel)"
     v = float(i["bank_v"])
-    wh = i["load_kw"] * 1000 * i["backup_min"] / 60
-    ah = wh / (v * i["eff"] * i["dod"]) * i["ageing"]
+    mins = max(i["backup_min"], 5)  # lead-acid ratings start at 5 minutes; a shorter backup still needs a 5-minute battery
+    wh = i["load_kw"] * 1000 * mins / 60
+    rate_f = interp(C.get("battery_rate_factor") or [[0, 1.0], [1, 1.0]], mins)
+    usable = min(i["dod"], rate_f)
+    ah = wh / (v * i["eff"] * usable) * i["ageing"]
     if ah <= C["battery_ah"][-1]:
         block = next_std(ah, C["battery_ah"])
         strings = 1
@@ -738,15 +819,21 @@ def t_ups_battery(i, C):
         strings = math.ceil(ah / block)
     per_string = int(v / 12)
     steps = [step("UPS rating", f"{i['load_kw']:g} kW ÷ PF {g(i['pf'])} × (1 + {i['growth']:g}%)", R(kva, 2), "kVA"),
-             step("Energy for backup", f"{i['load_kw']:g} kW × {i['backup_min']:g} min", R(wh, 0), "Wh"),
-             step("Battery capacity", f"{g(R(wh, 0))} ÷ ({v:g} V × {g(i['eff'])} × {g(i['dod'])}) × {g(i['ageing'])}", R(ah, 1), "Ah")]
-    return {"headline": {"label": "UPS", "value": ups or R(kva, 0), "unit": "kVA", "sub": f"{per_string * strings} × 12 V {block} Ah batteries"},
-            "verdict": f"{ups} kVA UPS with {strings} string{'s' if strings > 1 else ''} of {per_string} × 12 V {block} Ah batteries ({v:g} V bank).",
-            "items": [item("Size needed", R(kva, 2), "kVA", "2dp"), item("UPS rating", ups, "kVA"), item("Battery capacity needed", R(ah, 1), "Ah", "1dp"),
+             step("Energy for backup", f"{i['load_kw']:g} kW × {mins:g} min" + (" (sized as a 5-minute backup, the shortest batteries are rated for)" if i["backup_min"] < 5 else ""), R(wh, 0), "Wh"),
+             step("Usable share of capacity", f"lower of depth of discharge {g(i['dod'])} and {g(R(rate_f, 2))} at a {mins:g}-minute rate", R(usable, 2)),
+             step("Battery capacity", f"{g(R(wh, 0))} ÷ ({v:g} V × {g(i['eff'])} × {g(R(usable, 2))}) × {g(i['ageing'])}", R(ah, 1), "Ah")]
+    notes = ["Capacity at short backups follows typical 12 V VRLA discharge tables to 1.75 V per cell; confirm with the chosen battery's constant-power table.",
+             "Keep the battery room ventilated and at 25 °C for full life."]
+    if strings > 4:
+        notes.insert(0, f"{strings} strings in parallel is a lot to balance and maintain — a higher-voltage bank, 2 V cells or lithium-ion would be neater.")
+    return {"headline": {"label": "UPS", "value": ups if n_ups == 1 else f"{n_ups} × {ups}", "unit": "kVA", "sub": f"{per_string * strings} × 12 V {block} Ah batteries"},
+            "status": "warn" if strings > 4 or n_ups > 1 else "ok",
+            "verdict": f"{ups_txt} UPS with {strings} string{'s' if strings > 1 else ''} of {per_string} × 12 V {block} Ah batteries ({v:g} V bank)"
+            + (" in total, shared or split between the units." if n_ups > 1 else "."),
+            "items": [item("Size needed", R(kva, 2), "kVA", "2dp"), item("UPS rating", ups_txt), item("Battery capacity needed", R(ah, 1), "Ah", "1dp"),
                       item("Battery block", f"12 V {block} Ah"), item("Batteries per string", per_string, None, "int"),
                       item("Strings in parallel", strings, None, "int"), item("Total batteries", per_string * strings, None, "int")],
-            "steps": steps, "notes": ["For backups under an hour, check the maker's constant-power discharge table: batteries deliver less at high rates.",
-                                      "Keep the battery room ventilated and at 25 °C for full life."]}
+            "steps": steps, "notes": notes}
 
 
 # ------------------------------------------------------------------ 10 solar rooftop
@@ -818,8 +905,10 @@ def t_ev_charger_load(i, C):
                       item("New maximum demand", R(new_md, 1), "kVA", "1dp"), item("Suggested new sanction", sugg if upgrade else "No change", "kVA" if upgrade else None)],
             "table": {"title": "Chargers", "columns": ["Charger", "Qty", "kW each", "kW total"], "rows": rows},
             "steps": [step("Added demand", f"{g(R(tot, 1))} kW × diversity {g(i['diversity'])} ÷ PF 0.95", R(added_kva, 1), "kVA")],
-            "notes": ["Public charging stations can take a separate EV tariff connection (HT V / LT EV) — ask us about separate metering.",
-                      "A load management (smart charging) controller can cap the demand without an upgrade."]}
+            "notes": ([f"About {sugg} kVA is above the {C['lt_max_kw']} kW LT limit, so on an LT service this needs an HT connection (or a separate EV service)."]
+                      if upgrade and sugg * 0.95 > C["lt_max_kw"] else [])
+            + ["Public charging stations can take a separate EV tariff connection (HT V / LT EV) — ask us about separate metering.",
+               "A load management (smart charging) controller can cap the demand without an upgrade."]}
 
 
 # ------------------------------------------------------------------ 12 cable size
@@ -834,7 +923,7 @@ def t_cable_size(i, C):
     rows = [[f"{r['size']} mm²" + (f" × {r['runs']}" if r["runs"] > 1 else ""), R(r["rated"], 0), R(r["vd_pct"], 2), R(r["s_min"], 1),
              "OK" if r["ok"] else ("Current" if not r["ok_i"] else ("Voltage drop" if not r["ok_v"] else "Short circuit"))] for r in sel["rows"]]
     steps = [step("Design current", "P ÷ (√3 × V × PF)" if v != 230 else "P ÷ (V × PF)", R(current, 1), "A"),
-             step("Temperature factor", f"√((90 − {i['ambient']:g}) ÷ (90 − base))", R(d["temp"], 3)),
+             step("Temperature factor", f"√((90 − {i['ambient']:g}) ÷ (90 − {d['base']:g})), rated at {d['base']:g} °C {'in ground' if i['laying'] == 'ground' else 'in air'}", R(d["temp"], 3)),
              step("Grouping factor", f"{int(i['group'])} cable(s)", R(d["group"], 2)),
              step("Depth × soil factors", "", R(d["depth"] * d["soil"], 3)),
              step("Total derating", "product of the factors", R(d["total"], 3))]
@@ -848,15 +937,23 @@ def t_cable_size(i, C):
     desc = f"{fmt_size(ch['size'], ch['runs'])} {cond_l} XLPE armoured, {cores}"
     steps += [step("Voltage drop", "k × I × L × (R cos φ + X sin φ) ÷ runs", R(ch["vd_pct"], 2), "%"),
               step("Short-circuit minimum", f"I × √t ÷ k ({sel['k_sc']})", R(ch["s_min"], 1), "mm²")]
+    bc = sel["by_current"]
+    sc_sets = bool(bc) and (bc["runs"], float(bc["size"])) != (ch["runs"], float(ch["size"])) and ch["s_min"] > float(bc["size"]) - 1e-9
+    notes = ["Ratings are typical catalogue values; confirm with the chosen maker's table.", "Glands, lugs and termination size follow the cable chosen."]
+    if v >= 1000 and i["conductor"] == "cu":
+        notes.insert(0, "HT cables are sized here in aluminium, which is what is normally laid; ask us if you need a copper HT cable.")
+    if v > 11000:
+        notes.insert(0, f"{v / 1000:g} kV cables use the 11 kV current ratings here (within a few per cent); confirm with the maker's table.")
     return {"headline": {"label": "Cable", "value": fmt_size(ch["size"], ch["runs"]), "sub": f"{cond_l} XLPE armoured"},
-            "verdict": f"Use {desc}. It carries {R(ch['rated'], 0):g} A after derating against {R(current, 0):g} A needed, with {g(R(ch['vd_pct'], 2))}% voltage drop.",
+            "verdict": f"Use {desc}. It carries {R(ch['rated'], 0):g} A after derating against {R(current, 0):g} A needed, with {g(R(ch['vd_pct'], 2))}% voltage drop."
+            + (f" The short-circuit check ({i['fault_ka']:g} kA for {i['clear_s']:g} s) sets this size; for current and voltage drop alone {fmt_size(bc['size'], bc['runs'])} would do"
+               + (" — a faster-clearing breaker allows the smaller cable." if i["clear_s"] >= 0.1 else " — below 0.1 s, check against the breaker's let-through energy (I²t) instead.") if sc_sets else ""),
             "items": [item("Design current", R(current, 1), "A", "1dp"), item("Derating factor", R(d["total"], 3), None, "3dp"),
                       item("Cable", desc, tone="accent"), item("Derated rating", R(ch["rated"], 0), "A", "int"),
                       item("Voltage drop", R(ch["vd_pct"], 2), "%", "2dp", "good" if ch["vd_pct"] <= i["vd_limit"] else "bad"), item("Voltage-drop limit", i["vd_limit"], "%"),
                       item("Minimum size for fault", R(ch["s_min"], 1), "mm²", "1dp")],
             "table": {"title": "Sizes checked", "columns": ["Size", "Derated A", "VD %", "Min mm² (SC)", "Result"], "rows": rows},
-            "steps": steps, "notes": ["Ratings are typical catalogue values; confirm with the chosen maker's table.",
-                                      "Glands, lugs and termination size follow the cable chosen."]}
+            "steps": steps, "notes": notes}
 
 
 # ------------------------------------------------------------------ 13 voltage drop
@@ -909,9 +1006,11 @@ def t_fault_level(i, C):
     bc = next_std(ik2, sorted(set(C["breakers"]["mccb_ka"] + C["breakers"]["acb_ka"])))
     flc = i["kva"] * 1000 / (SQ3 * v)
     return {"headline": {"label": "Fault level at the panel", "value": R(ik2, 1), "unit": "kA"},
-            "verdict": f"About {R(ik1, 1):g} kA at the transformer terminals and {R(ik2, 1):g} kA at the panel. Breakers there need at least {bc} kA breaking capacity.",
+            "status": "ok" if bc else "warn",
+            "verdict": f"About {R(ik1, 1):g} kA at the transformer terminals and {R(ik2, 1):g} kA at the panel. "
+            + (f"Breakers there need at least {bc} kA breaking capacity." if bc else "That is above standard breakers — use current-limiting breakers or fuses, or split the bus across transformers."),
             "items": [item("At transformer LV terminals", R(ik1, 2), "kA", "2dp"), item("At the panel", R(ik2, 2), "kA", "2dp", "accent"),
-                      item("Peak (making) current", R(ip, 1), "kA", "1dp"), item("Breaking capacity needed", bc, "kA"),
+                      item("Peak (making) current", R(ip, 1), "kA", "1dp"), item("Breaking capacity needed", bc if bc else "Above 100 kA", "kA" if bc else None),
                       item("Transformer full-load current", R(flc, 0), "A", "int")],
             "steps": [step("Source impedance at LV", f"{v:g}² ÷ {i['source_mva']:g} MVA", R(z_src * 1000, 3), "mΩ"),
                       step("Transformer impedance", f"{g(i['z_pct'])}% × {v:g}² ÷ {i['kva']:g} kVA", R(z_tx * 1000, 3), "mΩ"),
@@ -923,6 +1022,7 @@ def t_fault_level(i, C):
 
 # ------------------------------------------------------------------ 15 breaker selector
 FUSES = [2, 4, 6, 10, 16, 20, 25, 32, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630, 800, 1000, 1250]
+MCCB_RELEASES = [16, 20, 25, 32, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630, 800, 1000, 1250]  # thermal-magnetic In
 
 
 def t_breaker_selector(i, C):
@@ -937,14 +1037,18 @@ def t_breaker_selector(i, C):
     factor = {"lighting": 1.0, "mixed": 1.25, "motor": 1.25, "capacitor": 1.43, "transformer": 1.0}[i["load_type"]]
     need = ib * factor
     b = C["breakers"]
-    steps = [step("Load current", "P ÷ (√3 × V × PF)" if i["input"] == "kw" else ("S ÷ (√3 × V)" if i["input"] == "kva" else "given"), R(ib, 1), "A"),
+    sq = "√3 × " if phase3 else ""
+    steps = [step("Load current", f"P ÷ ({sq}V × PF)" if i["input"] == "kw" else (f"S ÷ ({sq}V)".replace("(V)", "V") if i["input"] == "kva" else "given"), R(ib, 1), "A"),
              step("Rating needed", f"× {g(factor)} ({i['load_type']})", R(need, 1), "A")]
     notes = []
+    poles = 2 if not phase3 else (3 if i["load_type"] in ("motor", "capacitor") else 4)
     if v >= 1000:
         rating = next_std(max(need, 1), b["vcb_a"])
         bc = next_std(i["fault_ka"], b["vcb_ka"])
         kind = "VCB (vacuum circuit breaker)"
-        detail = f"{rating} A, {bc} kA, with numerical relay (50/51, 50N/51N)"
+        r_txt = f"{rating} A" if rating else f"above {b['vcb_a'][-1]} A — split the load or use a special breaker"
+        bc_txt = f"{bc} kA" if bc else f"above {b['vcb_ka'][-1]} kA — check the fault level with TNPDCL"
+        detail = f"{r_txt}, {bc_txt}, with numerical relay (50/51, 50N/51N)"
         notes.append("Set relay pick-up and time for grading with the upstream TNPDCL breaker.")
     else:
         if need <= b["mcb"][-1] and i["fault_ka"] <= b["mcb_ka"][-1] and i["load_type"] not in ("transformer",):
@@ -952,21 +1056,23 @@ def t_breaker_selector(i, C):
             bc = next_std(i["fault_ka"], b["mcb_ka"])
             curve = {"lighting": "B", "mixed": "C", "motor": "D", "capacitor": "C"}[i["load_type"]]
             kind = f"MCB, curve {curve}"
-            detail = f"{rating} A {'4' if phase3 else '2'}-pole, {bc} kA"
+            detail = f"{rating} A {poles}-pole, {bc} kA"
         elif need <= b["mccb"][-1] and not (i["load_type"] == "transformer" and need > 630):
-            rating = next_std(need, b["mccb"])
+            frame = next_std(need, b["mccb"])
+            rel = next_std(need, MCCB_RELEASES)
+            rating = rel if rel and rel < frame else frame
             bc = next_std(i["fault_ka"], b["mccb_ka"])
             kind = "MCCB" + (" with motor-protection release" if i["load_type"] == "motor" else "")
-            detail = f"{rating} A frame / set at ≈{R(need, 0):g} A, {bc} kA (Icu)"
+            bc_txt = f"{bc} kA (Icu)" if bc else f"above {b['mccb_ka'][-1]} kA — use current-limiting breakers or cascading"
+            art = "an" if str(rating).startswith("8") or rating in (11, 18) else "a"
+            detail = (f"{frame} A frame with {art} {rating} A release" if rating < frame else f"{frame} A") + f", {poles}-pole, {bc_txt}"
         else:
             rating = next_std(need, b["acb"])
             bc = next_std(i["fault_ka"], b["acb_ka"])
             kind = "ACB (draw-out)"
-            detail = f"{rating} A, {bc} kA, with microprocessor release (LSIG)"
-        if bc is None:
-            bc = "above standard — use current-limiting or cascading"
-        if rating is None:
-            rating = "above standard — split the feeder"
+            r_txt = f"{rating} A" if rating else f"above {b['acb'][-1]} A — split the feeder"
+            bc_txt = f"{bc} kA" if bc else f"above {b['acb_ka'][-1]} kA — use current-limiting or cascading"
+            detail = f"{r_txt}, {bc_txt}, with microprocessor release (LSIG)"
         if i["load_type"] == "motor":
             notes.append("For motors, coordinate with the contactor and overload relay (Type 2 coordination).")
         if i["load_type"] == "capacitor":
@@ -976,7 +1082,8 @@ def t_breaker_selector(i, C):
              item("Selection", detail)]
     if fuse:
         items.append(item("Equivalent HRC fuse", fuse, "A"))
-    return {"headline": {"label": kind, "value": f"{rating} A" if isinstance(rating, (int, float)) else rating, "sub": f"{bc} kA" if isinstance(bc, (int, float)) else str(bc)},
+    return {"headline": {"label": kind, "value": f"{rating} A" if rating else "Above standard", "sub": f"{bc} kA" if bc else "above standard kA"},
+            "status": "ok" if rating and bc else "warn",
             "verdict": f"Use {kind}: {detail}.", "items": items, "steps": steps,
             "notes": notes + ["Check that the cable's derated rating is at least the breaker setting (Iz ≥ In)."]}
 
@@ -992,7 +1099,7 @@ def t_motor(i, C):
     if i["duty"] == "variable":
         starter = "vfd"
     elif i["duty"] == "conveyor":
-        starter = "dol" if kw <= 7.5 else "soft_starter"
+        starter = "dol" if kw <= 7.5 else "vfd"  # a soft starter cuts torque with current; heavy loads need a VFD to break away
     elif kw <= 7.5:
         starter = "dol"
     elif kw <= 75:
@@ -1000,22 +1107,36 @@ def t_motor(i, C):
     else:
         starter = "soft_starter"
     names = {"dol": "Direct on line (DOL)", "star_delta": "Star-delta", "soft_starter": "Soft starter", "vfd": "Variable frequency drive (VFD)"}
+    use = {"dol": "a direct-on-line (DOL) starter", "star_delta": "a star-delta starter", "soft_starter": "a soft starter", "vfd": "a VFD"}
     mult = C["motor_start_multiple"][starter]
     i_start = flc * mult
     design = flc * 1.25
-    cond = "cu" if design <= 60 else "al"
-    sel = select_cable(C, design, v, pf, i["length"], cond, "air", 40, 1, "touching", "150", "75", 5, 0, 0.1)
+    ht = v >= 1000
+    if ht:
+        brk_txt = "VCB with motor protection relay"
+        cable_i = design
+    else:
+        if design <= C["breakers"]["mcb"][-1]:
+            brk, brk_kind = next_std(design, C["breakers"]["mcb"]), "MCB"
+        elif design <= MCCB_RELEASES[-1]:
+            brk, brk_kind = next_std(design, MCCB_RELEASES), "MCCB"
+        else:
+            brk, brk_kind = next_std(design, C["breakers"]["acb"]), "ACB"
+        brk_txt = f"{brk} A {brk_kind}" if brk else "Above standard ratings — split the drive"
+        cable_i = max(design, brk or design)  # the cable must carry at least the breaker rating (Iz ≥ In)
+    cond = "cu" if cable_i <= 60 else "al"
+    sel = select_cable(C, cable_i, v, pf, i["length"], cond, "air", 40, 1, "touching", "150", "75", 5, 0, 0.1)
     ch = sel["chosen"]
-    cab = f"{fmt_size(ch['size'], ch['runs'])} {'copper' if cond == 'cu' else 'aluminium'} XLPE armoured" if ch else "Check manually"
-    brk = next_std(design, C["breakers"]["mccb"] if design > 63 else C["breakers"]["mcb"]) or "—"
+    cab = f"{fmt_size(ch['size'], ch['runs'])} {'copper' if sel['cond'] == 'cu' else 'aluminium'} XLPE armoured" if ch else "a cable sized by detailed design (beyond the standard table)"
     return {"headline": {"label": "Full-load current", "value": R(flc, 1), "unit": "A", "sub": names[starter]},
-            "verdict": f"A {R(kw, 2):g} kW motor draws about {R(flc, 1):g} A. Use a {names[starter].lower()} starter (≈{R(i_start, 0):g} A while starting) and {cab}.",
+            "verdict": f"A {R(kw, 2):g} kW motor draws about {R(flc, 1):g} A. Use {use[starter]} (≈{R(i_start, 0):g} A while starting) and {cab}.",
             "items": [item("Rating", R(kw, 2), "kW", "2dp"), item("Efficiency used", eff), item("Power factor used", pf),
                       item("Full-load current", R(flc, 1), "A", "1dp", "accent"), item("Starter", names[starter]),
-                      item("Starting current", R(i_start, 0), "A", "int"), item("Cable (125% of FLC)", cab), item("Motor protection breaker", f"{brk} A")],
+                      item("Starting current", R(i_start, 0), "A", "int"), item("Cable (≥125% of FLC and the breaker rating)", cab), item("Motor protection breaker", brk_txt)],
             "steps": [step("Full-load current", f"{R(kw * 1000, 0):g} W ÷ (√3 × {v:g} × {g(eff)} × {g(pf)})", R(flc, 2), "A"),
                       step("Starting current", f"× {g(mult)} for {names[starter].lower()}", R(i_start, 0), "A")],
-            "notes": ["Typical IE3 4-pole efficiency and PF are used when you leave them blank; use the nameplate if you have it."]}
+            "notes": ["IE3 4-pole minimum efficiency (IEC 60034-30-1) and typical PF are used when you leave them blank; use the nameplate if you have it."]
+            + (["Heavy-start loads (conveyors, crushers) need a VFD or DOL starting; a soft starter lowers the starting torque along with the current."] if i["duty"] == "conveyor" and kw > 7.5 else [])}
 
 
 # ------------------------------------------------------------------ 17 PF correction
@@ -1027,22 +1148,28 @@ def t_pf_correction(i, C):
     kvar = i["kw"] * (t1 - t2)
     bank = math.ceil(kvar / 25) * 25
     caps = C["capacitor_steps_kvar"]
-    s = next_std(bank / 10, caps) or caps[-1]
-    # two small steps, then as many double steps as the bank needs (counted, not looped, so a huge load can't stall)
-    steps_ = [s, s] + [2 * s] * max(0, math.ceil((bank - 2 * s) / (2 * s)))
+    per_panel_max = 2 * caps[-1] + 10 * 2 * caps[-1]  # two small + ten double steps of the largest unit
+    panels = max(1, math.ceil(bank / per_panel_max))
+    panel = math.ceil(bank / panels / 25) * 25
+    s = next_std(panel / 10, caps) or caps[-1]
+    # two small steps, then double steps, then whatever is left, so the steps add up to the panel (counted, not looped)
+    k = max(0, int((panel - 2 * s) // (2 * s)))
+    rest = panel - 2 * s - 2 * s * k
+    steps_ = [s, s] + [2 * s] * k + ([rest] if rest > 1e-9 else [])
+    bank = panel * panels
     detuned = i["nonlinear"] > 15
     kva1 = i["kw"] / i["pf_now"]
     kva2 = i["kw"] / i["pf_target"]
-    pen_pct = pf_penalty_pct(i["pf_now"], C) if i["ht"] else 0
+    pen_pct = pf_penalty_pct(i["pf_now"], C) if i["ht"] else lt_pf_penalty_pct(i["pf_now"], C)
     pen = i["energy_bill"] * pen_pct / 100
     demand_save = (kva1 - kva2) * C["tariffs"]["HT_I"]["demand"] if i["ht"] else 0
     monthly = pen + demand_save
     cost = bank * (2000 if detuned else 1200)
     payback_m = cost / monthly if monthly > 0 else None
-    return {"headline": {"label": "Capacitors needed", "value": R(kvar, 1), "unit": "kVAR", "sub": f"APFC panel {bank} kVAR"},
-            "verdict": f"Add about {R(kvar, 0):g} kVAR (an APFC panel of {bank} kVAR)" + (f"; it saves about ₹{ind(R(monthly, 0))} a month." if monthly > 0 else "."),
-            "items": [item("kVAR needed", R(kvar, 1), "kVAR", "1dp"), item("APFC panel", bank, "kVAR", None, "accent"),
-                      item("Steps", " + ".join(f"{x:g}" for x in steps_) + " kVAR"),
+    return {"headline": {"label": "Capacitors needed", "value": R(kvar, 1), "unit": "kVAR", "sub": f"APFC panel {panel} kVAR" if panels == 1 else f"{panels} APFC panels of {panel} kVAR"},
+            "verdict": f"Add about {R(kvar, 0):g} kVAR ({'an APFC panel' if panels == 1 else f'{panels} APFC panels'} of {panel} kVAR)" + (f"; it saves about ₹{ind(R(monthly, 0))} a month." if monthly > 0 else "."),
+            "items": [item("kVAR needed", R(kvar, 1), "kVAR", "1dp"), item("APFC panel", panel if panels == 1 else f"{panels} × {panel}", "kVAR", None, "accent"),
+                      item("Steps" + (" (each panel)" if panels > 1 else ""), " + ".join(f"{x:g}" for x in steps_) + f" = {panel:g} kVAR"),
                       item("Reactors", f"7% detuned reactors ({g(i['nonlinear'])}% non-linear load)" if detuned else f"Not needed ({g(i['nonlinear'])}% non-linear load)", tone="warn" if detuned else None),
                       item("Demand before → after", f"{R(kva1, 0):g} → {R(kva2, 0):g} kVA"),
                       item("PF penalty avoided", R(pen, 0), "₹/month", "inr"), item("Demand charge saved", R(demand_save, 0), "₹/month", "inr"),
@@ -1050,7 +1177,9 @@ def t_pf_correction(i, C):
             "steps": [step("kVAR", f"{i['kw']:g} × (tan(acos {g(i['pf_now'])}) − tan(acos {g(i['pf_target'])})) = {i['kw']:g} × ({g(R(t1, 4))} − {g(R(t2, 4))})", R(kvar, 2), "kVAR"),
                       step("PF penalty now", f"{pen_pct:g}% of energy charges", R(pen, 0), "₹/month")],
             "notes": (["With more than 15% VFD / UPS / LED load, plain capacitors can resonate — use detuned reactors."] if detuned else [])
-            + ["Panel cost is indicative; we quote after a power-quality measurement."]}
+            + ["Panel cost is indicative; we quote after a power-quality measurement.",
+               (f"The PF penalty follows {C['tariff_order']}: the band's rate for every 0.01 below {g(C['pf_threshold'])}. The demand saving assumes this load sets your maximum demand and that it is above {C['billing_demand_floor_pct']}% of the contract demand."
+                if i["ht"] else f"LT IIIB and LT V three-phase services pay a PF penalty below {g(C.get('lt_pf_threshold', 0.85))} ({C['tariff_order']}); there is no demand charge to save on LT.")]}
 
 
 # ------------------------------------------------------------------ 18 harmonics
@@ -1076,12 +1205,16 @@ def t_harmonics(i, C):
     if i["capacitors"] and nl >= 15:
         recs.append("Plain capacitors with this much non-linear load risk resonance — replace or add reactors.")
         status = "bad"
+    if R(est_thd, 1) > tdd:
+        if risk == "Low":
+            risk, status = "Medium", "warn"
+        recs.insert(0, f"The indicative distortion ({g(R(est_thd, 1))}%) is above the {tdd}% limit for this short-circuit ratio — measure it, and plan filtering if confirmed.")
     if not recs:
         recs.append("No action needed now; recheck when adding drives, UPS or EV chargers.")
     return {"headline": {"label": "Harmonic risk", "value": risk, "sub": f"{nl:g}% non-linear load"}, "status": status,
             "verdict": f"{risk} risk. Your current distortion limit (TDD) at this short-circuit ratio is {tdd}% per IEEE 519.",
             "items": [item("Short-circuit ratio Isc/IL", R(ratio, 1), None, "1dp"), item("Current TDD limit", tdd, "%"),
-                      item("Voltage THD limit (below 1 kV)", 8, "%"), item("Indicative current THD", R(est_thd, 0), "%", "int", "warn" if est_thd > tdd else None)],
+                      item("Voltage THD limit (below 1 kV)", 8, "%"), item("Indicative current THD", R(est_thd, 1), "%", "1dp", "warn" if R(est_thd, 1) > tdd else None)],
             "table": {"title": "What to do", "columns": ["Recommendation"], "rows": [[r] for r in recs]},
             "steps": [step("Short-circuit kVA", f"{i['kva']:g} ÷ {g(i['z_pct'])}%", R(isc_kva, 0), "kVA"),
                       step("Ratio", f"{R(isc_kva, 0):g} ÷ {i['load_kva']:g}", R(ratio, 1))],
@@ -1112,13 +1245,24 @@ def t_energy_savings(i, C):
                  step("Input saved", f"{g(R(out, 2))} × (1/{g(i['eff_old'])} − 1/{g(i['eff_new'])})", R(out / i["eff_old"] - out / i["eff_new"], 3), "kW")]
         name = "Efficient motor"
     save = old - new
+    mid = {"LED retrofit": "LED retrofit", "VFD": "VFD", "Efficient motor": "efficient motor"}[name]
     rupees = save * i["tariff"]
     payback = i["cost"] / rupees if rupees > 0 else None
     co2 = save * C["co2_kg_per_kwh"] / 1000
-    return {"headline": {"label": "Yearly saving", "value": R(rupees, 0), "unit": "₹", "fmt": "inr", "sub": f"{ind(R(save, 0))} kWh"},
-            "verdict": f"{name} saves about {ind(R(save, 0))} kWh (₹{ind(R(rupees, 0))}) a year" + (f" and pays back in {R(payback, 1):g} years." if payback else "."),
+    if save > 0.5:
+        verdict = f"{name} saves about {ind(R(save, 0))} kWh (₹{ind(R(rupees, 0))}) a year" + (f" and pays back in {R(payback, 1):g} years." if payback else ".")
+    elif save < -0.5:
+        verdict = f"At these inputs the {mid} uses about {ind(R(-save, 0))} kWh (₹{ind(R(-rupees, 0))}) a year more, so it doesn't pay." + (
+            " At full flow a VFD only adds its own losses; it saves when the flow is reduced." if i["measure"] == "vfd" else "")
+    else:
+        verdict = f"At these inputs the {mid} makes no real difference to energy use."
+    worse = save < -0.5
+    return {"headline": {"label": "Yearly extra cost" if worse else "Yearly saving", "value": R(-rupees if worse else rupees, 0), "unit": "₹", "fmt": "inr",
+                         "sub": f"{ind(R(-save if worse else save, 0))} kWh {'more' if worse else 'saved'}"},
+            "status": "ok" if save > 0.5 else "warn",
+            "verdict": verdict,
             "items": [item("Energy before", R(old, 0), "kWh/yr", "int"), item("Energy after", R(new, 0), "kWh/yr", "int"),
-                      item("Saved", R(save, 0), "kWh/yr", "int", "good"), item("Saved", R(rupees, 0), "₹/yr", "inr", "good"),
+                      item("Saved", R(save, 0), "kWh/yr", "int", "good" if save > 0 else "bad"), item("Saved", R(rupees, 0), "₹/yr", "inr", "good" if save > 0 else "bad"),
                       item("Payback", R(payback, 1) if payback else "—", "years", "1dp"), item("CO₂ avoided", R(co2, 2), "tonnes/yr", "2dp")],
             "steps": steps, "notes": [f"CO₂ at {C['co2_kg_per_kwh']} kg/kWh ({C['co2_basis']})."]}
 
@@ -1131,21 +1275,31 @@ def t_earthing(i, C):
         r1 = rho / (2 * math.pi * L) * math.log(4 * L / d)
         f = f"ρ ÷ (2πL) × ln(4L/d) = {rho:g} ÷ (2π × {L:g}) × ln(4 × {L:g} ÷ {d:g})"
     elif i["electrode"] == "plate":
-        A = i["plate_w"] * i["plate_h"]
+        A = 2 * i["plate_w"] * i["plate_h"]  # IS 3043: A is the area of both faces of the plate
         r1 = rho / 4 * math.sqrt(math.pi / A)
-        f = f"(ρ ÷ 4) × √(π ÷ A) = ({rho:g} ÷ 4) × √(π ÷ {R(A, 3):g})"
+        f = f"(ρ ÷ 4) × √(π ÷ A), A = both faces = 2 × {i['plate_w']:g} × {i['plate_h']:g} = {R(A, 3):g} m²"
     else:
         L, w, t = i["length"], i["strip_w"] / 1000, i["strip_depth"]
-        r1 = rho / (2 * math.pi * L) * math.log(2 * L * L / (w * t))
+        arg = 2 * L * L / (w * t)
+        min_l = max(4 * t, math.sqrt(w * t) + 0.1)  # the IS 3043 strip formula holds for a strip much longer than its depth
+        if L < min_l - 1e-9:
+            lab = next(x["l"] for x in SPEC["earthing"]["inputs"] if x["k"] == "length")
+            raise CalcError(f"{lab}: too short for a strip buried {t:g} m deep; use at least {g(R(min_l, 1))} m")
+        r1 = rho / (2 * math.pi * L) * math.log(arg)
         f = f"ρ ÷ (2πL) × ln(2L² ÷ (w × t))"
 
-    def eta(n):
-        return 1.0 if n == 1 else (0.85 if n <= 3 else (0.75 if n <= 6 else (0.65 if n <= 12 else 0.55)))
+    # several electrodes in a line, spaced s apart: R = R1 × (1 + λα) ÷ n, α = ρ ÷ (2π R1 s), λ ≈ 2 × (1/2 + … + 1/n)
+    space = max(4.0, 2 * max(i["plate_w"], i["plate_h"])) if i["electrode"] == "plate" else max(2 * i["length"], 2.0)
+    alpha = rho / (2 * math.pi * r1 * space)
+
+    def combined(n):
+        lam = 2 * sum(1 / k for k in range(2, n + 1))
+        return r1 * (1 + lam * alpha) / n
 
     n = 1
-    while r1 / (n * eta(n)) > i["target"] and n < 50:
+    while combined(n) > i["target"] and n < 50:
         n += 1
-    rn = r1 / (n * eta(n))
+    rn = combined(n)
     reached = rn <= i["target"] + 1e-9
     k = C["earthing_k"][i["material"]]
     s = i["fault_ka"] * 1000 * math.sqrt(i["duration"]) / k
@@ -1159,12 +1313,12 @@ def t_earthing(i, C):
         cond = f"{sz} mm² {i['material']}" if sz else "Above 300 mm² — use multiple conductors"
     return {"headline": {"label": "Earth pits needed", "value": n, "sub": f"≈ {g(R(rn, 2))} Ω combined"},
             "status": "ok" if reached else "warn",
-            "verdict": (f"{n} pit{'s' if n > 1 else ''} of this type, spaced at least twice the electrode length apart, give about {g(R(rn, 2))} Ω." if reached
+            "verdict": (f"{n} pit{'s' if n > 1 else ''} of this type" + (f", {g(R(space, 1))} m apart in a line," if n > 1 else "") + f" give about {g(R(rn, 2))} Ω." if reached
                         else f"Even 50 pits don't reach {i['target']:g} Ω in this soil — use soil treatment, longer rods, a ring earth or chemical earthing."),
             "items": [item("One electrode", R(r1, 2), "Ω", "2dp"), item("Pits", n, None, "int", "accent"), item("Combined", R(rn, 2), "Ω", "2dp"),
                       item("Conductor size needed", R(s_allow, 0), "mm²", "int"), item("Earthing conductor", cond)],
             "steps": [step("One electrode", f, R(r1, 2), "Ω"),
-                      step("Several in parallel", "R1 ÷ (n × utilisation)", R(rn, 2), "Ω"),
+                      step("Several in parallel", f"R1 × (1 + λα) ÷ n, α = ρ ÷ (2π × R1 × {g(R(space, 1))} m) = {g(R(alpha, 4))}, n = {n}", R(rn, 2), "Ω"),
                       step("Conductor", f"I × √t ÷ k = {i['fault_ka']:g} kA × √{i['duration']:g} ÷ {k}" + (" + 25% corrosion allowance" if i["material"] == "gi" else ""), R(s_allow, 0), "mm²")],
             "notes": ["Measure soil resistivity on site (Wenner four-pin method) — it can vary 10× across a plot and with the season.",
                       "Typical targets: ≤1 Ω for HT substations, ≤5 Ω for LT equipment earths."]}
@@ -1179,11 +1333,14 @@ def t_lightning_risk(i, C):
     a, b, c, d, e = lc["a"][i["use"]], lc["b"][i["construction"]], lc["c"][i["contents"]], lc["d"][i["isolation"]], lc["e"][i["terrain"]]
     overall = p * a * b * c * d * e
     ad = L * W + 2 * 3 * H * (L + W) + math.pi * (3 * H) ** 2
-    cd = {"surrounded": 0.5, "few": 1.0, "isolated": 2.0}[i["isolation"]]
+    cds = lc.get("cd") or {"surrounded": 0.5, "few": 1.0, "isolated": 1.0, "isolated_hill": 2.0}
+    cd = cds["isolated_hill"] if i["isolation"] == "isolated" and i["terrain"] != "flat" else cds[i["isolation"]]
     nd = i["ng"] * ad * cd * 1e-6
     ratio = overall / lc["threshold"]
     needed = ratio > 1
-    lpl = "Not needed" if not needed else ("Class IV" if ratio <= 100 else ("Class III" if ratio <= 1000 else ("Class II" if ratio <= 10000 else "Class I")))
+    classes = lc.get("classes") or [[5, "Class IV"], [10, "Class III"], [20, "Class II"], [50, "Class I"]]
+    lpl = "Not needed" if not needed else next((name for lim, name in classes if ratio <= lim), "Class I with extra measures")
+    eff_needed = 1 - 1 / ratio if needed else 0
     return {"headline": {"label": "Lightning protection", "value": "Needed" if needed else "Not required", "sub": lpl if needed else None},
             "status": "warn" if needed else "ok",
             "verdict": (f"Protection is recommended: the weighted risk ({sci(overall)}) is {R(ratio, 1):g}× the acceptable 1 × 10⁻⁵. Start with {lpl}."
@@ -1194,8 +1351,11 @@ def t_lightning_risk(i, C):
             "steps": [step("Collection area", "LW + 2LH + 2WH + πH²", R(ac, 0), "m²"),
                       step("Probability", f"Ng {i['ng']:g} × Ac × 10⁻⁶", f"{sci(p)}"),
                       step("Weighting", f"A {g(a)} × B {g(b)} × C {g(c)} × D {g(d)} × E {g(e)}", R(a * b * c * d * e, 4)),
-                      step("Overall risk", "probability × weighting", f"{sci(overall)}")],
-            "notes": ["Quick method per IS 2309. A full IS/IEC 62305-2 risk assessment fixes the final class, surge protection and earthing."]}
+                      step("Overall risk", "probability × weighting", f"{sci(overall)}")]
+            + ([step("Protection efficiency needed", f"1 − 1 ÷ {g(R(ratio, 1))}", R(eff_needed, 3)),
+                step("Class", "E ≤ 0.80 IV, ≤ 0.90 III, ≤ 0.95 II, ≤ 0.98 I, above I + extra measures", lpl)] if needed else []),
+            "notes": ["Risk per IS 2309; class from the protection efficiency needed (IEC 62305). A full IS/IEC 62305-2 risk assessment fixes the final class, surge protection and earthing."]
+            + (["Class I with extra measures means Class I plus surge protection and, where needed, mesh and down-conductor spacing tighter than Class I."] if needed and ratio > classes[-1][0] else [])}
 
 
 # ------------------------------------------------------------------ 22 lux
@@ -1204,19 +1364,33 @@ def t_lighting_lux(i, C):
     A = i["length"] * i["width"]
     k = A / (i["height"] * (i["length"] + i["width"]))
     uf = interp(C["uf_table"], k)
-    n = math.ceil(E * A / (i["lumens"] * uf * i["mf"]) - 1e-9)
+    need = math.ceil(E * A / (i["lumens"] * uf * i["mf"]) - 1e-9)
+    # the smallest grid of at least `need` fixtures; prefer spacings within 2:1 of each other, then the squarest
+    best = None
+    for r_ in range(1, min(need, 2000) + 1):
+        c_ = math.ceil(need / r_)
+        sx, sy = i["length"] / c_, i["width"] / r_
+        ratio = max(sx / sy, sy / sx)
+        key = (0 if ratio <= 2 + 1e-9 else 1, r_ * c_, ratio)
+        if best is None or key < best[0]:
+            best = (key, r_, c_)
+    _, rows, cols = best
+    n = rows * cols  # fill the grid so the spacing is even
     achieved = n * i["lumens"] * uf * i["mf"] / A
     lpd = n * i["watts"] / A
-    cols = max(1, round(math.sqrt(n * i["length"] / i["width"])))
-    rows = math.ceil(n / cols)
     return {"headline": {"label": "Fixtures", "value": n, "sub": f"{R(achieved, 0):g} lux achieved"},
-            "verdict": f"{n} fixtures in about {rows} rows × {cols} give {R(achieved, 0):g} lux at {R(lpd, 1):g} W/m².",
+            "verdict": f"{n} fixtures in {rows} row{'s' if rows > 1 else ''} × {cols} give {R(achieved, 0):g} lux at {R(lpd, 1):g} W/m²"
+            + (f" ({need} are needed; {n} fill the grid evenly)." if n > need else "."),
             "items": [item("Target", E, "lux"), item("Room index", R(k, 2), None, "2dp"), item("Utilisation factor", R(uf, 2), None, "2dp"),
-                      item("Fixtures", n, None, "int", "accent"), item("Layout", f"{rows} rows × {cols}"), item("Achieved", R(achieved, 0), "lux", "int"),
+                      item("Fixtures needed", need, None, "int"), item("Fixtures in the layout", n, None, "int", "accent"), item("Layout", f"{rows} row{'s' if rows > 1 else ''} × {cols}"), item("Achieved", R(achieved, 0), "lux", "int"),
                       item("Lighting power density", R(lpd, 2), "W/m²", "2dp"), item("Spacing", f"≈ {R(i['length'] / cols, 1):g} m × {R(i['width'] / rows, 1):g} m")],
             "steps": [step("Room index", f"L × W ÷ (Hm × (L + W)) = {i['length']:g} × {i['width']:g} ÷ ({i['height']:g} × {i['length'] + i['width']:g})", R(k, 2)),
-                      step("Fixtures", f"E × A ÷ (lumens × UF × MF) = {E:g} × {R(A, 1):g} ÷ ({i['lumens']:g} × {g(R(uf, 2))} × {g(i['mf'])})", n)],
-            "notes": ["Utilisation factor for typical reflectances (ceiling 70%, walls 50%, floor 20%); use the fixture's photometric data for final design."]}
+                      step("Fixtures", f"E × A ÷ (lumens × UF × MF) = {E:g} × {R(A, 1):g} ÷ ({i['lumens']:g} × {g(R(uf, 2))} × {g(i['mf'])})", need),
+                      step("Layout", f"{rows} row{'s' if rows > 1 else ''} × {cols} in {i['length']:g} × {i['width']:g} m", n)],
+            "status": "warn" if max(i["length"] / cols, i["width"] / rows) > 1.5 * i["height"] + 1e-9 else "ok",
+            "notes": ([f"The spacing ({g(R(max(i['length'] / cols, i['width'] / rows), 1))} m) is more than 1.5 × the mounting height ({i['height']:g} m), so the light won't be even — use more fixtures in that direction, or wider-beam fittings."]
+                      if max(i["length"] / cols, i["width"] / rows) > 1.5 * i["height"] + 1e-9 else [])
+            + ["Utilisation factor for typical reflectances (ceiling 70%, walls 50%, floor 20%); use the fixture's photometric data for final design."]}
 
 
 # ------------------------------------------------------------------ 23 units

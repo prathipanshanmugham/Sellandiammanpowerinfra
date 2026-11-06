@@ -1,3 +1,54 @@
+# Update, 6 Nov 2026 (later): every calculator checked
+
+All 24 calculators were checked end to end: the maths against independent hand calculations and the standards and tariff order they cite, the server and the PDF report, and every box, option, toggle, row and button in a browser on desktop and phone.
+
+**Tariffs (TNERC T.O. No. 6 of 2025):**
+- The HT power-factor penalty now follows cl. 3.1.1.6: the rate of the band the PF falls in, for every 0.01 below 0.90. For example, PF 0.84 is 9% and PF 0.80 is 15%; it was counted band by band before, which undercharged.
+- LT IIIB and LT V bills now include time-of-day charges (+25% peak, −5% night, cl. 3.2.1(c)) and the LT PF penalty below 0.85 for three-phase services (cl. 3.2.1(b)). The bill estimator asks for peak share, night share and PF on LT too. A "ToD meter fitted" switch covers LT without a ToD meter, billed at 25% on 20% of units (cl. 3.2.1(d)).
+- LT fixed charges are billed per kW or part of a kW (cl. 3.2.1(g)), so 142.5 kW bills as 143 kW.
+- LT vs HT now includes LT time-of-day. At the default inputs HT saves about ₹2.7 lakh a year (4.5-year payback), where the old version said LT was cheaper.
+
+**Sizing:**
+- **DG sets** are checked in kW as well as kVA, since a set gives 0.8 kW per kVA. A 120 kW load at PF 1 now gets 200 kVA, not 160.
+- **UPS batteries** allow for lower capacity at short backups (typical VRLA tables to 1.75 V per cell); backups under 5 minutes are sized as 5 minutes. Above 500 kVA the tool suggests UPS units in parallel, and it warns when many battery strings would be needed.
+- **Motors:**
+  - Typical efficiency is now the IE3 minimum, with slightly lower typical power factors.
+  - HT motors get a VCB with a motor protection relay and the right cable material.
+  - Heavy-start loads get a VFD, not a soft starter.
+  - The breaker follows the MCB, MCCB-release or ACB list, labelled correctly, and the cable carries at least its rating.
+- **PF correction:** the capacitor steps add up exactly to the panel rating, with at most 12 steps per panel; very large banks split into several panels. LT consumers see the LT penalty they avoid.
+- **Breaker selector:** small loads with a high fault level get the right MCCB release (for example, a 100 A frame with a 16 A release). Motor and capacitor feeders get 3-pole breakers. Ratings above the standard lists say so instead of showing "None".
+- **Transformers:** above 2,500 kVA, LT vs HT and the HT roadmap plan several transformers. 25 kVA now has typical losses, and indoor dry-type units carry a note about losses.
+- **Harmonics:** the risk can no longer read "Low" when the estimated distortion is above the IEEE 519 limit.
+
+**Cables, earthing, lightning, lighting:**
+- **Cable size:**
+  - Grouping factors round to the next larger group (7 cables use the 8-cable factor).
+  - The air temperature defaults to 40 °C when "in air" is chosen.
+  - The verdict says when the short-circuit check, not the current, decides the size.
+  - HT copper and 22/33 kV ratings carry notes.
+- **Cable size lists** in voltage drop and fault level only offer sizes that exist for the chosen conductor.
+- **Earthing:**
+  - The plate formula uses both faces of the plate (IS 3043).
+  - Several pits use the BS 7430 / IS 3043 method for rods in a line, and the spacing is shown.
+  - A strip shorter than 4 × its burial depth is flagged instead of giving an impossible resistance.
+- **Lightning:** the protection class now comes from the protection efficiency needed (IEC 62305): up to 5× the acceptable risk is Class IV, 10× Class III, 20× Class II, 50× Class I, and above that Class I with extra measures. Isolated buildings use Cd 1 (2 on a hill).
+- **Lighting:** the layout is the smallest even grid for the fixtures needed and fits long, narrow rooms. It warns when the spacing is more than 1.5 × the mounting height.
+
+**Smaller fixes:**
+- Single phase defaults to 230 V in Units & formulas.
+- The contract demand optimiser handles a year of zeros, and on a tie it picks the higher demand, since the headroom costs nothing.
+- Energy savings shows "Yearly extra cost" when a measure costs more than it saves.
+- Transformer offers compare with the runner-up.
+- The connected-load suggestion is based on maximum demand.
+- The HT roadmap gives honest timing and says when LT may be enough.
+- The solar checklist adds the net-metering agreement and CEIG approval.
+
+**Reports and forms:**
+- **PDF reports** now print "mm²", "10⁻⁵" and "CO₂" correctly in every PDF viewer (they showed as boxes or blanks in some).
+- **Phones:** result tables with three or more columns show one block per row, so amounts are no longer off-screen. Long text in a table wraps.
+- **Accessibility:** every form label on the site is now linked to its box, so screen readers announce it and tapping the label focuses the box.
+
 # Update, 6 Nov 2026: white header logo, phone layout and sturdier calculators
 
 - **Header logo stays white**: on phones with dark mode for websites (Chrome's "darken websites", Samsung, MIUI) the header used to turn black and the dark "SELLANDIAMMAN" name disappeared. The site now tells browsers it is light only, so the header stays white with the grey and yellow SA mark, the same as the browser-tab icon. The header is solid white (no see-through blur), and the logo and buttons scale down to fit a 320px phone; the language code next to the globe shows from 400px up.

@@ -363,13 +363,7 @@
      "def": 30,
      "min": 0,
      "max": 100,
-     "show_in": {
-      "tariff": [
-       "HT_I",
-       "HT_IIB",
-       "HT_III"
-      ]
-     }
+     "help": "Share of units used 6–10 am and 6–10 pm (+25%). On LT without a ToD meter, TNPDCL may bill 20%."
     },
     {
      "k": "night_share",
@@ -378,14 +372,20 @@
      "unit": "%",
      "def": 10,
      "min": 0,
-     "max": 100,
+     "max": 100
+    },
+    {
+     "k": "tod_meter",
+     "l": "ToD meter fitted",
+     "t": "bool",
+     "def": true,
      "show_in": {
       "tariff": [
-       "HT_I",
-       "HT_IIB",
-       "HT_III"
+       "LT_IIIB",
+       "LT_V"
       ]
-     }
+     },
+     "help": "Without one, TNPDCL may bill the 25% peak charge on 20% of units (T.O. 6/2025 cl. 3.2.1(d))."
     },
     {
      "k": "pf",
@@ -395,13 +395,7 @@
      "min": 0.3,
      "max": 1,
      "step": 0.01,
-     "show_in": {
-      "tariff": [
-       "HT_I",
-       "HT_IIB",
-       "HT_III"
-      ]
-     }
+     "help": "HT penalty below 0.90; LT IIIB and LT V penalty below 0.85 (T.O. 6/2025)."
     }
    ]
   },
@@ -1152,7 +1146,14 @@
      "unit": "°C",
      "def": 30,
      "min": 10,
-     "max": 60
+     "max": 60,
+     "def_by": {
+      "laying": {
+       "ground": 30,
+       "air": 40
+      }
+     },
+     "help": "Ground temperature at laying depth, or air temperature in the cable's location (40 °C is typical in Tamil Nadu)."
     },
     {
      "k": "group",
@@ -2489,7 +2490,13 @@
      "unit": "V",
      "def": 415,
      "min": 1,
-     "max": 1000000
+     "max": 1000000,
+     "def_by": {
+      "phase": {
+       "1": 230,
+       "3": 415
+      }
+     }
     },
     {
      "k": "pf",
@@ -2604,10 +2611,12 @@
   "solar": [
    "Application on the TNPDCL rooftop solar portal",
    "Latest electricity bill",
-   "Plant capacity within sanctioned load",
+   "Sanctioned load details (the plant must be within it)",
    "Equipment details (ALMM-listed modules, inverter certificates)",
    "Single-line diagram of the solar system",
+   "Net-metering / interconnection agreement with TNPDCL",
    "Installation and test report by the installer",
+   "CEIG safety approval or self-certification, as applicable to the plant size",
    "Net / gross meter installation and synchronisation"
   ]
  }
