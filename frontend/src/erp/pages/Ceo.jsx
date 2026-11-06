@@ -69,11 +69,11 @@ export default function Ceo() {
                 <li key={a.id} className="flex flex-wrap items-start gap-3 px-4 py-3">
                   <AlertTriangle className={cn("mt-0.5 h-4 w-4 shrink-0", a.money > 1e6 ? "text-bad" : "text-warn")} />
                   <div className="min-w-0 flex-[1_1_14rem]">
-                    {a.link ? <Link to={a.link.replace("/erp/projects/", "/erp/e/projects/")} className="text-sm font-medium hover:underline">{a.title}</Link> : <p className="text-sm font-medium">{a.title}</p>}
+                    {a.link ? <Link to={a.link.replace("/erp/projects/", "/erp/e/projects/")} className="tap text-sm font-medium hover:underline">{a.title}</Link> : <p className="text-sm font-medium">{a.title}</p>}
                     <p className="text-xs text-muted">{a.evidence}{a.owner ? `. Owner: ${a.owner}` : ""}{a.due ? `. Act by ${fmtDate(a.due)}` : ""}</p>
                   </div>
                   {a.money ? <span className="ms-7 text-sm font-semibold tabular sm:ms-0">{inr(a.money, { compact: true })}</span> : null}
-                  <div className="ms-auto w-[150px]"><Select value={a.status || "new"} onChange={(e) => setAlert(a, e.target.value)} options={ALERT_STATUS} className="h-8 text-xs" aria-label="Alert status" /></div>
+                  <div className="ms-auto w-[150px]"><Select value={a.status || "new"} onChange={(e) => setAlert(a, e.target.value)} options={ALERT_STATUS} className="h-8 text-xs [@media(pointer:coarse)]:h-9" aria-label="Alert status" /></div>
                 </li>
               ))}
             </ul>
@@ -88,7 +88,7 @@ export default function Ceo() {
 
       <Panel title="Live projects" sub="Risk combines schedule, billing and forecast margin" bodyClass="p-0">
         <Table columns={[
-          { label: "Project", render: (p) => <Link to={`/erp/e/projects/${p.id}`} className="font-medium hover:underline">{p.name}</Link>, className: "min-w-[220px]" },
+          { label: "Project", render: (p) => <Link to={`/erp/e/projects/${p.id}`} className="tap font-medium hover:underline">{p.name}</Link>, className: "min-w-[220px]" },
           { label: "Manager", key: "manager" },
           { label: "Value", right: true, render: (p) => inr(p.contract_value, { compact: true }) },
           { label: "Done", right: true, render: (p) => pct(p.percent_complete, 0) },
@@ -108,7 +108,7 @@ export default function Ceo() {
           </ul>
         </Panel>
         <Panel title="Tenders" sub={`Win rate ${data.win_rate}% (last 12 months)`}>
-          <ul className="space-y-1.5 text-sm">{data.tenders.map((x) => <li key={x.key} className="flex justify-between gap-2"><Link to={`/erp/e/tenders?status=${x.key}`} className="hover:underline">{x.status} <span className="text-muted">({x.count})</span></Link><span className="tabular">{inr(x.value, { compact: true })}</span></li>)}</ul>
+          <ul className="space-y-1.5 text-sm">{data.tenders.map((x) => <li key={x.key} className="flex justify-between gap-2"><Link to={`/erp/e/tenders?status=${x.key}`} className="tap hover:underline">{x.status} <span className="text-muted">({x.count})</span></Link><span className="tabular">{inr(x.value, { compact: true })}</span></li>)}</ul>
         </Panel>
         <div className="grid gap-4">
           <Panel title="Safety">

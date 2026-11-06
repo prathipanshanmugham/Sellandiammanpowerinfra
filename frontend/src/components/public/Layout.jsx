@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { InstallAppButton } from "@/components/InstallApp";
 import { Link, NavLink, Outlet, useLocation } from "react-router-dom";
 import { Menu as MenuIcon, X, Phone, MessageCircle, ChevronDown, AlertTriangle, LogIn, Globe } from "lucide-react";
 import { useSite } from "./site";
@@ -23,7 +24,7 @@ function LanguageMenu() {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button type="button" className="flex items-center gap-1.5 whitespace-nowrap rounded-md px-2 py-2 text-sm text-ink/75 hover:text-ink" aria-label={t("Choose a language")}>
+        <button type="button" className="flex min-h-9 min-w-9 items-center justify-center gap-1.5 whitespace-nowrap rounded-md px-2 py-2 text-sm text-ink/75 hover:text-ink" aria-label={t("Choose a language")}>
           <Globe className="h-4 w-4" aria-hidden /><span translate="no" className="hidden xl:inline">{cur.native}</span><span translate="no" className="hidden uppercase min-[400px]:inline xl:hidden">{cur.code}</span>
         </button>
       </PopoverTrigger>
@@ -106,9 +107,9 @@ function MobileMenu({ fit, onClose }) {
   }, []);
   const row = (active) => cn("flex items-center justify-between rounded-md px-3 py-3 text-[17px] font-semibold hover:bg-paper", active && "bg-paper");
   return (
-    <div className={cn("fixed inset-0 z-50 flex flex-col bg-white text-fg", fit < 2 && "lg:hidden")} role="dialog" aria-modal="true" aria-label="Menu">
+    <div className={cn("px-safe fixed inset-0 z-50 flex flex-col bg-white text-fg", fit < 2 && "lg:hidden")} role="dialog" aria-modal="true" aria-label="Menu">
       <div className="container flex h-16 shrink-0 items-center justify-between border-b border-line">
-        <Link to="/" onClick={onClose} aria-label="Sellandiamman Power Infra home"><Logo theme="light" /></Link>
+        <Link to="/" onClick={onClose} className="flex min-h-[44px] items-center" aria-label="Sellandiamman Power Infra home"><Logo theme="light" /></Link>
         <button type="button" onClick={onClose} className="rounded-md p-2" aria-label="Close menu"><X className="h-6 w-6" /></button>
       </div>
       {/* a tap on any link closes the menu, even when it points at the page already open */}
@@ -137,6 +138,7 @@ function MobileMenu({ fit, onClose }) {
           {s.emergency_phone && <span dir="ltr" className="ms-auto text-signal-bright">{s.emergency_phone}</span>}
         </Link>
         <div className="pb-2 pt-5"><LanguageSelect /></div>
+        <InstallAppButton label={t("Install our app")} className="mb-2 flex min-h-[44px] w-full items-center gap-2.5 rounded-md border border-line px-3 text-[15px] font-semibold hover:bg-paper" />
       </nav>
       <div className="container grid shrink-0 grid-cols-2 gap-2 border-t border-line pt-3" style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom))" }} onClick={(e) => { if (e.target.closest("a")) onClose(); }}>
         <Button as={Link} to="/login" variant="outline">{t("Client login")}</Button>
@@ -178,12 +180,12 @@ function Header() {
     <>
       {ann?.active && ann?.text && (
         <div className="bg-ink px-4 py-2 text-center text-[14px] font-medium text-white">
-          {ann.link ? <Link to={ann.link} className="underline-offset-2 hover:underline">{ann.text}</Link> : ann.text}
+          {ann.link ? <Link to={ann.link} className="tap underline-offset-2 hover:underline">{ann.text}</Link> : ann.text}
         </div>
       )}
       <header className="sticky top-0 z-40 border-b border-line bg-white">
         <div ref={bar} className="container flex h-16 items-center justify-between gap-2 min-[400px]:gap-4">
-          <Link to="/" className="shrink-0" aria-label="Sellandiamman Power Infra home"><Logo theme="light" /></Link>
+          <Link to="/" className="flex min-h-[44px] shrink-0 items-center" aria-label="Sellandiamman Power Infra home"><Logo theme="light" /></Link>
           <nav className={cn("hidden items-center gap-1", fit < 2 && "lg:flex")} aria-label="Main">
             <div className="relative" onMouseLeave={() => setSvc(false)}>
               <button type="button" onClick={() => setSvc((x) => !x)} onMouseEnter={() => setSvc(true)} aria-expanded={svc}
@@ -216,40 +218,40 @@ function Footer() {
   const s = site.settings || {};
   const year = new Date().getFullYear();
   return (
-    <footer className="bg-ink-900 pb-24 text-white/85 sm:pb-0">
+    <footer className="pb-callbar bg-ink-900 text-white/85">
       <div className="container grid gap-10 py-14 md:grid-cols-12">
         <div className="md:col-span-4">
           <Logo theme="dark" />
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-white/75">LT and HT electrical contracting and consulting across Tamil Nadu.</p>
           <div className="mt-5 space-y-1.5 text-sm">
-            {s.phone && <a href={telLink(s.phone)} dir="ltr" className="flex items-center gap-2 hover:text-white"><Phone className="h-4 w-4 text-signal-bright" />{s.phone}</a>}
-            {s.whatsapp && <a href={waLink(s.whatsapp)} target="_blank" rel="noreferrer" className="flex items-center gap-2 hover:text-white"><MessageCircle className="h-4 w-4 text-signal-bright" />WhatsApp</a>}
-            {s.email && <a href={`mailto:${s.email}`} className="block hover:text-white">{s.email}</a>}
-            {s.emergency_phone && <Link to="/emergency" className="mt-2 flex items-center gap-2 font-semibold text-signal-bright"><AlertTriangle className="h-4 w-4" />24×7 breakdown: <span dir="ltr">{s.emergency_phone}</span></Link>}
+            {s.phone && <a href={telLink(s.phone)} dir="ltr" className="tap flex items-center gap-2 hover:text-white"><Phone className="h-4 w-4 text-signal-bright" />{s.phone}</a>}
+            {s.whatsapp && <a href={waLink(s.whatsapp)} target="_blank" rel="noreferrer" className="tap flex items-center gap-2 hover:text-white"><MessageCircle className="h-4 w-4 text-signal-bright" />WhatsApp</a>}
+            {s.email && <a href={`mailto:${s.email}`} className="tap flex hover:text-white">{s.email}</a>}
+            {s.emergency_phone && <Link to="/emergency" className="tap mt-2 flex items-center gap-2 font-semibold text-signal-bright"><AlertTriangle className="h-4 w-4" />24×7 breakdown: <span dir="ltr">{s.emergency_phone}</span></Link>}
           </div>
         </div>
         <div className="grid grid-cols-2 gap-8 md:col-span-8 md:grid-cols-4">
           <div>
             <p className="mb-3 text-sm font-semibold text-white">{t("Services")}</p>
-            <ul className="space-y-2 text-sm">{site.services.slice(0, 8).map((x) => <li key={x.slug}><Link to={`/services/${x.slug}`} className="hover:text-white">{x.title.replace(/ \(.*\)/, "")}</Link></li>)}</ul>
+            <ul className="space-y-0.5 text-sm sm:space-y-2">{site.services.slice(0, 8).map((x) => <li key={x.slug}><Link to={`/services/${x.slug}`} className="tap hover:text-white">{x.title.replace(/ \(.*\)/, "")}</Link></li>)}</ul>
           </div>
           <div>
             <p className="mb-3 text-sm font-semibold text-white">Company</p>
-            <ul className="space-y-2 text-sm">
-              {[["/about", "About"], ["/projects", "Projects"], ["/clients", "Clients"], ["/gallery", "Gallery"], ["/safety-quality", "Safety & quality"], ["/careers", "Careers"], ["/insights", "Insights"]].map(([to, l]) => <li key={to}><Link to={to} className="hover:text-white">{t(l)}</Link></li>)}
+            <ul className="space-y-0.5 text-sm sm:space-y-2">
+              {[["/about", "About"], ["/projects", "Projects"], ["/clients", "Clients"], ["/gallery", "Gallery"], ["/safety-quality", "Safety & quality"], ["/careers", "Careers"], ["/insights", "Insights"]].map(([to, l]) => <li key={to}><Link to={to} className="tap hover:text-white">{t(l)}</Link></li>)}
             </ul>
           </div>
           <div>
             <p className="mb-3 text-sm font-semibold text-white">Work with us</p>
-            <ul className="space-y-2 text-sm">
-              {[["/get-quote", "Get a quote"], ["/book-survey", "Book a site survey"], ["/bill-review", "Free bill review"], ["/tenders", "Invite us to bid"], ["/amc", "AMC & maintenance"], ["/tools", "Tools"], ["/vendor-registration", "Vendor registration"]].map(([to, l]) => <li key={to}><Link to={to} className="hover:text-white">{t(l)}</Link></li>)}
+            <ul className="space-y-0.5 text-sm sm:space-y-2">
+              {[["/get-quote", "Get a quote"], ["/book-survey", "Book a site survey"], ["/bill-review", "Free bill review"], ["/tenders", "Invite us to bid"], ["/amc", "AMC & maintenance"], ["/tools", "Tools"], ["/vendor-registration", "Vendor registration"]].map(([to, l]) => <li key={to}><Link to={to} className="tap hover:text-white">{t(l)}</Link></li>)}
             </ul>
           </div>
           <div>
             <p className="mb-3 text-sm font-semibold text-white">Branches</p>
             <ul className="space-y-3 text-sm">
               {site.branches.map((b) => (
-                <li key={b.id}><span className="block text-white">{b.name}</span>{b.phone && <a href={telLink(b.phone)} dir="ltr" className="text-white/75 hover:text-white">{b.phone}</a>}</li>
+                <li key={b.id}><span className="block text-white">{b.name}</span>{b.phone && <a href={telLink(b.phone)} dir="ltr" className="tap text-white/75 hover:text-white">{b.phone}</a>}</li>
               ))}
             </ul>
           </div>
@@ -259,10 +261,11 @@ function Footer() {
         <div className="container flex flex-col gap-3 py-5 text-xs text-white/65 sm:flex-row sm:items-center sm:justify-between">
           <p className="flex flex-wrap gap-x-4 gap-y-1"><span>© {year} Sellandiamman Power Infra</span>{s.gstin && <span>GSTIN {s.gstin}</span>}{s.elb_licence && <span>Licence {s.elb_licence}</span>}</p>
           <div className="flex flex-wrap gap-4">
-            <Link to="/privacy" className="hover:text-white">{t("Privacy")}</Link>
-            <Link to="/terms" className="hover:text-white">{t("Terms")}</Link>
-            <Link to="/cookies" className="hover:text-white">Cookies</Link>
-            <Link to="/erp/login" className="hover:text-white">{t("Staff login")}</Link>
+            <Link to="/privacy" className="tap hover:text-white">{t("Privacy")}</Link>
+            <Link to="/terms" className="tap hover:text-white">{t("Terms")}</Link>
+            <Link to="/cookies" className="tap hover:text-white">Cookies</Link>
+            <Link to="/erp/login" className="tap hover:text-white">{t("Staff login")}</Link>
+            <InstallAppButton label={t("Install the app")} className="inline-flex items-center gap-1.5 hover:text-white" />
           </div>
         </div>
       </div>
@@ -279,7 +282,7 @@ function QuickActions() {
   const msg = `Hello, I'm looking at ${window.location.host}${loc.pathname} and need help with an electrical project.`;
   return (
     <>
-      <div className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-3 border-t border-white/10 bg-ink text-white sm:hidden" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
+      <div className="px-safe fixed inset-x-0 bottom-0 z-30 grid grid-cols-3 border-t border-white/10 bg-ink text-white sm:hidden" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
         {s.phone ? <a href={telLink(s.phone)} dir="ltr" className="flex flex-col items-center gap-0.5 py-2 text-[12px]"><Phone className="h-5 w-5 text-signal-bright" />{t("Call us")}</a> : <span />}
         {s.whatsapp ? <a href={waLink(s.whatsapp, msg)} target="_blank" rel="noreferrer" className="flex flex-col items-center gap-0.5 py-2 text-[12px]"><MessageCircle className="h-5 w-5 text-signal-bright" />WhatsApp</a> : <span />}
         <Link to="/get-quote" className="flex flex-col items-center justify-center bg-signal py-2 text-[13px] font-semibold text-ink">{t("Get a quote")}</Link>
@@ -319,7 +322,7 @@ export function PageHero({ title, text, children, crumbs, dark = true, className
       <div className="container py-12 md:py-16">
         {crumbs && (
           <nav aria-label="Breadcrumb" className={cn("mb-4 text-sm", dark ? "text-white/70" : "text-muted")}>
-            {crumbs.map(([to, l], n) => <span key={l}>{n > 0 && <span className="mx-2">/</span>}{to ? <Link to={to} className="hover:underline">{l}</Link> : <span className={dark ? "text-white/85" : "text-fg"}>{l}</span>}</span>)}
+            {crumbs.map(([to, l], n) => <span key={l}>{n > 0 && <span className="mx-2">/</span>}{to ? <Link to={to} className="tap hover:underline">{l}</Link> : <span className={dark ? "text-white/85" : "text-fg"}>{l}</span>}</span>)}
           </nav>
         )}
         <h1 className={cn("page-title max-w-3xl text-[32px] font-semibold leading-[1.1] md:text-[44px]", dark && "text-white")} style={{ letterSpacing: "-0.025em" }}>{title}</h1>

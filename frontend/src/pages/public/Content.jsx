@@ -40,7 +40,7 @@ function Faqs({ items }) {
     <div className="divide-y divide-line border-y border-line">
       {items.map((f, n) => (
         <details key={n} className="group py-4">
-          <summary className="flex cursor-pointer list-none items-start justify-between gap-4 font-display text-[17px] font-bold">
+          <summary className="flex min-h-9 cursor-pointer list-none items-start justify-between gap-4 py-1 font-display text-[17px] font-bold">
             {f.q || f.question}
             <ChevronDown className="mt-1 h-4 w-4 shrink-0 transition-transform group-open:rotate-180" aria-hidden />
           </summary>
@@ -136,7 +136,7 @@ export function ServiceDetail() {
             <div className="mt-10 rounded-xl bg-ink p-6 text-white">
               <h2 className="text-[19px] font-semibold text-white">Check the numbers first</h2>
               <ul className="mt-3 space-y-2">
-                {tools.map((t) => <li key={t.slug}><Link to={`/tools/${t.slug}`} className="inline-flex items-center gap-2 text-[16px] text-white hover:text-signal-bright"><Icon name={t.icon} className="h-4 w-4 text-signal-bright" />{t.title}</Link></li>)}
+                {tools.map((t) => <li key={t.slug}><Link to={`/tools/${t.slug}`} className="tap inline-flex items-center gap-2 text-[16px] text-white hover:text-signal-bright"><Icon name={t.icon} className="h-4 w-4 text-signal-bright" />{t.title}</Link></li>)}
               </ul>
             </div>
           )}
@@ -400,7 +400,7 @@ export function AboutPage() {
               <div key={g.name} className="bg-ink p-6">
                 <p className="font-display text-[17px] font-bold text-white">{g.name}</p>
                 <p className="mt-1 text-sm text-white/75">{g.text}</p>
-                {g.url && <a href={g.url} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-signal-bright hover:underline">Visit website<ArrowUpRight className="rtl:-scale-x-100 h-3.5 w-3.5" /></a>}
+                {g.url && <a href={g.url} target="_blank" rel="noreferrer" className="tap mt-3 inline-flex items-center gap-1 text-sm font-medium text-signal-bright hover:underline">Visit website<ArrowUpRight className="rtl:-scale-x-100 h-3.5 w-3.5" /></a>}
               </div>
             ))}
           </div>
@@ -423,12 +423,12 @@ export function Branches() {
           {b.is_head_office && <p className="text-xs font-medium text-signal-ink">Head office</p>}
           <ul className="mt-3 space-y-2 text-sm">
             {b.address && <li className="flex gap-2"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-muted" />{b.address}</li>}
-            {b.phone && <li className="flex gap-2"><Phone className="mt-0.5 h-4 w-4 shrink-0 text-muted" /><a href={telLink(b.phone)} dir="ltr" className="hover:underline">{b.phone}</a></li>}
-            {b.email && <li className="flex gap-2"><Mail className="mt-0.5 h-4 w-4 shrink-0 text-muted" /><a href={`mailto:${b.email}`} className="hover:underline">{b.email}</a></li>}
+            {b.phone && <li className="flex gap-2"><Phone className="mt-0.5 h-4 w-4 shrink-0 text-muted" /><a href={telLink(b.phone)} dir="ltr" className="tap hover:underline">{b.phone}</a></li>}
+            {b.email && <li className="flex gap-2"><Mail className="mt-0.5 h-4 w-4 shrink-0 text-muted" /><a href={`mailto:${b.email}`} className="tap hover:underline">{b.email}</a></li>}
             {b.hours && <li className="flex gap-2"><Clock className="mt-0.5 h-4 w-4 shrink-0 text-muted" />{b.hours}</li>}
           </ul>
           {(b.map_url || (b.lat && b.lng)) && (
-            <a href={b.map_url || `https://www.google.com/maps/search/?api=1&query=${b.lat},${b.lng}`} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-cable hover:underline">Directions<ArrowUpRight className="rtl:-scale-x-100 h-3.5 w-3.5" /></a>
+            <a href={b.map_url || `https://www.google.com/maps/search/?api=1&query=${b.lat},${b.lng}`} target="_blank" rel="noreferrer" className="tap mt-3 inline-flex items-center gap-1 text-sm font-medium text-cable hover:underline">Directions<ArrowUpRight className="rtl:-scale-x-100 h-3.5 w-3.5" /></a>
           )}
         </div>
       ))}

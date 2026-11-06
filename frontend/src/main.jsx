@@ -25,6 +25,7 @@ import "@fontsource/noto-sans-tamil/tamil-600.css";
 import "./index.css";
 import { IS_DEMO } from "@/lib/api";
 import { initLang } from "@/lib/i18n";
+import { initPwa } from "@/lib/pwa";
 import { AuthProvider } from "@/lib/auth";
 import { SiteProvider } from "@/components/public/site";
 import App from "./App";
@@ -35,6 +36,7 @@ async function boot() {
   // The hosted preview runs the whole app in the browser against sample data (no server).
   // (import.meta.env is replaced at build time, so the live site leaves the preview code out entirely)
   if (import.meta.env.VITE_DEMO === "true") await (await import("./demo/boot")).default();
+  initPwa();
   await initLang();
   const Router = IS_DEMO ? HashRouter : BrowserRouter;
   ReactDOM.createRoot(document.getElementById("root")).render(

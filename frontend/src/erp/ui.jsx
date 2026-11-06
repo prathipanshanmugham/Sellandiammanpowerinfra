@@ -15,7 +15,7 @@ export function PageHead({ title, sub, icon, actions, back, children, className 
   return (
     <div className={cn("mb-5 flex flex-wrap items-start justify-between gap-3", className)}>
       <div className="min-w-0">
-        {back && <Link to={back[0]} className="mb-1 inline-block text-sm text-muted hover:text-fg">{back[1]}</Link>}
+        {back && <Link to={back[0]} className="tap mb-1 text-sm text-muted hover:text-fg">{back[1]}</Link>}
         <h1 className="flex items-center gap-2.5 font-display text-[22px] font-semibold leading-tight md:text-[26px]">
           {icon && <span className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-md bg-ink text-signal-bright sm:flex"><Icon name={icon} className="h-4 w-4" /></span>}
           <span className="min-w-0 break-words">{title}</span>

@@ -69,7 +69,7 @@ export function SettingsPage() {
             <Panel title="Security and payroll">
               <div className="space-y-3">
                 <Field label="Roles that must use 2-step sign-in">
-                  <div className="flex flex-wrap gap-1.5">{roles.map((r) => { const on = (v.mfa_required_roles || []).includes(r.value); return <button key={r.value} type="button" onClick={() => setV((s) => ({ ...s, mfa_required_roles: on ? s.mfa_required_roles.filter((x) => x !== r.value) : [...(s.mfa_required_roles || []), r.value] }))} aria-pressed={on} className={cn("rounded px-2 py-1 text-xs", on ? "bg-ink text-white" : "bg-canvas text-fg/85")}>{r.label}</button>; })}</div>
+                  <div className="flex flex-wrap gap-1.5">{roles.map((r) => { const on = (v.mfa_required_roles || []).includes(r.value); return <button key={r.value} type="button" onClick={() => setV((s) => ({ ...s, mfa_required_roles: on ? s.mfa_required_roles.filter((x) => x !== r.value) : [...(s.mfa_required_roles || []), r.value] }))} aria-pressed={on} className={cn("rounded px-2 py-1 text-xs [@media(pointer:coarse)]:min-h-9 [@media(pointer:coarse)]:min-w-9", on ? "bg-ink text-white" : "bg-canvas text-fg/85")}>{r.label}</button>; })}</div>
                 </Field>
                 <Field label="Payroll deductions">
                   <div className="flex flex-wrap gap-4">{["pf", "esi", "pt", "tds"].map((k) => <Switch key={k} checked={!!v.payroll_statutory?.[k]} onChange={(x) => setV((s) => ({ ...s, payroll_statutory: { ...s.payroll_statutory, [k]: x } }))} label={k.toUpperCase()} />)}</div>
@@ -138,7 +138,7 @@ function Routing() {
               <div className="flex flex-wrap gap-1">{(r.team || []).map((u) => <Badge key={u} tone="blue">{refs.users[u] || "…"}<button type="button" onClick={() => setRules(rules.map((x, j) => (j === i ? { ...x, team: x.team.filter((y) => y !== u) } : x)))} aria-label="Remove">×</button></Badge>)}</div>
               <RefPicker f={{ ref: "users" }} value={null} onChange={(u) => u && setRules(rules.map((x, j) => (j === i ? { ...x, team: [...new Set([...(x.team || []), u])] } : x)))} refs={refs} onRefTitle={(e, id, t) => setRefs((s) => ({ ...s, users: { ...s.users, [id]: t } }))} placeholder="Add a person" className="mt-1 h-9" />
             </Field>
-            <button type="button" onClick={() => setRules(rules.filter((_, j) => j !== i))} className="self-end rounded p-2 text-muted hover:bg-bad/10 hover:text-bad" aria-label="Remove"><Trash2 className="h-4 w-4" /></button>
+            <button type="button" onClick={() => setRules(rules.filter((_, j) => j !== i))} className="flex h-9 w-9 shrink-0 items-center justify-center self-end rounded text-muted hover:bg-bad/10 hover:text-bad" aria-label="Remove"><Trash2 className="h-4 w-4" /></button>
           </div>
         ))}
         <Button size="sm" variant="outline" onClick={() => setRules([...rules, { name: "New area", towns: [], branch_id: br?.[0]?.id, team: [] }])}><Plus className="h-4 w-4" />Add an area</Button>
@@ -199,7 +199,7 @@ export function UsersPage() {
       <PageHead icon="users-round" title="Users & roles" sub="Staff logins and client, vendor and partner portal logins. A new login gets a 7-day link to set a password."
         actions={can("users", "w") && <Button size="sm" onClick={() => setEdit({ role: portal === "portal" ? "client" : "employee", branch_ids: [], active: true })}><Plus className="h-4 w-4" />Add a login</Button>} />
       <div className="mb-3 flex flex-wrap items-center gap-2">
-        <div className="flex rounded-md border border-edge bg-surface p-0.5">{[["staff", "Staff"], ["portal", "Portal logins"]].map(([k, l]) => <button key={k} type="button" onClick={() => setPortal(k)} className={cn("rounded px-3 py-1.5 text-sm", portal === k ? "bg-ink text-white" : "text-muted")}>{l}</button>)}</div>
+        <div className="flex rounded-md border border-edge bg-surface p-0.5">{[["staff", "Staff"], ["portal", "Portal logins"]].map(([k, l]) => <button key={k} type="button" onClick={() => setPortal(k)} className={cn("rounded px-3 py-1.5 text-sm [@media(pointer:coarse)]:min-h-9 [@media(pointer:coarse)]:min-w-9", portal === k ? "bg-ink text-white" : "text-muted")}>{l}</button>)}</div>
         <label className="relative"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" /><Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search" className="h-9 w-56 pl-9" /></label>
       </div>
       {isLoading ? <Skeleton className="h-64" /> : (
@@ -286,7 +286,7 @@ export function AuditPage() {
             { label: "#", key: "seq", className: "tabular text-muted" }, { label: "When", render: (r) => <span className="whitespace-nowrap tabular">{fmtDateTime(r.at)}</span> },
             { label: "Who", render: (r) => <span>{r.user_name}<span className="block text-xs text-muted">{r.role}</span></span> },
             { label: "Action", render: (r) => r.action.replace(/_/g, " ") },
-            { label: "Record", render: (r) => (r.entity && r.entity_id && !["users", "settings", "alerts"].includes(r.entity) ? <Link to={`/erp/e/${r.entity}/${r.entity_id}`} className="hover:underline">{r.details?.code || r.details?.title || r.entity}</Link> : r.details?.code || r.entity || "—") },
+            { label: "Record", render: (r) => (r.entity && r.entity_id && !["users", "settings", "alerts"].includes(r.entity) ? <Link to={`/erp/e/${r.entity}/${r.entity_id}`} className="tap hover:underline">{r.details?.code || r.details?.title || r.entity}</Link> : r.details?.code || r.entity || "—") },
             { label: "IP", key: "ip", className: "text-xs text-muted tabular" },
           ]} rows={data.items} />
           <div className="flex items-center justify-end gap-2 border-t border-edge px-3 py-2 text-sm"><span className="text-muted">{data.total} entries</span>
@@ -317,7 +317,7 @@ export function WebsiteEditor() {
       {(v[k] || []).map((row, i) => (
         <div key={i} className="flex gap-2">
           {LIST_FIELDS[k].map(([f, l]) => <Input key={f} value={row[f] || ""} placeholder={l} aria-label={l} onChange={(e) => setV((s) => ({ ...s, [k]: s[k].map((x, j) => (j === i ? { ...x, [f]: e.target.value } : x)) }))} className={f === "text" ? "flex-[2]" : "flex-1"} />)}
-          <button type="button" onClick={() => setV((s) => ({ ...s, [k]: s[k].filter((_, j) => j !== i) }))} className="rounded p-2 text-muted hover:text-bad" aria-label="Remove"><Trash2 className="h-4 w-4" /></button>
+          <button type="button" onClick={() => setV((s) => ({ ...s, [k]: s[k].filter((_, j) => j !== i) }))} className="flex h-9 w-9 shrink-0 items-center justify-center rounded text-muted hover:text-bad" aria-label="Remove"><Trash2 className="h-4 w-4" /></button>
         </div>
       ))}
       <Button size="sm" variant="outline" onClick={() => setV((s) => ({ ...s, [k]: [...(s[k] || []), {}] }))}><Plus className="h-4 w-4" />Add</Button>

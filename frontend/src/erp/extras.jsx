@@ -7,7 +7,7 @@ import { api, errMsg, openFile, IN_FRAME } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { inr, num, pct, fmtDate, fmtDateTime, ago, todayIST } from "@/lib/format";
-import { Button, Badge, Dialog, Field, Input, Select, Alert, Skeleton, Progress } from "@/components/ui/kit";
+import { Button, Badge, Dialog, Field, Input, Select, Alert, Skeleton, Progress, SwipeHint } from "@/components/ui/kit";
 import { toast } from "sonner";
 import { useApi, useInvalidate, optionsFor } from "./lib";
 import { RefPicker } from "./fields";
@@ -48,7 +48,7 @@ function LeadExtra({ doc, refresh }) {
                 <li key={i} className="flex gap-3 px-4 py-3">
                   <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-canvas text-muted"><I className="h-3.5 w-3.5" /></span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm">{t.entity ? <Link to={`/erp/e/${t.entity}/${t.id}`} className="hover:underline">{t.title}</Link> : t.title}</p>
+                    <p className="text-sm">{t.entity ? <Link to={`/erp/e/${t.entity}/${t.id}`} className="tap hover:underline">{t.title}</Link> : t.title}</p>
                     {t.text && <p className="text-sm text-muted">{t.text}</p>}
                     <p className="text-xs text-muted">{fmtDateTime(t.at)}{t.by ? `, ${t.by}` : ""}</p>
                   </div>
@@ -179,17 +179,17 @@ function ProjectExtra({ doc, refresh }) {
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <Panel title="Coming up" bodyClass="p-0">
-          <Table dense columns={[{ label: "Milestone", render: (m) => <Link to={`/erp/e/milestones/${m.id}`} className="hover:underline">{m.name}</Link> }, { label: "Finish", render: (m) => <span className={cn(m.planned_end < todayIST() && "font-semibold text-bad")}>{fmtDate(m.planned_end)}</span> },
+          <Table dense columns={[{ label: "Milestone", render: (m) => <Link to={`/erp/e/milestones/${m.id}`} className="tap hover:underline">{m.name}</Link> }, { label: "Finish", render: (m) => <span className={cn(m.planned_end < todayIST() && "font-semibold text-bad")}>{fmtDate(m.planned_end)}</span> },
             { label: "Done", right: true, render: (m) => pct(m.percent, 0) }]} rows={data.upcoming} empty="No open milestones" />
         </Panel>
         <Panel title="Latest daily reports" bodyClass="p-0">
-          <Table dense columns={[{ label: "Date", render: (d) => <Link to={`/erp/e/dprs/${d.id}`} className="hover:underline">{fmtDate(d.date)}</Link> }, { label: "Work done", render: (d) => <span className="line-clamp-1">{Array.isArray(d.work_done) ? d.work_done.map((w) => w.description).filter(Boolean).join("; ") || "—" : d.work_done || d.summary || "—"}</span> },
+          <Table dense columns={[{ label: "Date", render: (d) => <Link to={`/erp/e/dprs/${d.id}`} className="tap hover:underline">{fmtDate(d.date)}</Link> }, { label: "Work done", render: (d) => <span className="line-clamp-1">{Array.isArray(d.work_done) ? d.work_done.map((w) => w.description).filter(Boolean).join("; ") || "—" : d.work_done || d.summary || "—"}</span> },
             { label: "Crew", right: true, render: (d) => (Array.isArray(d.manpower) ? d.manpower.reduce((a, m) => a + (Number(m.own) || 0) + (Number(m.subcon) || 0), 0) : d.manpower ?? "—") }]} rows={data.dprs} empty="No reports yet" />
         </Panel>
       </div>
       {data.liaison?.length > 0 && (
         <Panel title="Approvals with TNPDCL / CEIG" bodyClass="p-0">
-          <Table dense columns={[{ label: "Application", render: (l) => <Link to={`/erp/e/liaisons/${l.id}`} className="hover:underline">{l.title || l.code}</Link> }, { label: "Authority", render: (l) => (l.authority || "").toUpperCase() }, { label: "Stage", render: (l) => <Badge tone="blue">{(l.stage || l.status || "").replace(/_/g, " ")}</Badge> }]} rows={data.liaison} />
+          <Table dense columns={[{ label: "Application", render: (l) => <Link to={`/erp/e/liaisons/${l.id}`} className="tap hover:underline">{l.title || l.code}</Link> }, { label: "Authority", render: (l) => (l.authority || "").toUpperCase() }, { label: "Stage", render: (l) => <Badge tone="blue">{(l.stage || l.status || "").replace(/_/g, " ")}</Badge> }]} rows={data.liaison} />
         </Panel>
       )}
     </div>
@@ -205,7 +205,9 @@ function GanttTab({ doc }) {
   const span = Math.max(1, end - start);
   const today = +new Date(todayIST());
   return (
-    <div className="overflow-x-auto rounded-xl border border-edge bg-surface p-4">
+    <>
+    <SwipeHint />
+    <div data-hscroll="" className="overflow-x-auto rounded-xl border border-edge bg-surface p-4">
       <div className="relative min-w-[640px] space-y-2">
         {today >= start && today <= end && <div className="absolute bottom-0 top-0 z-10 w-px bg-bad" style={{ left: `calc(200px + (100% - 200px) * ${(today - start) / span})` }} title="Today" />}
         {data.map((m) => {
@@ -213,7 +215,7 @@ function GanttTab({ doc }) {
           const late = m.status !== "done" && m.planned_end < todayIST();
           return (
             <div key={m.id} className="grid grid-cols-[200px_1fr] items-center gap-0 text-sm">
-              <Link to={`/erp/e/milestones/${m.id}`} className="truncate pr-3 hover:underline">{m.wbs ? `${m.wbs}. ` : ""}{m.name}</Link>
+              <Link to={`/erp/e/milestones/${m.id}`} className="truncate pr-3 hover:underline [@media(pointer:coarse)]:py-2.5">{m.wbs ? `${m.wbs}. ` : ""}{m.name}</Link>
               <div className="relative h-6 rounded bg-canvas">
                 <div className={cn("absolute top-0 h-6 overflow-hidden rounded", late ? "bg-bad/20" : "bg-ink/15")} style={{ left: `${((s - start) / span) * 100}%`, width: `${Math.max(1.5, ((e - s) / span) * 100)}%` }}>
                   <div className={cn("h-full", late ? "bg-bad" : m.status === "done" ? "bg-good" : "bg-ink")} style={{ width: `${m.percent || 0}%` }} />
@@ -225,6 +227,7 @@ function GanttTab({ doc }) {
         <div className="grid grid-cols-[200px_1fr] pt-1 text-xs text-muted"><span /><span className="flex justify-between"><span>{fmtDate(new Date(start).toISOString().slice(0, 10))}</span><span>{fmtDate(new Date(end).toISOString().slice(0, 10))}</span></span></div>
       </div>
     </div>
+    </>
   );
 }
 
@@ -252,7 +255,8 @@ function RfqExtra({ doc, refresh }) {
   }
   return (
     <Panel title="Quote comparison" sub="Lowest rate per line is highlighted" bodyClass="p-0">
-      <div className="overflow-x-auto">
+      {data.totals.length > 1 && <SwipeHint className="px-4 pt-3">Swipe sideways to compare every vendor</SwipeHint>}
+      <div data-hscroll="" className="overflow-x-auto">
         <table className="w-full text-[14px]">
           <thead className="border-b border-edge text-left text-xs text-muted">
             <tr><th className="px-3 py-2 font-medium">Item</th><th className="px-3 py-2 text-right font-medium">Qty</th>{data.totals.map((t) => <th key={t.vendor_id} className="px-3 py-2 text-right font-medium">{t.vendor}<Badge tone={t.rank === "L1" ? "green" : "gray"} className="ml-1.5">{t.rank}</Badge></th>)}</tr>
@@ -307,7 +311,7 @@ function PartnerExtra({ doc }) {
   if (!data) return null;
   return (
     <Panel title="Referral statement" bodyClass="p-0">
-      <Table dense columns={[{ label: "Lead", render: (r) => <Link to={`/erp/e/leads/${r.id}`} className="hover:underline">{r.name || r.code}</Link> }, { label: "Stage", render: (r) => (r.stage || "").replace(/_/g, " ") }, { label: "Value", right: true, render: (r) => inr(r.value) }, { label: "Commission", right: true, render: (r) => inr(r.commission) }]}
+      <Table dense columns={[{ label: "Lead", render: (r) => <Link to={`/erp/e/leads/${r.id}`} className="tap hover:underline">{r.name || r.code}</Link> }, { label: "Stage", render: (r) => (r.stage || "").replace(/_/g, " ") }, { label: "Value", right: true, render: (r) => inr(r.value) }, { label: "Commission", right: true, render: (r) => inr(r.commission) }]}
         rows={data.rows || data.referrals || []} empty="No referrals yet" foot={["Total", "", "", inr(data.commission_total || data.total)]} />
     </Panel>
   );

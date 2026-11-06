@@ -23,9 +23,9 @@ function ContactAside() {
     <div className="rounded-xl bg-paper p-5">
       <h2 className="font-display text-[17px] font-bold">Prefer to talk?</h2>
       <ul className="mt-3 space-y-2.5 text-[16px]">
-        {s.phone && <li><a href={telLink(s.phone)} dir="ltr" className="flex items-center gap-2.5 hover:underline"><Phone className="h-4 w-4 text-cable" />{s.phone}</a></li>}
-        {s.whatsapp && <li><a href={waLink(s.whatsapp, "Hello, I need help with an electrical project.")} target="_blank" rel="noreferrer" className="flex items-center gap-2.5 hover:underline"><MessageCircle className="h-4 w-4 text-good" />WhatsApp us</a></li>}
-        {s.email && <li><a href={`mailto:${s.email}`} className="flex items-center gap-2.5 hover:underline"><Mail className="h-4 w-4 text-cable" />{s.email}</a></li>}
+        {s.phone && <li><a href={telLink(s.phone)} dir="ltr" className="tap flex items-center gap-2.5 hover:underline"><Phone className="h-4 w-4 text-cable" />{s.phone}</a></li>}
+        {s.whatsapp && <li><a href={waLink(s.whatsapp, "Hello, I need help with an electrical project.")} target="_blank" rel="noreferrer" className="tap flex items-center gap-2.5 hover:underline"><MessageCircle className="h-4 w-4 text-good" />WhatsApp us</a></li>}
+        {s.email && <li><a href={`mailto:${s.email}`} className="tap flex items-center gap-2.5 hover:underline"><Mail className="h-4 w-4 text-cable" />{s.email}</a></li>}
       </ul>
       {s.emergency_phone && <Link to="/emergency" className="mt-4 flex items-center gap-2 border-t border-line pt-3 text-sm font-semibold text-bad"><AlertTriangle className="h-4 w-4" />Breakdown? {s.emergency_phone}</Link>}
     </div>
@@ -106,7 +106,7 @@ export function BillReviewPage() {
     <>
       <PageHero title="Free electricity bill review" text="Most HT and large LT bills we see carry charges that can be cut: demand set too high, power factor penalties, peak-hour use. Send a few recent bills and we'll tell you where the money goes." crumbs={[["/", "Home"], [null, "Bill review"]]} />
       <TwoCol aside={<div className="rounded-xl bg-paper p-5"><h2 className="font-display text-[17px] font-bold">What we check</h2><ul className="mt-3 space-y-2.5">{CHECKS.map((c) => <li key={c} className="flex gap-2.5 text-sm"><ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-good" />{c}</li>)}</ul>
-        <p className="mt-4 border-t border-line pt-3 text-sm text-muted"><span className="block">Want a quick number first? Try these calculators:</span><span className="mt-1 flex flex-wrap gap-x-4"><Link to="/tools/bill-estimator" className="text-cable underline">Electricity bill estimator</Link><Link to="/tools/contract-demand" className="text-cable underline">Contract demand optimiser</Link></span></p></div>}>
+        <p className="mt-4 border-t border-line pt-3 text-sm text-muted"><span className="block">Want a quick number first? Try these calculators:</span><span className="mt-1 flex flex-wrap gap-x-4"><Link to="/tools/bill-estimator" className="tap text-cable underline">Electricity bill estimator</Link><Link to="/tools/contract-demand" className="tap text-cable underline">Contract demand optimiser</Link></span></p></div>}>
         {done ? <Done title="We've got your bills" reference={done.reference} /> : (
           <form onSubmit={go} className="relative space-y-4 rounded-xl border border-line bg-white p-5 md:p-7" noValidate>
             <Honeypot value={v.website} onChange={(x) => setV((s) => ({ ...s, website: x }))} />

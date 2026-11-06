@@ -42,16 +42,22 @@ html:lang(ur) { --font-scripts: "Noto Naskh Arabic", "Noto Sans Arabic", "Segoe 
   a[href^="mailto:"] { overflow-wrap: anywhere; }
   :focus-visible { outline: 2px solid #0F172A; outline-offset: 2px; box-shadow: 0 0 0 5px #FFC400; border-radius: 3px; }
   input, select, textarea { font-size: 16px; }
-  @media (min-width: 768px) { input, select, textarea { font-size: 15px; } }
+  @media (min-width: 768px) and (pointer: fine) { input, select, textarea { font-size: 15px; } }
+  /* touch screens: 16 px in every field, even where a smaller text size is set, or iPhones and iPads zoom in on tap */
+  @media (pointer: coarse) { input:not([type=checkbox]):not([type=radio]):not([type=range]), select, textarea { font-size: 16px !important; } }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
   ::selection { background: #FFC400; color: #0F172A; }
   /* grid items may shrink below their content, so a long name truncates instead of pushing the page sideways on phones */
   .grid > * { min-width: 0; }
+  /* phones with a notch (landscape) and the installed home-screen app: keep content clear of the camera and corners */
+  body { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+  @media (display-mode: standalone) { html { -webkit-tap-highlight-color: transparent; } }
 }
 
-/* Phones: tables with three or more columns turn into one block per row, the first cell as its title and every
-   other cell as "label ... value". Used by the ERP and portal Table and the line-item and ageing tables. */
-@media (max-width: 639.98px) {
+/* Phones and tablets (and any touch screen up to 1366 px): tables with three or more columns turn into one block per
+   row, the first cell as its title and every other cell as "label ... value", so no column hides off to the side.
+   Used by the ERP and portal Table, line items, reports and the calculator results. Keep in step with COMPACT in api.js. */
+@media (max-width: 1023.98px), (pointer: coarse) and (max-width: 1366px) {
   table.spi-stack, table.spi-stack tbody, table.spi-stack tfoot, table.spi-stack tr { display: block; width: 100%; }
   table.spi-stack thead { display: none; }
   table.spi-stack tr { padding: .7rem .75rem; }
@@ -67,6 +73,13 @@ html:lang(ur) { --font-scripts: "Noto Naskh Arabic", "Noto Sans Arabic", "Segoe 
 }
 
 @layer components {
+  /* room under the page for the phone call bar, plus the iPhone home indicator */
+  .pb-callbar { padding-bottom: calc(5.5rem + env(safe-area-inset-bottom)); }
+  @media (min-width: 640px) { .pb-callbar { padding-bottom: 0; } }
+  .px-safe { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+  /* touch screens: a link or small control gets a row at least 36 px tall to tap (a mouse doesn't need it) */
+  .tap { display: inline-flex; align-items: center; }
+  @media (pointer: coarse) { .tap { min-height: 36px; } }
   .lead-text { @apply text-lg leading-relaxed text-fg/80; }
   .prose-site { @apply text-[17px] leading-[1.75] text-fg; max-width: 68ch; }
   .prose-site p { @apply my-3; }

@@ -18,7 +18,7 @@ const BTN = {
   link: "text-cable underline-offset-4 hover:underline px-0 h-auto",
 };
 // min heights, so a long translated label wraps onto a second line instead of running off a phone screen
-const SIZE = { sm: "min-h-8 px-3 py-1 text-[14px] gap-1.5 rounded-md", md: "min-h-10 px-4 py-1.5 text-sm gap-2 rounded-md", lg: "min-h-12 px-6 py-2 text-[16px] gap-2 rounded-lg", icon: "h-9 w-9 rounded-md" };
+const SIZE = { sm: "min-h-8 [@media(pointer:coarse)]:min-h-9 px-3 py-1 text-[14px] gap-1.5 rounded-md", md: "min-h-10 px-4 py-1.5 text-sm gap-2 rounded-md", lg: "min-h-12 px-6 py-2 text-[16px] gap-2 rounded-lg", icon: "h-9 w-9 rounded-md" };
 
 export const Button = forwardRef(function Button({ variant = "primary", size = "md", loading, className, children, as: As = "button", ...p }, ref) {
   return (
@@ -32,7 +32,7 @@ export const Button = forwardRef(function Button({ variant = "primary", size = "
 
 export const IconButton = forwardRef(function IconButton({ label, className, children, ...p }, ref) {
   return (
-    <button ref={ref} aria-label={label} title={label} className={cn("inline-flex h-9 w-9 items-center justify-center rounded-md text-fg/80 hover:bg-fg/5 hover:text-fg disabled:opacity-40", className)} {...p}>
+    <button ref={ref} aria-label={label} title={label} className={cn("inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-fg/80 hover:bg-fg/5 hover:text-fg disabled:opacity-40", className)} {...p}>
       {children}
     </button>
   );
@@ -74,7 +74,7 @@ export function Checkbox({ checked, onChange, label, className, id, disabled }) 
 export function Switch({ checked, onChange, label, disabled }) {
   return (
     <button type="button" role="switch" aria-checked={!!checked} disabled={disabled} onClick={() => onChange?.(!checked)}
-      className="inline-flex items-center gap-2.5 text-sm disabled:opacity-50">
+      className="inline-flex items-center gap-2.5 text-sm disabled:opacity-50 [@media(pointer:coarse)]:min-h-9">
       <span className={cn("relative h-5 w-9 shrink-0 rounded-full transition-colors", checked ? "bg-signal" : "bg-steel")}>
         <span className={cn("absolute left-0 top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform", checked ? "translate-x-[18px]" : "translate-x-0.5")} />
       </span>
@@ -241,13 +241,29 @@ export function PopoverContent({ children, className, align = "start" }) {
   return <RPop.Portal><RPop.Content align={align} sideOffset={6} className={cn("z-50 w-72 rounded-lg border border-edge bg-surface p-3 shadow-pop", className)}>{children}</RPop.Content></RPop.Portal>;
 }
 
+// For the few views that must scroll sideways (Gantt, quote comparison, sales board): says so on phones
+export function SwipeHint({ children = "Swipe sideways to see more", className }) {
+  return <p className={cn("mb-2 flex items-center gap-1.5 text-xs text-muted sm:hidden", className)}>{children}<span aria-hidden="true">→</span></p>;
+}
+
 export function Tabs({ value, onValueChange, tabs, children, className, listClassName }) {
+  // many sections (a project record has twenty-odd): a picker on phones instead of a wall of wrapped tabs
+  const many = tabs.length > 6;
   return (
     <RTabs.Root value={value} onValueChange={onValueChange} className={className}>
-      <RTabs.List className={cn("scrollbar-thin -mx-1 flex gap-1 overflow-x-auto border-b border-edge px-1", listClassName)}>
+      {many && (
+        <label className="mb-1 block sm:hidden">
+          <span className="sr-only">Section</span>
+          <select value={value} onChange={(e) => onValueChange?.(e.target.value)}
+            className="h-11 w-full rounded-md border border-edge bg-surface px-3 text-[16px] font-semibold text-fg focus:border-fg focus:outline-none">
+            {tabs.map((t) => <option key={t.value} value={t.value}>{t.label}{t.count !== undefined && t.count !== null ? ` (${t.count})` : ""}</option>)}
+          </select>
+        </label>
+      )}
+      <RTabs.List className={cn("-mx-1 flex-wrap gap-x-1 border-b border-edge px-1", many ? "hidden sm:flex" : "flex", listClassName)}>
         {tabs.map((t) => (
           <RTabs.Trigger key={t.value} value={t.value}
-            className="relative -mb-px flex shrink-0 items-center gap-1.5 whitespace-nowrap border-b-2 border-transparent px-3 py-2.5 text-sm text-muted hover:text-fg data-[state=active]:border-signal data-[state=active]:font-semibold data-[state=active]:text-fg">
+            className="relative -mb-px flex min-h-10 shrink-0 items-center gap-1.5 whitespace-nowrap border-b-2 border-transparent px-3 py-2.5 text-sm text-muted hover:text-fg data-[state=active]:border-signal data-[state=active]:font-semibold data-[state=active]:text-fg">
             {t.label}{t.count !== undefined && t.count !== null && <span className="rounded-full bg-fg/[.07] px-1.5 text-[12px] font-medium text-muted">{t.count}</span>}
           </RTabs.Trigger>
         ))}

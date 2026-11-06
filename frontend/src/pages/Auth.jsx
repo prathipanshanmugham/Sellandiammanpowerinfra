@@ -23,7 +23,7 @@ function Shell({ children, staff }) {
         </div>
       </div>
       <div className="flex flex-col px-5 py-8 sm:px-10">
-        <Link to="/" className="self-start" aria-label="Back to the website"><Logo theme="light" /></Link>
+        <Link to="/" className="flex min-h-[44px] items-center self-start" aria-label="Back to the website"><Logo theme="light" /></Link>
         <div className="mx-auto flex w-full max-w-sm flex-1 flex-col justify-center py-10">{children}</div>
         <p className="text-center text-xs text-muted">© {new Date().getFullYear()} Sellandiamman Power Infra</p>
       </div>
@@ -66,7 +66,7 @@ export function LoginPage({ staff = false }) {
             <Field label="Password" htmlFor="pw">
               <div className="relative">
                 <Input id="pw" type={show ? "text" : "password"} autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required className="pe-10" />
-                <button type="button" onClick={() => setShow((x) => !x)} className="absolute end-2 top-1/2 -translate-y-1/2 rounded p-1.5 text-muted hover:text-fg" aria-label={show ? "Hide password" : "Show password"}>{show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button>
+                <button type="button" onClick={() => setShow((x) => !x)} className="absolute end-1 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded text-muted hover:text-fg" aria-label={show ? "Hide password" : "Show password"}>{show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</button>
               </div>
             </Field>
           </>
@@ -80,7 +80,7 @@ export function LoginPage({ staff = false }) {
         {mfa && <Button type="button" variant="ghost" className="w-full" onClick={() => { setMfa(false); setCode(""); }}><ArrowLeft className="rtl:-scale-x-100 h-4 w-4" />Use a different account</Button>}
       </form>
       <div className="mt-6 flex flex-wrap justify-between gap-2 text-sm">
-        <Link to={`/forgot-password${staff ? "?staff=1" : ""}`} className="text-cable hover:underline">Forgot password?</Link>
+        <Link to={`/forgot-password${staff ? "?staff=1" : ""}`} className="tap text-cable hover:underline">Forgot password?</Link>
         {staff ? <Link to="/login" className="text-muted hover:text-fg">Client sign in</Link> : <Link to="/erp/login" className="text-muted hover:text-fg">Staff sign in</Link>}
       </div>
       {!staff && <p className="mt-6 rounded-lg bg-paper p-3 text-sm text-muted">No login yet? Your project manager or our office sends you a link to set a password once your project or contract starts.</p>}
@@ -106,7 +106,7 @@ export function ForgotPage() {
           <Button type="submit" size="lg" className="w-full" loading={busy}>Send the link</Button>
         </form>
       )}
-      <Link to={sp.get("staff") === "1" ? "/erp/login" : "/login"} className="mt-6 inline-flex items-center gap-1 text-sm text-cable hover:underline"><ArrowLeft className="rtl:-scale-x-100 h-3.5 w-3.5" />Back to sign in</Link>
+      <Link to={sp.get("staff") === "1" ? "/erp/login" : "/login"} className="tap mt-6 inline-flex items-center gap-1 text-sm text-cable hover:underline"><ArrowLeft className="rtl:-scale-x-100 h-3.5 w-3.5" />Back to sign in</Link>
     </Shell>
   );
 }

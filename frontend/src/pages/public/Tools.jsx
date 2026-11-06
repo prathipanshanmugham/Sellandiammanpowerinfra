@@ -134,7 +134,7 @@ export function ToolPage({ staff = false }) {
     <>
       <section className="border-b border-line bg-paper">
         <div className="container py-8 md:py-10">
-          <nav aria-label="Breadcrumb" className="mb-3 text-sm text-muted"><Link to={base} className="hover:underline">Calculators</Link><span className="mx-2">/</span>{group?.label}</nav>
+          <nav aria-label="Breadcrumb" className="mb-3 text-sm text-muted"><Link to={base} className="tap hover:underline">Calculators</Link><span className="mx-2">/</span>{group?.label}</nav>
           <h1 className="flex items-center gap-3 text-[28px] font-semibold leading-tight md:text-[36px]" style={{ letterSpacing: "-0.02em" }}>
             <span className="hidden h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-ink text-signal-bright sm:flex"><Icon name={spec.icon} className="h-5 w-5" /></span>{spec.title}
           </h1>
@@ -206,7 +206,7 @@ export function follow(spec, vals, C, prev) {
 function InputField({ f, value, vals, onChange, C, error }) {
   const id = `in-${f.k}`;
   const bad = error ? "border-bad focus:border-bad focus:ring-bad/30" : "";
-  const label = <span className="inline-flex items-center gap-1">{f.l}{f.help && <Tip text={f.help}><button type="button" className="text-muted" aria-label={`About ${f.l}`}><Info className="h-3.5 w-3.5" /></button></Tip>}</span>;
+  const label = <span className="inline-flex items-center gap-1">{f.l}{f.help && <Tip text={f.help}><button type="button" className="-m-2.5 inline-flex h-9 w-9 items-center justify-center text-muted" aria-label={`About ${f.l}`}><Info className="h-3.5 w-3.5" /></button></Tip>}</span>;
   if (f.t === "number") {
     return (
       <Field label={label} htmlFor={id} error={error}>
@@ -261,7 +261,7 @@ function InputField({ f, value, vals, onChange, C, error }) {
                     : <Input value={r[x.k] ?? ""} inputMode={x.t === "number" ? "decimal" : undefined} autoComplete="off" onChange={(e) => set(n, x.k, x.t === "number" ? cleanNumber(e.target.value) : e.target.value.slice(0, 80))} className="h-9" />}
                 </label>
               ))}
-              <button type="button" onClick={() => onChange(rows.filter((_, i) => i !== n))} className="absolute end-1.5 top-1.5 rounded-md p-1.5 text-muted hover:bg-bad/10 hover:text-bad sm:static sm:self-end sm:p-2" aria-label={`Remove row ${n + 1}`}><Trash2 className="h-4 w-4" /></button>
+              <button type="button" onClick={() => onChange(rows.filter((_, i) => i !== n))} className="absolute end-0.5 top-0.5 flex h-9 w-9 items-center justify-center rounded-md text-muted hover:bg-bad/10 hover:text-bad sm:static sm:self-end sm:p-2" aria-label={`Remove row ${n + 1}`}><Trash2 className="h-4 w-4" /></button>
             </div>
           ))}
         </div>

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { api, errMsg } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { cn } from "@/lib/utils";
+import { cn, lower } from "@/lib/utils";
 import { todayIST } from "@/lib/format";
 import { computeRecord } from "@/lib/expr";
 import { Button, Field, Sheet, Alert } from "@/components/ui/kit";
@@ -60,8 +60,8 @@ export function EntityFormSheet({ open, onOpenChange, entityKey, record, initial
     } catch (ex) { setErr(errMsg(ex)); } finally { setBusy(false); }
   }
   return (
-    <Sheet open={open} onOpenChange={onOpenChange} title={title || (record ? `Edit ${e.label.toLowerCase()}` : `New ${e.label.toLowerCase()}`)} description={record?.code}
-      footer={<><Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button><Button type="submit" form={`form-${entityKey}`} loading={busy}>{record ? "Save changes" : `Add ${e.label.toLowerCase()}`}</Button></>}>
+    <Sheet open={open} onOpenChange={onOpenChange} title={title || (record ? `Edit ${lower(e.label)}` : `New ${lower(e.label)}`)} description={record?.code}
+      footer={<><Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button><Button type="submit" form={`form-${entityKey}`} loading={busy}>{record ? "Save changes" : `Add ${lower(e.label)}`}</Button></>}>
       <form id={`form-${entityKey}`} onSubmit={save} className="space-y-6" noValidate>
         {groups.map((g) => (
           <fieldset key={g.group || "main"} className="space-y-3">

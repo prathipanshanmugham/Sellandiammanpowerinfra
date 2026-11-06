@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
+import { useInstallFlow } from "@/components/InstallApp";
 import { Link, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import * as RDialog from "@radix-ui/react-dialog";
 import { Command } from "cmdk";
-import { Menu as MenuIcon, X, Search, Bell, ChevronDown, LogOut, User, ExternalLink, Building2, CheckCheck, Moon, Sun } from "lucide-react";
+import { Menu as MenuIcon, X, Search, Bell, ChevronDown, LogOut, User, ExternalLink, Building2, CheckCheck, Moon, Sun, Download } from "lucide-react";
 import { api, branchApi, useBranchPick, useDebounced, store, IS_DEMO } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { cn } from "@/lib/utils";
+import { cn, lower } from "@/lib/utils";
 import { ago, initials } from "@/lib/format";
 import { Logo } from "@/components/brand/Logo";
 import { Icon } from "@/components/ui/icons";
@@ -102,7 +103,7 @@ function Notifications() {
         </button>
       </PopoverTrigger>
       <PopoverContent align="end" className="w-[min(380px,calc(100vw-24px))] p-0">
-        <div className="flex items-center justify-between border-b border-edge px-4 py-2.5"><p className="text-sm font-semibold">Notifications</p>{unread > 0 && <button type="button" onClick={readAll} className="text-xs text-cable hover:underline">Mark all read</button>}</div>
+        <div className="flex items-center justify-between border-b border-edge px-4 py-2.5"><p className="text-sm font-semibold">Notifications</p>{unread > 0 && <button type="button" onClick={readAll} className="tap text-xs text-cable hover:underline">Mark all read</button>}</div>
         <ul className="max-h-[60vh] divide-y divide-edge overflow-y-auto">
           {!data?.items.length && <li className="px-4 py-8 text-center text-sm text-muted">You're all caught up</li>}
           {data?.items.slice(0, 30).map((n) => (
@@ -129,7 +130,7 @@ function Palette({ open, setOpen, sections }) {
   useEffect(() => { if (!open) setQ(""); }, [open]);
   const items = sections.flatMap((s) => s.items.map((i) => ({ ...i, section: s.name })));
   const ql = q.toLowerCase();
-  const pages = (ql ? items.filter((i) => i.label.toLowerCase().includes(ql) || i.section.toLowerCase().includes(ql)) : items.slice(0, 8)).slice(0, 10);
+  const pages = (ql ? items.filter((i) => lower(i.label).includes(ql) || i.section.toLowerCase().includes(ql)) : items.slice(0, 8)).slice(0, 10);
   const go = (to) => { setOpen(false); nav(to); };
   return (
     <RDialog.Root open={open} onOpenChange={setOpen}>
@@ -185,13 +186,17 @@ export default function ErpLayout() {
     window.addEventListener("keydown", on);
     return () => window.removeEventListener("keydown", on);
   }, []);
+  const install = useInstallFlow(loc.pathname);
+  const [hideTip, setHideTip] = useState(() => { try { return localStorage.getItem("spi_install_tip") === "1"; } catch { return false; } });
+  const dismissTip = () => { setHideTip(true); try { localStorage.setItem("spi_install_tip", "1"); } catch { /* private mode */ } };
   const DemoBar = IS_DEMO ? demoBar : null;
   const side = (
     <>
       <div className="flex h-14 shrink-0 items-center px-4"><Link to="/erp" aria-label="Dashboard"><Logo theme="dark" compact /></Link></div>
       <Sidebar sections={sections} counts={{ approvals: inbox?.count }} onNavigate={() => setDrawer(false)} />
-      <div className="border-t border-white/10 p-3 text-xs text-white/65">
-        <Link to="/" className="inline-flex items-center gap-1 hover:text-white">Open the website<ExternalLink className="h-3 w-3" /></Link>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-white/10 p-3 text-xs text-white/65" style={{ paddingBottom: "max(.75rem, env(safe-area-inset-bottom))" }}>
+        <Link to="/" className="inline-flex min-h-[32px] items-center gap-1 hover:text-white">Open the website<ExternalLink className="h-3 w-3" /></Link>
+        {install.show && <button type="button" onClick={install.start} className="inline-flex min-h-[32px] items-center gap-1 hover:text-white"><Download className="h-3 w-3" />Install the app</button>}
       </div>
     </>
   );
@@ -202,7 +207,7 @@ export default function ErpLayout() {
       {drawer && (
         <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
           <div className="absolute inset-0 bg-ink/50" onClick={() => setDrawer(false)} />
-          <aside className="absolute inset-y-0 left-0 flex w-[280px] flex-col bg-ink">{side}<button type="button" onClick={() => setDrawer(false)} className="absolute right-2 top-3 rounded-md p-2 text-white/85" aria-label="Close menu"><X className="h-5 w-5" /></button></aside>
+          <aside className="absolute inset-y-0 left-0 flex w-[280px] max-w-[85vw] flex-col bg-ink" style={{ paddingLeft: "env(safe-area-inset-left)", boxSizing: "content-box" }}>{side}<button type="button" onClick={() => setDrawer(false)} className="absolute right-2 top-3 rounded-md p-2 text-white/85" aria-label="Close menu"><X className="h-5 w-5" /></button></aside>
         </div>
       )}
       <div className="lg:pl-[248px]">
@@ -223,6 +228,7 @@ export default function ErpLayout() {
               </MenuTrigger>
               <MenuContent>
                 <MenuItem onSelect={() => nav("/erp/me")}><User className="h-4 w-4" />My profile, attendance & security</MenuItem>
+                {install.show && <MenuItem onSelect={install.start}><Download className="h-4 w-4" />Install the app</MenuItem>}
                 <MenuItem onSelect={() => setTheme(theme === "dark" ? "light" : "dark")}>{theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}{theme === "dark" ? "Light mode" : "Dark mode"}</MenuItem>
                 <MenuSeparator />
                 <MenuItem onSelect={async () => { await logout(); nav("/erp/login"); }}><LogOut className="h-4 w-4" />Sign out</MenuItem>
@@ -230,11 +236,20 @@ export default function ErpLayout() {
             </Menu>
           </div>
         </header>
-        <main id="main" className="mx-auto max-w-[1400px] px-3 py-5 sm:px-5 lg:px-7">
+        <main id="main" className="mx-auto max-w-[1400px] px-3 py-5 sm:px-5 lg:px-7" style={{ paddingBottom: "max(1.25rem, env(safe-area-inset-bottom))" }}>
+          {install.show && !hideTip && (
+            <div className="mb-4 flex items-center gap-3 rounded-xl border border-edge bg-surface p-3 shadow-card lg:hidden">
+              <img src="/icon-192.png?v=3" alt="" className="h-10 w-10 shrink-0 rounded-lg border border-edge" />
+              <p className="min-w-0 flex-1 text-sm leading-snug"><span className="font-semibold">Use SPI ERP as an app</span><span className="block text-muted">Home-screen icon, full screen, faster to open.</span></p>
+              <Button size="sm" onClick={install.start}>Install</Button>
+              <button type="button" onClick={dismissTip} className="-mr-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-muted hover:bg-fg/5" aria-label="Hide this"><X className="h-4 w-4" /></button>
+            </div>
+          )}
           {meta ? <ErrorBoundary resetKey={loc.pathname}>{blocked ? <Empty title="This screen isn't part of your role" text="Ask your administrator if you need it." className="py-24" /> : <Outlet />}</ErrorBoundary> : <div className="space-y-4"><Skeleton className="h-10 w-1/3" /><Skeleton className="h-64" /></div>}
         </main>
       </div>
       <Palette open={palette} setOpen={setPalette} sections={sections} />
+      {install.dialog}
     </div>
   );
 }

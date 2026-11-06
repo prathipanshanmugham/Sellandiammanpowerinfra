@@ -140,6 +140,20 @@ async def page_data(path):
     return 404, "Page not found", "This page doesn't exist.", None, [], "<h1>Page not found</h1>"
 
 
+PORTAL_PATHS = ("/login", "/client", "/consultant", "/vendor", "/subcontractor", "/partner")
+
+
+def app_shell(html, path):
+    """Name the installable app this page belongs to (the frontend does the same as people move around): the staff ERP,
+    the customer / vendor portal, or the website. Phones read it when someone taps "Install app" / "Add to Home Screen"."""
+    under = lambda roots: any(path == r or path.startswith(r + "/") for r in roots)  # noqa: E731
+    app = ("erp", "SPI ERP") if under(("/erp",)) else (("portal", "SPI Portal") if under(PORTAL_PATHS) else None)
+    if not app:
+        return html
+    html = re.sub(r'(<link rel="manifest" id="app-manifest" href=")/site\.webmanifest', rf"\g<1>/{app[0]}.webmanifest", html)
+    return re.sub(r'(<meta name="apple-mobile-web-app-title" id="app-title" content=")[^"]*', rf"\g<1>{app[1]}", html)
+
+
 @router.get("/seo/page")
 async def seo_page(request: Request):
     path = request.headers.get("x-original-uri") or "/"
@@ -154,7 +168,7 @@ async def seo_page(request: Request):
     name = s.get("company_name") or "Sellandiamman Power Infra"
     full = f"{title} | {name}" if title != name else name
     base = SITE_URL or ""
-    html = SHELL.read_text()
+    html = app_shell(SHELL.read_text(), path)
     head = [f"<title>{escape(full)}</title>", f'<meta name="description" content="{escape(desc or "")}">' if desc else "",
             f'<link rel="canonical" href="{base}{path}">', f'<meta property="og:title" content="{escape(full)}">',
             f'<meta property="og:description" content="{escape(desc or "")}">', f'<meta property="og:url" content="{base}{path}">',

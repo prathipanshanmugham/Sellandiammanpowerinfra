@@ -32,3 +32,8 @@ export function useMeta({ title, description, jsonLd, noindex, image } = {}) {
 }
 
 export function useTitle(title) { useMeta({ title, noindex: true }); }
+
+// "RA bill" → "RA bill", "Purchase order" → "purchase order": lowercase for use mid-sentence, keeping acronyms (RA, BOQ, GRN, RFQ)
+export function lower(text) {
+  return String(text ?? "").replace(/\S+/g, (w) => (/^[A-Z0-9&/().-]{2,}s?$/.test(w) && /[A-Z]{2}/.test(w) ? w : w.toLowerCase()));
+}

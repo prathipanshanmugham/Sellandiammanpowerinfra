@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { Plus, Search, Download, ChevronUp, ChevronDown, X, Filter, Trash2, ChevronLeft, ChevronRight, Inbox } from "lucide-react";
-import { api, errMsg, openFile, useMedia } from "@/lib/api";
+import { api, errMsg, openFile, useMedia, COMPACT } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { cn } from "@/lib/utils";
+import { cn, lower } from "@/lib/utils";
 import { num } from "@/lib/format";
 import { Button, Input, Select, Badge, Empty, Skeleton, Menu, MenuTrigger, MenuContent, MenuItem, Confirm, Checkbox, Alert } from "@/components/ui/kit";
 import { Icon } from "@/components/ui/icons";
@@ -40,7 +40,7 @@ export function EntityList({ entityKey, fixed = {}, embedded, title, onOpen }) {
   const [sel, setSel] = useState([]);
   const [del, setDel] = useState(false);
   const invalidate = useInvalidate();
-  const mobile = useMedia("(max-width: 767px)");
+  const mobile = useMedia(COMPACT);
   usePageTitle(title || e?.plural, !embedded);
 
   if (!meta) return <div className="p-6"><Skeleton className="h-64" /></div>;
@@ -59,8 +59,8 @@ export function EntityList({ entityKey, fixed = {}, embedded, title, onOpen }) {
   if (!can(e, "r")) {
     return (
       <div>
-        <Empty title={`You can add ${e.plural.toLowerCase()}, but not see the list`} text="What you add goes to the team that handles it; you'll be notified when it moves." className="py-20"
-          action={can(e, "w") && <Button onClick={() => setCreating(true)}><Plus className="h-4 w-4" />New {e.label.toLowerCase()}</Button>} />
+        <Empty title={`You can add ${lower(e.plural)}, but not see the list`} text="What you add goes to the team that handles it; you'll be notified when it moves." className="py-20"
+          action={can(e, "w") && <Button onClick={() => setCreating(true)}><Plus className="h-4 w-4" />New {lower(e.label)}</Button>} />
         <EntityFormSheet open={creating} onOpenChange={setCreating} entityKey={entityKey} initial={prefill} onSaved={() => { setCreating(false); toast.success("Sent"); }} />
       </div>
     );
@@ -86,14 +86,14 @@ export function EntityList({ entityKey, fixed = {}, embedded, title, onOpen }) {
                 <MenuContent><MenuItem onSelect={() => exportAs("xlsx")}>Excel (.xlsx)</MenuItem><MenuItem onSelect={() => exportAs("csv")}>CSV</MenuItem><MenuItem onSelect={() => exportAs("pdf")}>PDF</MenuItem></MenuContent>
               </Menu>
             )}
-            {can(e, "w") && !e.readonly && <Button size="sm" onClick={() => setCreating(true)}><Plus className="h-4 w-4" />New {e.label.toLowerCase()}</Button>}
+            {can(e, "w") && !e.readonly && <Button size="sm" onClick={() => setCreating(true)}><Plus className="h-4 w-4" />New {lower(e.label)}</Button>}
           </>} />
       )}
       {states.length > 0 && (
-        <div className="scrollbar-thin -mx-1 mb-3 flex gap-1 overflow-x-auto px-1">
+        <div className="mb-3 flex flex-wrap gap-1.5">
           {[{ value: "", label: "All" }, ...states].map((s) => (
             <button key={s.value} type="button" onClick={() => setParam("status", s.value)} aria-pressed={(params.status || "") === s.value}
-              className={cn("shrink-0 rounded-full px-3 py-1 text-[14px]", (params.status || "") === s.value ? "bg-ink text-white" : "bg-surface text-fg/85 ring-1 ring-inset ring-edge hover:bg-canvas")}>{s.label}</button>
+              className={cn("tap shrink-0 rounded-full px-3 py-1 text-[14px]", (params.status || "") === s.value ? "bg-ink text-white" : "bg-surface text-fg/85 ring-1 ring-inset ring-edge hover:bg-canvas")}>{s.label}</button>
           ))}
         </div>
       )}
@@ -101,13 +101,13 @@ export function EntityList({ entityKey, fixed = {}, embedded, title, onOpen }) {
         <label className="relative min-w-[200px] flex-1 sm:max-w-xs">
           <span className="sr-only">Search {e.plural}</span>
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
-          <Input value={q} onChange={(ev) => setQ(ev.target.value)} placeholder={`Search ${e.plural.toLowerCase()}`} className="h-9 pl-9" />
+          <Input value={q} onChange={(ev) => setQ(ev.target.value)} placeholder={`Search ${lower(e.plural)}`} className="h-9 pl-9" />
         </label>
         {filters.slice(0, mobile ? 0 : 4).map((f) => <FilterControl key={f.k} f={f} value={params[f.k]} onChange={(v) => setParam(f.k, v)} refs={data?.refs} />)}
         {(mobile ? filters.length : filters.length > 4) && <MoreFilters filters={mobile ? filters : filters.slice(4)} params={params} setParam={setParam} refs={data?.refs} />}
         {activeFilters > 0 && <Button variant="ghost" size="sm" onClick={() => { if (embedded) local[1]({}); else setSp({}, { replace: true }); setQ(""); }}><X className="h-3.5 w-3.5" />Clear</Button>}
         {embedded && can(e, "w") && !e.readonly && <Button size="sm" variant="outline" className="ml-auto" onClick={() => setCreating(true)}><Plus className="h-4 w-4" />Add</Button>}
-        {!embedded && data && <span className="ml-auto text-sm text-muted tabular">{num(data.total)} {data.total === 1 ? e.label.toLowerCase() : e.plural.toLowerCase()}</span>}
+        {!embedded && data && <span className="ml-auto text-sm text-muted tabular">{num(data.total)} {data.total === 1 ? lower(e.label) : lower(e.plural)}</span>}
       </div>
       {sel.length > 0 && (
         <div className="mb-3 flex items-center gap-3 rounded-lg bg-ink px-4 py-2 text-sm text-white">
@@ -117,11 +117,11 @@ export function EntityList({ entityKey, fixed = {}, embedded, title, onOpen }) {
         </div>
       )}
       {error ? <Alert tone="red">{errMsg(error)}</Alert> : isLoading ? <Skeleton className="h-72" /> : !data?.items.length ? (
-        <div className="rounded-xl border border-edge bg-surface"><Empty icon={Inbox} title={activeFilters || params.q ? "Nothing matches" : `No ${e.plural.toLowerCase()} yet`}
-          text={activeFilters || params.q ? "Try fewer filters or a different search." : can(e, "w") ? `Add the first ${e.label.toLowerCase()}.` : undefined}
-          action={!activeFilters && can(e, "w") && !e.readonly ? <Button size="sm" onClick={() => setCreating(true)}><Plus className="h-4 w-4" />New {e.label.toLowerCase()}</Button> : null} /></div>
+        <div className="rounded-xl border border-edge bg-surface"><Empty icon={Inbox} title={activeFilters || params.q ? "Nothing matches" : `No ${lower(e.plural)} yet`}
+          text={activeFilters || params.q ? "Try fewer filters or a different search." : can(e, "w") ? `Add the first ${lower(e.label)}.` : undefined}
+          action={!activeFilters && can(e, "w") && !e.readonly ? <Button size="sm" onClick={() => setCreating(true)}><Plus className="h-4 w-4" />New {lower(e.label)}</Button> : null} /></div>
       ) : mobile ? (
-        <ul className="divide-y divide-edge overflow-hidden rounded-xl border border-edge bg-surface">
+        <ul className="grid overflow-hidden rounded-xl border border-edge bg-surface sm:grid-cols-2 [&>li]:border-b [&>li]:border-edge sm:[&>li:nth-child(odd)]:border-r [&>li:last-child]:border-b-0 sm:[&>li:nth-last-child(2):nth-child(odd)]:border-b-0">
           {data.items.map((d) => (
             <li key={d.id}>
               <button type="button" onClick={() => open(d)} className="block w-full px-4 py-3 text-left active:bg-canvas">
@@ -160,7 +160,7 @@ export function EntityList({ entityKey, fixed = {}, embedded, title, onOpen }) {
                     {can(e, "d") && !embedded && <td className="px-3 py-2.5" onClick={(ev) => ev.stopPropagation()}><Checkbox checked={sel.includes(d.id)} onChange={(v) => setSel(v ? [...sel, d.id] : sel.filter((x) => x !== d.id))} /></td>}
                     {cols.map((c, i) => (
                       <td key={c.k} className={cn("max-w-[280px] px-3 py-2.5", ["money", "number", "percent"].includes(c.t) && "whitespace-nowrap text-right", i === 0 && "font-medium")}>
-                        {i === 0 ? <Link to={`/erp/e/${entityKey}/${d.id}`} onClick={(ev) => { if (onOpen) { ev.preventDefault(); } }} className="truncate hover:underline"><FieldValue f={c} v={d[c.k]} refs={data.refs} e={e} compact /></Link>
+                        {i === 0 ? <Link to={`/erp/e/${entityKey}/${d.id}`} onClick={(ev) => { if (onOpen) { ev.preventDefault(); } }} className="truncate hover:underline [@media(pointer:coarse)]:py-2.5"><FieldValue f={c} v={d[c.k]} refs={data.refs} e={e} compact /></Link>
                           : <span className="block truncate"><FieldValue f={c} v={d[c.k]} refs={data.refs} e={e} compact /></span>}
                       </td>
                     ))}
@@ -180,7 +180,7 @@ export function EntityList({ entityKey, fixed = {}, embedded, title, onOpen }) {
       )}
       <EntityFormSheet open={creating} onOpenChange={(v) => { setCreating(v); if (!v && sp.get("new")) { const n = new URLSearchParams(sp); n.delete("new"); setSp(n, { replace: true }); } }}
         entityKey={entityKey} initial={prefill} onSaved={(d) => { setCreating(false); invalidate(`/e/${entityKey}`); if (!embedded) nav(`/erp/e/${entityKey}/${d.id}`); }} />
-      <Confirm open={del} onOpenChange={setDel} title={`Delete ${sel.length} ${e.plural.toLowerCase()}?`} text="They move to the deleted list and are kept in the activity log." tone="danger" confirmLabel="Delete" reason onConfirm={bulkDelete} />
+      <Confirm open={del} onOpenChange={setDel} title={`Delete ${sel.length} ${lower(e.plural)}?`} text="They move to the deleted list and are kept in the activity log." tone="danger" confirmLabel="Delete" reason onConfirm={bulkDelete} />
     </div>
   );
 }

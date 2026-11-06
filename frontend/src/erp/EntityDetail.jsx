@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { Pencil, FileText, MoreHorizontal, Trash2, History, Clock, CheckCircle2, XCircle, ShieldAlert, ArrowLeft } from "lucide-react";
 import { api, errMsg, openFile } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
-import { cn } from "@/lib/utils";
+import { cn, lower } from "@/lib/utils";
 import { fmtDateTime, ago } from "@/lib/format";
 import { Button, Badge, Tabs, TabPanel, Skeleton, Empty, Alert, Dialog, Field, Textarea, Confirm, Menu, MenuTrigger, MenuContent, MenuItem, MenuSeparator } from "@/components/ui/kit";
 import { toast } from "sonner";
@@ -35,7 +35,7 @@ export function EntityDetail({ entityKey, id }) {
   usePageTitle(title || e?.label);
   if (!meta || isLoading) return <div className="space-y-4"><Skeleton className="h-10 w-1/2" /><Skeleton className="h-72" /></div>;
   if (!e) return <Empty title="You don't have access to this" className="py-24" />;
-  if (error) return <div className="py-16"><Alert tone="red" title="Couldn't open this record">{errMsg(error)}</Alert><Button as={Link} to={`/erp/e/${entityKey}`} variant="outline" className="mt-4"><ArrowLeft className="h-4 w-4" />Back to {e.plural.toLowerCase()}</Button></div>;
+  if (error) return <div className="py-16"><Alert tone="red" title="Couldn't open this record">{errMsg(error)}</Alert><Button as={Link} to={`/erp/e/${entityKey}`} variant="outline" className="mt-4"><ArrowLeft className="h-4 w-4" />Back to {lower(e.plural)}</Button></div>;
   const sf = statusField(e);
   const st = sf ? stateOf(e, doc[sf]) : null;
   const locked = isLocked(e, doc);
@@ -100,7 +100,7 @@ export function EntityDetail({ entityKey, id }) {
 
       <EntityFormSheet open={edit} onOpenChange={setEdit} entityKey={entityKey} record={doc} onSaved={() => { setEdit(false); refresh(); }} />
       <ActionDialog a={act} e={e} doc={doc} onClose={() => setAct(null)} onRun={run} />
-      <Confirm open={del} onOpenChange={setDel} title={`Delete this ${e.label.toLowerCase()}?`} text="It moves to the deleted list; the activity log keeps a record." tone="danger" confirmLabel="Delete" reason
+      <Confirm open={del} onOpenChange={setDel} title={`Delete this ${lower(e.label)}?`} text="It moves to the deleted list; the activity log keeps a record." tone="danger" confirmLabel="Delete" reason
         onConfirm={async (reason) => { try { await api.delete(`/e/${entityKey}/${id}`, { params: { reason } }); toast.success("Deleted"); invalidate(`/e/${entityKey}`); nav(`/erp/e/${entityKey}`); } catch (ex) { toast.error(errMsg(ex)); } }} />
     </div>
   );
@@ -131,7 +131,7 @@ export function Details({ e, doc }) {
           </section>
         );
       })}
-      {hidden > 0 && <button type="button" onClick={() => setAll((x) => !x)} className="text-sm text-cable hover:underline">{all ? "Hide empty fields" : `Show ${hidden} empty field${hidden === 1 ? "" : "s"}`}</button>}
+      {hidden > 0 && <button type="button" onClick={() => setAll((x) => !x)} className="tap text-sm text-cable hover:underline">{all ? "Hide empty fields" : `Show ${hidden} empty field${hidden === 1 ? "" : "s"}`}</button>}
       <p className="text-xs text-muted">Created {fmtDateTime(doc.created_at)}{doc.created_by && doc._refs?.users?.[doc.created_by] ? ` by ${doc._refs.users[doc.created_by]}` : ""}</p>
     </div>
   );

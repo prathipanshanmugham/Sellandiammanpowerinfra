@@ -82,6 +82,9 @@ export function useCached(path, fallback) {
   return v;
 }
 
+// phones, tablets and touch screens up to 1366 px get cards instead of wide tables (same rule as table.spi-stack in index.css)
+export const COMPACT = "(max-width: 1023.98px), (pointer: coarse) and (max-width: 1366px)";
+
 export function useMedia(query) {
   const get = () => (typeof window !== "undefined" && window.matchMedia ? window.matchMedia(query).matches : false);
   const [m, setM] = useState(get);

@@ -1,5 +1,6 @@
 import { lazy, Suspense } from "react";
-import { Navigate, Route, Routes, useParams } from "react-router-dom";
+import { Navigate, Route, Routes, useLocation, useParams } from "react-router-dom";
+import { useAppManifest } from "@/lib/pwa";
 import { Spinner } from "@/components/ui/kit";
 import { RequireStaff, RequirePortal } from "@/lib/auth";
 import PublicLayout from "@/components/public/Layout";
@@ -55,6 +56,7 @@ function Go({ to }) {
 }
 
 export default function App() {
+  useAppManifest(useLocation().pathname);
   return (
     <Suspense fallback={<Wait />}>
       <Routes>

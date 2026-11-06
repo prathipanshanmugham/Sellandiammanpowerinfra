@@ -37,7 +37,7 @@ export function Dashboard() {
           {(data?.lists || []).map((l) => <ListPanel key={l.title} l={l} />)}
         </div>
         <div className="space-y-4">
-          <Panel title="Waiting for approval" actions={<Link to="/erp/approvals" className="text-xs text-cable hover:underline">Open approvals</Link>} bodyClass="p-0">
+          <Panel title="Waiting for approval" actions={<Link to="/erp/approvals" className="tap text-xs text-cable hover:underline">Open approvals</Link>} bodyClass="p-0">
             {!data ? <Skeleton className="m-4 h-20" /> : !data.approvals.length ? <p className="px-4 py-6 text-center text-sm text-muted">Nothing waiting</p> : (
               <ul className="divide-y divide-edge">
                 {data.approvals.slice(0, 6).map((a) => (
@@ -60,7 +60,7 @@ function ListPanel({ l }) {
   const { meta } = useAuth();
   const e = meta?.entities?.[l.entity];
   return (
-    <Panel title={l.title} actions={<Link to={l.link} className="text-xs text-cable hover:underline">See all</Link>} bodyClass="p-0">
+    <Panel title={l.title} actions={<Link to={l.link} className="tap text-xs text-cable hover:underline">See all</Link>} bodyClass="p-0">
       {!l.items.length ? <p className="px-4 py-6 text-center text-sm text-muted">{l.empty}</p> : (
         <ul className="divide-y divide-edge">
           {l.items.slice(0, 7).map((it) => {
@@ -89,7 +89,7 @@ function Expiring() {
   const { data } = useApi("/calendar/expiries", { days: 30 });
   if (!data?.length) return null;
   return (
-    <Panel title="Expiring in 30 days" actions={<Link to="/erp/calendar" className="text-xs text-cable hover:underline">Calendar</Link>} bodyClass="p-0">
+    <Panel title="Expiring in 30 days" actions={<Link to="/erp/calendar" className="tap text-xs text-cable hover:underline">Calendar</Link>} bodyClass="p-0">
       <ul className="divide-y divide-edge">
         {data.slice(0, 7).map((x, i) => (
           <li key={i}><Link to={x.link} className="flex items-center justify-between gap-3 px-4 py-2 hover:bg-canvas">
@@ -127,7 +127,7 @@ export function Approvals() {
                 <li key={a.id} className="flex flex-wrap items-center gap-3 rounded-xl border border-edge bg-surface p-4 shadow-card">
                   <div className="min-w-0 flex-[1_1_13rem]">
                     <p className="text-xs text-muted">{a.entity_label}</p>
-                    <Link to={`/erp/e/${a.doc_entity}/${a.doc_id}`} className="font-medium hover:underline">{a.title}</Link>
+                    <Link to={`/erp/e/${a.doc_entity}/${a.doc_id}`} className="tap font-medium hover:underline">{a.title}</Link>
                     <p className="mt-0.5 text-xs text-muted">Asked by {a.requested_by_name || "someone"} {ago(a.created_at)}</p>
                   </div>
                   {a.amount > 0 && <p className="font-display text-[20px] font-semibold tabular">{inr(a.amount)}</p>}
@@ -145,7 +145,7 @@ export function Approvals() {
             <ul className="divide-y divide-edge rounded-xl border border-edge bg-surface">
               {data.my_requests.map((a) => (
                 <li key={a.id} className="flex items-center justify-between gap-3 px-4 py-3">
-                  <span className="min-w-0"><Link to={`/erp/e/${a.doc_entity}/${a.doc_id}`} className="block truncate text-sm font-medium hover:underline">{a.title}</Link><span className="text-xs text-muted">{ago(a.created_at)}{a.why_not ? `, ${a.why_not}` : ""}</span></span>
+                  <span className="min-w-0"><Link to={`/erp/e/${a.doc_entity}/${a.doc_id}`} className="block truncate text-sm font-medium hover:underline [@media(pointer:coarse)]:py-2.5">{a.title}</Link><span className="text-xs text-muted">{ago(a.created_at)}{a.why_not ? `, ${a.why_not}` : ""}</span></span>
                   <Badge tone={a.status === "approved" ? "green" : a.status === "rejected" ? "red" : "amber"}>{a.status === "pending" ? "Waiting" : a.status}</Badge>
                 </li>
               ))}

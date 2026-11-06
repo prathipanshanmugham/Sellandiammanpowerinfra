@@ -1,3 +1,26 @@
+# Update, 7 Nov 2026: install as an app, and every screen fits phones and tablets
+
+**Install as an app (it couldn't be installed before):**
+- The site's app manifest said "browser", so phones only offered a bookmark. There are now three installable apps, and the address you're on decides which one you get:
+  - **Power Infra** — the website, opening at the home page, with Calculators, Get a quote and 24×7 breakdown shortcuts.
+  - **SPI ERP** — the staff ERP, opening at /erp, with Approvals, Sales pipeline, Calendar and My profile shortcuts.
+  - **SPI Portal** — client, consultant, vendor, subcontractor and partner portals, opening at sign-in, then your portal.
+- **How to install:**
+  - Android (Chrome, Edge, Samsung Internet): the browser offers "Install app", or use the new **Install the app** button. It's in the ERP account menu and side menu, as a one-time tip on the ERP home on phones and tablets, in the website's phone menu and footer, and in the portal header.
+  - iPhone/iPad: the same button shows the steps (Share → Add to Home Screen).
+- The installed app opens full screen with a white status bar, the SA icon and a white start-up screen.
+- **Service worker:** a small one, needed for installing. Pages and data always come fresh from the server; only the hashed app files are kept, and with no signal you get a "You're offline — try again" page instead of a browser error.
+- **Server:** `sw.js`, the manifests and the offline page are served with `no-cache`; manifests as `application/manifest+json` (Caddyfile). The server also names the right app in the page shell for /erp and portal addresses, which iPhones read when adding to the home screen.
+
+**Phones and tablets (checked at 320, 360, 375, 390, 414, 667 landscape, 768 and 1024 px, every screen):**
+- **Tables:** on phones, tablets and touch screens up to 1366 px, every table with three or more columns shows one block per row (ERP lists as cards, two across on tablets), so no column is hidden off to the side. Mouse-and-keyboard screens keep full tables.
+- **Tabs and filters:** tab strips and filter rows wrap instead of hiding items off-screen. Records with many sections (a project has over 20) get a "Section" picker on phones.
+- The Gantt chart, vendor quote comparison, sales pipeline board and survey date picker still scroll sideways by design, and say "Swipe sideways" on phones.
+- **Touch:** every button, link and control is at least 36 px tall on touch screens: small buttons, filter pills, breadcrumbs, footer links, help tips, FAQ rows, and the copy/remove icons on line items.
+- **Text fields:** every form field uses 16 px text on touch screens, so iPhones and iPads no longer zoom in when you tap one.
+- **Notches:** content stays clear of the notch in landscape and of the iPhone home bar under the bottom bars.
+- **Labels** such as "RA bills", "BOQs" and "GRNs" keep their capitals in "No RA bills yet" and "Search RA bills".
+
 # Update, 6 Nov 2026 (later): every calculator checked
 
 All 24 calculators were checked end to end: the maths against independent hand calculations and the standards and tariff order they cite, the server and the PDF report, and every box, option, toggle, row and button in a browser on desktop and phone.

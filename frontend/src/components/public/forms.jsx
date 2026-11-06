@@ -282,7 +282,7 @@ export function SurveyBooking({ defaultType = "site_survey" }) {
       <div>
         <p className="field-label">Pick a day</p>
         {!slots ? <p className="text-sm text-muted">Loading free slots…</p> : (
-          <div className="scrollbar-thin -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+          <div data-hscroll="" className="scrollbar-thin -mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
             {slots.map((x) => (
               <button type="button" key={x.date} disabled={!x.slots.length} onClick={() => { setDay(x.date); setPick(null); }}
                 className={cn("flex w-[68px] shrink-0 flex-col items-center rounded-md border py-2 text-xs disabled:opacity-35", day === x.date ? "border-ink bg-ink text-white" : "border-edge hover:border-fg/30")}>

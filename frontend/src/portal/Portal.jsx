@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { InstallAppButton } from "@/components/InstallApp";
 import { Link, NavLink, Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { LogOut, Check, X, FileText, Wrench, IndianRupee, Plus, Star, MessageSquare, ShieldCheck, Send, CalendarCheck, ArrowLeft, Phone, MapPin, ClipboardCheck, Receipt, Users, HandCoins, Upload } from "lucide-react";
@@ -38,10 +39,11 @@ export function PortalLayout() {
       {DemoBar && <DemoBar />}
       <header className="border-b border-white/10 bg-ink text-white">
         <div className="container flex h-14 items-center justify-between gap-3">
-          <Link to="/" aria-label="Website"><Logo theme="dark" compact /></Link>
-          <div className="flex items-center gap-3 text-sm">
+          <Link to="/" className="flex min-h-[44px] items-center" aria-label="Website"><Logo theme="dark" compact /></Link>
+          <div className="flex items-center gap-1 text-sm sm:gap-3">
             <span className="hidden text-white/80 sm:inline">{user?.name}</span>
-            <button type="button" onClick={async () => { await logout(); nav("/login"); }} className="flex items-center gap-1.5 rounded-md px-2 py-1.5 text-white/85 hover:bg-white/10 hover:text-white"><LogOut className="h-4 w-4" />Sign out</button>
+            <InstallAppButton label="Install" className="flex min-h-[36px] items-center gap-1.5 rounded-md px-2 py-1.5 text-white/85 hover:bg-white/10 hover:text-white" />
+            <button type="button" onClick={async () => { await logout(); nav("/login"); }} className="flex min-h-9 items-center gap-1.5 rounded-md px-2 py-1.5 text-white/85 hover:bg-white/10 hover:text-white"><LogOut className="h-4 w-4" />Sign out</button>
           </div>
         </div>
         <nav className="container scrollbar-thin flex gap-1 overflow-x-auto" aria-label="Portal">
@@ -238,7 +240,7 @@ export function ClientBills() {
       <Head title="Bills and payments" sub={`Outstanding ${inr(data.outstanding)}`} />
       <Panel title="Due for payment" bodyClass="p-0">
         <Table columns={[
-          { label: "Invoice", render: (i) => <button type="button" onClick={() => setOpen(i.id)} className="font-medium text-cable hover:underline">{i.code}</button> },
+          { label: "Invoice", render: (i) => <button type="button" onClick={() => setOpen(i.id)} className="tap font-medium text-cable hover:underline">{i.code}</button> },
           { label: "Date", render: (i) => fmtDate(i.date) }, { label: "Due", render: (i) => <span className={cn(i.due_date < todayIST() && "font-semibold text-bad")}>{fmtDate(i.due_date)}</span> },
           { label: "Total", right: true, render: (i) => inr(i.total) }, { label: "Balance", right: true, render: (i) => <span className="font-semibold">{inr(i.balance)}</span> },
           { label: "", render: (i) => <div className="flex justify-end gap-2"><Button size="sm" onClick={async () => { try { setPay({ inv: i, ...(await api.get(`/portal/pay/${i.id}`)).data }); } catch (ex) { toast.error(errMsg(ex)); } }}><IndianRupee className="h-3.5 w-3.5" />Pay by UPI</Button><Button size="sm" variant="outline" onClick={() => setNotice(i)}>I've paid</Button></div> },
@@ -373,7 +375,7 @@ export function ConsultantHome() {
           { label: "", render: (r) => <div className="flex justify-end"><Button size="sm" variant="outline" onClick={() => setRfi(r)}><MessageSquare className="h-3.5 w-3.5" />Answer</Button></div> }]} rows={data.rfis} empty="No open questions" />
       </Panel>
       <Panel title="Test reports" bodyClass="p-0">
-        <Table columns={[{ label: "Test", render: (t) => <button type="button" className="font-medium text-cable hover:underline" onClick={() => setOpen(t.id)}>{t.equipment}</button> }, { label: "Type", render: (t) => (t.test_type || "").replace(/_/g, " ") }, { label: "Date", render: (t) => fmtDate(t.date) },
+        <Table columns={[{ label: "Test", render: (t) => <button type="button" className="tap font-medium text-cable hover:underline" onClick={() => setOpen(t.id)}>{t.equipment}</button> }, { label: "Type", render: (t) => (t.test_type || "").replace(/_/g, " ") }, { label: "Date", render: (t) => fmtDate(t.date) },
           { label: "Result", render: (t) => <Badge tone={t.result === "pass" ? "green" : t.result === "fail" ? "red" : "gray"}>{t.result || t.status}</Badge> }]} rows={data.tests} empty="No test reports yet" />
       </Panel>
       {appr && <ApproveDialog item={appr} onClose={() => setAppr(null)} onDone={() => { setAppr(null); refetch(); }} />}
@@ -409,7 +411,7 @@ export function VendorHome() {
           { label: "", render: (r) => r.status !== "closed" && <div className="flex justify-end"><Button size="sm" onClick={() => setQuote(r)}><Send className="h-3.5 w-3.5" />Quote</Button></div> }]} rows={data.rfqs} empty="No RFQs right now" />
       </Panel>
       <Panel title="Purchase orders" bodyClass="p-0">
-        <Table columns={[{ label: "PO", render: (p) => <button type="button" className="font-medium text-cable hover:underline" onClick={() => openFile(`/e/purchase_orders/${p.id}/pdf`, { name: `${p.code}.pdf`, type: "application/pdf", kind: "purchase_order" })}>{p.code}</button> },
+        <Table columns={[{ label: "PO", render: (p) => <button type="button" className="tap font-medium text-cable hover:underline" onClick={() => openFile(`/e/purchase_orders/${p.id}/pdf`, { name: `${p.code}.pdf`, type: "application/pdf", kind: "purchase_order" })}>{p.code}</button> },
           { label: "Date", render: (p) => fmtDate(p.date) }, { label: "Deliver by", render: (p) => fmtDate(p.delivery_by) }, { label: "Value", right: true, render: (p) => inr(p.total) }, { label: "Status", render: (p) => <Badge>{(p.status || "").replace(/_/g, " ")}</Badge> },
           { label: "", render: (p) => ["received", "partly_received", "sent", "acknowledged"].includes(p.status) && <div className="flex justify-end"><Button size="sm" variant="outline" onClick={() => setBill(p)}><Upload className="h-3.5 w-3.5" />Send bill</Button></div> }]} rows={data.pos} empty="No purchase orders" />
       </Panel>

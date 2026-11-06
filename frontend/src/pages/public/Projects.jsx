@@ -32,7 +32,7 @@ export function ProjectsPage() {
           <div className="flex rounded-md border border-line p-0.5" role="group" aria-label="Status">
             {[["", "All"], ["completed", "Completed"], ["ongoing", "Ongoing"]].map(([v, l]) => (
               <button key={v} type="button" onClick={() => set("state", v)} aria-pressed={state === v}
-                className={cn("rounded px-3 py-1.5 text-sm", state === v ? "bg-ink text-white" : "text-muted hover:text-fg")}>{l}</button>
+                className={cn("rounded px-3 py-1.5 text-sm [@media(pointer:coarse)]:min-h-9", state === v ? "bg-ink text-white" : "text-muted hover:text-fg")}>{l}</button>
             ))}
           </div>
           {FILTERS.map(([k, l, opt]) => (facets[k] || []).length > 1 && (
@@ -76,7 +76,7 @@ export function ProjectDetail() {
       <section className="bg-ink text-white">
         <div className="container grid gap-10 py-12 md:py-16 lg:grid-cols-[1fr_1.1fr] lg:items-center">
           <div>
-            <nav aria-label="Breadcrumb" className="mb-4 text-sm text-white/70"><Link to="/" className="hover:underline">Home</Link><span className="mx-2">/</span><Link to="/projects" className="hover:underline">Projects</Link></nav>
+            <nav aria-label="Breadcrumb" className="mb-4 text-sm text-white/70"><Link to="/" className="tap hover:underline">Home</Link><span className="mx-2">/</span><Link to="/projects" className="tap hover:underline">Projects</Link></nav>
             <div className="flex flex-wrap gap-1.5">{p.ongoing && <Chip dark>Ongoing</Chip>}{p.sample && <Chip dark>Sample project</Chip>}</div>
             <h1 className="mt-3 text-[30px] font-semibold leading-[1.1] text-white md:text-[42px]" style={{ letterSpacing: "-0.025em" }}>{p.title}</h1>
             <p className="mt-4 max-w-xl text-lg leading-relaxed text-white/80">{p.public_summary}</p>

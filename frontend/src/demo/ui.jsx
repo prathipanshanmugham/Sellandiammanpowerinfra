@@ -35,7 +35,7 @@ export function DemoBar() {
   const go = useSwitch();
   const nav = useNavigate();
   return (
-    <div className="fixed inset-x-0 top-0 z-40 flex h-10 items-center gap-3 bg-signal px-3 text-[14px] text-ink sm:px-5">
+    <div data-demo="" className="fixed inset-x-0 top-0 z-40 flex h-10 items-center gap-3 bg-signal px-3 text-[14px] text-ink sm:px-5">
       <span className="hidden font-semibold sm:inline">Preview with sample data</span>
       <span className="hidden text-ink/75 md:inline">Changes stay until you reload.</span>
       <span className="ml-auto text-ink/75">Signed in as</span>

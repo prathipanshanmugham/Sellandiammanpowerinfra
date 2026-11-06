@@ -211,7 +211,7 @@ export function Vault() {
                     <div className="min-w-0 flex-[1_1_13rem]">
                       <p className="flex items-center gap-2 text-sm font-medium">{it.title}{it.rotate_due && <Badge tone="amber">Change due</Badge>}</p>
                       <p className="flex items-center gap-1.5 text-xs text-muted">{it.username}{it.username && <button type="button" onClick={() => { navigator.clipboard?.writeText(it.username); toast.success("Username copied"); }} aria-label="Copy username"><Copy className="h-3 w-3" /></button>}
-                        {it.url && <a href={it.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-0.5 hover:underline"><ExternalLink className="h-3 w-3" />Open site</a>}</p>
+                        {it.url && <a href={it.url} target="_blank" rel="noreferrer" className="tap inline-flex items-center gap-0.5 hover:underline"><ExternalLink className="h-3 w-3" />Open site</a>}</p>
                     </div>
                     {shown[it.id] ? <span className="rounded bg-canvas px-2 py-1 font-mono text-sm">{shown[it.id]}</span> : null}
                     {it.has_password && <><Button size="sm" variant="ghost" onClick={() => reveal(it)}><Eye className="h-3.5 w-3.5" />Show</Button><Button size="sm" variant="outline" onClick={() => reveal(it, "copy")}><Copy className="h-3.5 w-3.5" />Copy</Button></>}
@@ -249,7 +249,7 @@ function AddLogin({ presets, roles, onClose, onDone }) {
         <Field label="Password"><Input type="password" value={v.password} onChange={(e) => setV((s) => ({ ...s, password: e.target.value }))} autoComplete="new-password" /></Field>
         <Field label="Notes"><Input value={v.notes} onChange={(e) => setV((s) => ({ ...s, notes: e.target.value }))} /></Field>
         <Field label="Who can see it" className="sm:col-span-2">
-          <div className="flex flex-wrap gap-1.5">{roles.map((r) => { const on = v.share_roles.includes(r.key); return <button key={r.key} type="button" onClick={() => setV((s) => ({ ...s, share_roles: on ? s.share_roles.filter((x) => x !== r.key) : [...s.share_roles, r.key] }))} className={cn("rounded px-2 py-1 text-xs", on ? "bg-ink text-white" : "bg-canvas text-fg/85")}>{r.label}</button>; })}</div>
+          <div className="flex flex-wrap gap-1.5">{roles.map((r) => { const on = v.share_roles.includes(r.key); return <button key={r.key} type="button" onClick={() => setV((s) => ({ ...s, share_roles: on ? s.share_roles.filter((x) => x !== r.key) : [...s.share_roles, r.key] }))} className={cn("rounded px-2 py-1 text-xs [@media(pointer:coarse)]:min-h-9 [@media(pointer:coarse)]:min-w-9", on ? "bg-ink text-white" : "bg-canvas text-fg/85")}>{r.label}</button>; })}</div>
         </Field>
       </div>
     </Dialog>

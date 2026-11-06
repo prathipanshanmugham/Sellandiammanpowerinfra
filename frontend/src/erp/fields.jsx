@@ -20,8 +20,8 @@ export function FieldValue({ f, v, refs, e, compact }) {
     case "date": return <span className="tabular">{fmtDate(v)}</span>;
     case "datetime": return <span className="tabular">{fmtDateTime(v)}</span>;
     case "bool": return v ? <Badge tone="green">Yes</Badge> : <span className="text-muted">No</span>;
-    case "phone": return <a href={telLink(v)} className="tabular hover:underline" onClick={(ev) => ev.stopPropagation()}>{v}</a>;
-    case "email": return <a href={`mailto:${v}`} className="hover:underline" onClick={(ev) => ev.stopPropagation()}>{v}</a>;
+    case "phone": return <a href={telLink(v)} className="tap tabular hover:underline" onClick={(ev) => ev.stopPropagation()}>{v}</a>;
+    case "email": return <a href={`mailto:${v}`} className="tap hover:underline" onClick={(ev) => ev.stopPropagation()}>{v}</a>;
     case "select": {
       const st = e?.status?.field === f.k ? (e.status.states || []).find((s) => s.value === v) : null;
       return st ? <Badge tone={st.tone} dot>{st.label}</Badge> : <span>{optLabel(meta, f, v)}</span>;
@@ -30,12 +30,12 @@ export function FieldValue({ f, v, refs, e, compact }) {
     case "ref": {
       const t = refs?.[f.ref]?.[v];
       if (compact || f.ref === "users" || f.ref === "branches" || !meta?.entities?.[f.ref]) return <span>{t || "…"}</span>;
-      return <Link to={`/erp/e/${f.ref}/${v}`} className="text-cable hover:underline" onClick={(ev) => ev.stopPropagation()}>{t || "Open"}</Link>;
+      return <Link to={`/erp/e/${f.ref}/${v}`} className="tap text-cable hover:underline" onClick={(ev) => ev.stopPropagation()}>{t || "Open"}</Link>;
     }
     case "refs": return <span>{v.map((x) => refs?.[f.ref]?.[x] || "…").join(", ")}</span>;
     case "file": return <FileChip file={v} />;
     case "files": return compact ? <span className="text-muted">{v.length} file{v.length === 1 ? "" : "s"}</span> : <span className="flex flex-wrap gap-1.5">{v.map((x) => <FileChip key={x.id} file={x} />)}</span>;
-    case "geo": return v?.lat ? <a href={`https://www.google.com/maps/search/?api=1&query=${v.lat},${v.lng}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-cable hover:underline"><MapPin className="h-3.5 w-3.5" />{Number(v.lat).toFixed(5)}, {Number(v.lng).toFixed(5)}</a> : <span className="text-muted">—</span>;
+    case "geo": return v?.lat ? <a href={`https://www.google.com/maps/search/?api=1&query=${v.lat},${v.lng}`} target="_blank" rel="noreferrer" className="tap inline-flex items-center gap-1 text-cable hover:underline"><MapPin className="h-3.5 w-3.5" />{Number(v.lat).toFixed(5)}, {Number(v.lng).toFixed(5)}</a> : <span className="text-muted">—</span>;
     case "markdown": return compact ? <span className="line-clamp-1">{String(v).slice(0, 80)}</span> : <Markdown text={v} className="prose-site text-sm" />;
     case "textarea": return compact ? <span className="line-clamp-1">{String(v)}</span> : <span className="whitespace-pre-line">{v}</span>;
     case "json": return <JsonValue v={v} />;
@@ -62,7 +62,7 @@ export function FileChip({ file, onRemove }) {
   return (
     <span className="inline-flex max-w-full items-center gap-1.5 rounded-md border border-edge bg-surface px-2 py-1 text-xs">
       <Paperclip className="h-3.5 w-3.5 shrink-0 text-muted" />
-      <button type="button" onClick={(ev) => { ev.stopPropagation(); openStoredFile(file); }} className="truncate hover:underline">{file.name || "File"}</button>
+      <button type="button" onClick={(ev) => { ev.stopPropagation(); openStoredFile(file); }} className="truncate hover:underline [@media(pointer:coarse)]:py-2.5">{file.name || "File"}</button>
       {onRemove && <button type="button" onClick={onRemove} className="text-muted hover:text-bad" aria-label={`Remove ${file.name}`}><X className="h-3.5 w-3.5" /></button>}
     </span>
   );
@@ -138,7 +138,7 @@ function MultiSelect({ f, value, onChange }) {
       {opts.map((o) => {
         const on = value.includes(o.value);
         return <button key={o.value} type="button" onClick={() => onChange(on ? value.filter((x) => x !== o.value) : [...value, o.value])} aria-pressed={on}
-          className={cn("rounded px-2 py-1 text-xs", on ? "bg-ink text-white" : "bg-canvas text-fg/85 hover:bg-fg/10")}>{o.label}</button>;
+          className={cn("rounded px-2 py-1 text-xs [@media(pointer:coarse)]:min-h-9 [@media(pointer:coarse)]:min-w-9", on ? "bg-ink text-white" : "bg-canvas text-fg/85 hover:bg-fg/10")}>{o.label}</button>;
       })}
     </div>
   );
@@ -274,8 +274,8 @@ export function LinesEditor({ f, rows, onChange, refs, onRefTitle, doc }) {
         <div key={i} className="rounded-lg border border-edge bg-surface p-3">
           <div className="mb-2 flex items-center justify-between text-xs text-muted"><span className="tabular">Line {i + 1}</span>
             <span className="flex gap-1">
-              <button type="button" className="rounded p-1 hover:bg-fg/5 hover:text-fg" aria-label="Copy line" onClick={() => onChange([...rows.slice(0, i + 1), { ...r }, ...rows.slice(i + 1)])}><Copy className="h-3.5 w-3.5" /></button>
-              <button type="button" className="rounded p-1 hover:bg-bad/10 hover:text-bad" aria-label="Remove line" onClick={() => onChange(rows.filter((_, j) => j !== i))}><Trash2 className="h-3.5 w-3.5" /></button>
+              <button type="button" className="flex h-9 w-9 items-center justify-center rounded hover:bg-fg/5 hover:text-fg" aria-label="Copy line" onClick={() => onChange([...rows.slice(0, i + 1), { ...r }, ...rows.slice(i + 1)])}><Copy className="h-3.5 w-3.5" /></button>
+              <button type="button" className="flex h-9 w-9 items-center justify-center rounded hover:bg-bad/10 hover:text-bad" aria-label="Remove line" onClick={() => onChange(rows.filter((_, j) => j !== i))}><Trash2 className="h-3.5 w-3.5" /></button>
             </span>
           </div>
           <div className="grid grid-cols-2 gap-2 md:grid-cols-6">

@@ -32,13 +32,13 @@ export function Stores() {
         <Kpi label="Transfers in transit" value={transit?.length} fmt="int" link="/erp/e/material_moves?status=in_transit" />
       </div>
       <Panel title="Stock" actions={<div className="flex flex-wrap items-center gap-2">
-        <label className="relative"><Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" /><Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find an item" className="h-8 w-44 pl-8 text-sm" /></label>
-        <div className="w-[160px]"><Select value={store} onChange={(e) => setStore(e.target.value)} options={(stores?.items || []).map((s) => ({ value: s.id, label: s.name }))} placeholder="All stores" className="h-8 text-sm" /></div>
+        <label className="relative"><Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted" /><Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find an item" className="h-8 w-44 pl-8 text-sm [@media(pointer:coarse)]:h-9" /></label>
+        <div className="w-[160px]"><Select value={store} onChange={(e) => setStore(e.target.value)} options={(stores?.items || []).map((s) => ({ value: s.id, label: s.name }))} placeholder="All stores" className="h-8 text-sm [@media(pointer:coarse)]:h-9" /></div>
         <Checkbox checked={low} onChange={setLow} label="Below reorder only" />
       </div>} bodyClass="p-0">
         {isLoading ? <Skeleton className="m-4 h-40" /> : (
           <Table columns={[
-            { label: "Item", render: (r) => <Link to={`/erp/e/items/${r.item_id}`} className="font-medium hover:underline">{r.item}</Link>, className: "min-w-[220px]" },
+            { label: "Item", render: (r) => <Link to={`/erp/e/items/${r.item_id}`} className="tap font-medium hover:underline">{r.item}</Link>, className: "min-w-[220px]" },
             { label: "Code", key: "code", className: "tabular text-muted" }, { label: "Store", key: "store" },
             { label: "Qty", right: true, render: (r) => <span className={cn(r.below_reorder && "font-semibold text-warn")}>{num(r.qty)} {r.unit}</span> },
             { label: "Reorder at", right: true, render: (r) => (r.reorder_level == null ? "—" : num(r.reorder_level)) },
@@ -48,7 +48,7 @@ export function Stores() {
       </Panel>
       {transit?.length > 0 && (
         <Panel title="In transit between stores" bodyClass="p-0">
-          <Table columns={[{ label: "Transfer", render: (m) => <Link to={`/erp/e/material_moves/${m.id}`} className="hover:underline">{m.code}</Link> }, { label: "Date", render: (m) => fmtDate(m.date) },
+          <Table columns={[{ label: "Transfer", render: (m) => <Link to={`/erp/e/material_moves/${m.id}`} className="tap hover:underline">{m.code}</Link> }, { label: "Date", render: (m) => fmtDate(m.date) },
             { label: "Lines", right: true, render: (m) => m.lines?.length }, { label: "Vehicle", key: "vehicle_no" }]} rows={transit} />
         </Panel>
       )}
@@ -97,7 +97,7 @@ export function ServiceDesk() {
       )}
       <Panel title="Open requests, most urgent first" bodyClass="p-0">
         <Table columns={[
-          { label: "Request", render: (t) => <Link to={`/erp/e/tickets/${t.id}`} className="font-medium hover:underline">{t.title}</Link>, className: "min-w-[220px]" },
+          { label: "Request", render: (t) => <Link to={`/erp/e/tickets/${t.id}`} className="tap font-medium hover:underline">{t.title}</Link>, className: "min-w-[220px]" },
           { label: "Client", render: (t) => open.refs?.accounts?.[t.account_id] || t.contact_name || "—" },
           { label: "Priority", render: (t) => <Badge tone={t.priority === "urgent" ? "red" : t.priority === "high" ? "amber" : "gray"}>{t.priority}</Badge> },
           { label: "Assigned", render: (t) => open.refs?.users?.[t.assigned_to] || <span className="text-warn">Unassigned</span> },
@@ -105,7 +105,7 @@ export function ServiceDesk() {
         ]} rows={open?.items || []} empty="No open requests" />
       </Panel>
       <Panel title="AMC contracts ending in 60 days" bodyClass="p-0">
-        <Table columns={[{ label: "Contract", render: (a) => <Link to={`/erp/e/amc_contracts/${a.id}`} className="hover:underline">{a.title || a.code}</Link> }, { label: "Ends", render: (a) => fmtDate(a.end) },
+        <Table columns={[{ label: "Contract", render: (a) => <Link to={`/erp/e/amc_contracts/${a.id}`} className="tap hover:underline">{a.title || a.code}</Link> }, { label: "Ends", render: (a) => fmtDate(a.end) },
           { label: "Visits a year", right: true, key: "visits_per_year" }, { label: "Price", right: true, render: (a) => inr(a.price) }]} rows={renewals || []} empty="No renewals coming up" />
       </Panel>
     </div>
@@ -143,7 +143,7 @@ export function Finance() {
       </div>
       <div className="grid gap-4 lg:grid-cols-[1fr_1.3fr]">
         <Panel title="Bank and cash accounts" bodyClass="p-0">
-          <Table dense columns={[{ label: "Account", render: (a) => <Link to={`/erp/e/bank_accounts/${a.id}`} className="hover:underline">{a.name}</Link> }, { label: "In", right: true, render: (a) => inr(a.in, { compact: true }) },
+          <Table dense columns={[{ label: "Account", render: (a) => <Link to={`/erp/e/bank_accounts/${a.id}`} className="tap hover:underline">{a.name}</Link> }, { label: "In", right: true, render: (a) => inr(a.in, { compact: true }) },
             { label: "Out", right: true, render: (a) => inr(a.out, { compact: true }) }, { label: "Balance", right: true, render: (a) => <span className="font-semibold">{inr(a.balance)}</span> }]} rows={bal.data?.accounts || []} />
         </Panel>
         <Panel title="Cash in and out by month">
@@ -222,12 +222,12 @@ function Ageing({ rows, nameKey, link, expand }) {
             {rows.map((r, i) => (
               <Fragment key={i}>
                 <tr className={cn(expand && "cursor-pointer hover:bg-canvas/60")} onClick={() => expand && setOpen(open === i ? null : i)}>
-                  <td className="spi-title px-3 py-2.5"><Link to={link(r)} onClick={(e) => e.stopPropagation()} className="font-medium hover:underline">{r[nameKey]}</Link></td>
+                  <td className="spi-title px-3 py-2.5"><Link to={link(r)} onClick={(e) => e.stopPropagation()} className="tap font-medium hover:underline">{r[nameKey]}</Link></td>
                   {AGE.map((k, j) => <td key={k} data-label={AGE_LABELS[j]} className={cn("px-3 py-2.5 text-right tabular", j >= 3 && r[k] > 0 && "font-semibold text-bad", j === 2 && r[k] > 0 && "text-warn")}>{r[k] ? inr(r[k]) : "—"}</td>)}
                   <td data-label="Total" className="px-3 py-2.5 text-right font-semibold tabular">{inr(r.total)}</td>
                 </tr>
                 {expand && open === i && r.invoices?.map((inv) => (
-                  <tr key={inv.id} className="bg-canvas/50 text-xs"><td data-label="" className="px-6 py-1.5" colSpan={2}><Link to={`/erp/e/invoices/${inv.id}`} className="hover:underline">{inv.code}</Link>, {fmtDate(inv.date)}</td>
+                  <tr key={inv.id} className="bg-canvas/50 text-xs"><td data-label="" className="px-6 py-1.5" colSpan={2}><Link to={`/erp/e/invoices/${inv.id}`} className="tap hover:underline">{inv.code}</Link>, {fmtDate(inv.date)}</td>
                     <td data-label="" className="px-3 py-1.5 text-right" colSpan={3}>Due {fmtDate(inv.due_date)}{inv.overdue_days > 0 ? <span className="font-semibold text-bad">, {inv.overdue_days} days late</span> : ""}</td><td data-label="Balance" className="px-3 py-1.5 text-right tabular" colSpan={2}>{inr(inv.balance)}</td></tr>
                 ))}
               </Fragment>

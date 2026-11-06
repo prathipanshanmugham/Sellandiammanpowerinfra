@@ -38,6 +38,16 @@
 		file_server
 	}
 
+	# the installable app's service worker, manifests and offline page: always check for a newer copy
+	@app path /sw.js /offline.html /site.webmanifest /erp.webmanifest /portal.webmanifest
+	@manifest path *.webmanifest
+	handle @app {
+		header Cache-Control "no-cache"
+		header @manifest Content-Type "application/manifest+json"
+		root * /srv
+		file_server
+	}
+
 	# other static files that exist (logo, icons, illustrations)
 	@static file {
 		root /srv

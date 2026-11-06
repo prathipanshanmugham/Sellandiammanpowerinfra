@@ -6,7 +6,7 @@ import { api, errMsg } from "@/lib/api";
 import { useAuth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { inr, num, pct, ago, fmtDate } from "@/lib/format";
-import { Button, Badge, Skeleton, Dialog, Field, Select, Input } from "@/components/ui/kit";
+import { Button, Badge, Skeleton, Dialog, Field, Select, Input, SwipeHint } from "@/components/ui/kit";
 import { toast } from "sonner";
 import { useApi, useInvalidate, optLabel } from "../lib";
 import { PageHead, Kpi, Panel, Table, usePageTitle } from "../ui";
@@ -40,7 +40,9 @@ export function Pipeline() {
           {can("crm", "w") && <Button size="sm" as={Link} to="/erp/e/leads?new=1"><Plus className="h-4 w-4" />New lead</Button>}
         </>} />
       {isLoading || !data ? <Skeleton className="h-96" /> : (
-        <div className="scrollbar-thin -mx-3 flex gap-3 overflow-x-auto px-3 pb-4 sm:-mx-5 sm:px-5">
+        <>
+        <SwipeHint>Swipe sideways for every stage</SwipeHint>
+        <div data-hscroll="" className="scrollbar-thin -mx-3 flex gap-3 overflow-x-auto px-3 pb-4 sm:-mx-5 sm:px-5">
           {data.columns.map((c) => {
             const st = meta.entities.leads.status.states.find((s) => s.value === c.stage);
             return (
@@ -79,6 +81,7 @@ export function Pipeline() {
             );
           })}
         </div>
+        </>
       )}
       <Dialog open={!!ask} onOpenChange={(x) => !x && setAsk(null)} title={ask?.stage === "lost" ? "Why was it lost?" : "Put on hold until"}
         footer={<><Button variant="outline" onClick={() => setAsk(null)}>Cancel</Button><Button onClick={() => move(ask.lead, ask.stage, ask)}>Save</Button></>}>
@@ -128,13 +131,13 @@ export function Marketing() {
           </div>
         </Panel>
         <Panel title="Calculators that bring leads" bodyClass="p-0">
-          <Table dense columns={[{ label: "Calculator", render: (t) => <Link to={`/tools/${t.slug}`} target="_blank" className="hover:underline">{t.slug.replace(/-/g, " ")}</Link> }, { label: "Runs", right: true, key: "runs" }, { label: "Leads", right: true, key: "leads" },
+          <Table dense columns={[{ label: "Calculator", render: (t) => <Link to={`/tools/${t.slug}`} target="_blank" className="tap hover:underline">{t.slug.replace(/-/g, " ")}</Link> }, { label: "Runs", right: true, key: "runs" }, { label: "Leads", right: true, key: "leads" },
             { label: "Rate", right: true, render: (t) => (t.runs ? pct((t.leads / t.runs) * 100, 0) : "—") }]} rows={tools} empty="No calculator use yet" />
         </Panel>
       </div>
       <Panel title="By source" sub="Revenue is the value of won leads; ROI = revenue ÷ spend" bodyClass="p-0">
         <Table columns={[
-          { label: "Source", render: (s) => <Link to={`/erp/e/leads?source=${s.source}`} className="font-medium hover:underline">{s.label}</Link> },
+          { label: "Source", render: (s) => <Link to={`/erp/e/leads?source=${s.source}`} className="tap font-medium hover:underline">{s.label}</Link> },
           { label: "Leads", right: true, key: "leads" }, { label: "Won", right: true, key: "won" },
           { label: "Conversion", right: true, render: (s) => pct(s.conversion_pct) },
           { label: "Replied on time", right: true, render: (s) => (s.responded ? `${s.responded_in_time}/${s.responded}` : "—") },
